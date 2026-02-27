@@ -6,58 +6,51 @@
 }
 
 body {
-    background-color: #d8d8d8;
-    display: flex;
-    justify-content: center;
-    align-items: stretch;
+    background-color: #f6f5f1;
     min-height: 100vh;
-    padding: 40px;
 }
 
 .card {
-    background-color: #f6f5f1;
     width: 100%;
-    max-width: 1400px;
-    border-radius: 24px;
-    padding: 24px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
-    margin: 0 auto;
 }
 
 .hero {
     position: relative;
     width: 100%;
+    padding: 0 40px;
 }
 
 .logo {
     position: absolute;
-    top: 24px;
+    top: 40px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     font-weight: 600;
-    font-size: 18px;
+    font-size: 20px;
     color: #111;
 }
 
 .hero-image-container {
     position: relative;
     width: 100%;
-    height: 480px;
-    border-radius: 20px;
+    height: 75vh;
+    min-height: 500px;
+    border-radius: 32px;
     overflow: hidden;
+    margin-top: 24px;
 }
 
 .hero-image {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: brightness(0.8) grayscale(50%);
+    filter: brightness(0.8) grayscale(30%);
 }
 
 .banner-overlay {
@@ -65,7 +58,7 @@ body {
     top: 50%;
     left: -5%;
     width: 110%;
-    height: 280px;
+    height: 350px;
     transform: translateY(-50%);
     pointer-events: none;
 }
@@ -79,10 +72,10 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 8px 0;
-    font-size: 14px;
+    padding: 32px 12px 0;
+    font-size: 16px;
     font-weight: 500;
-    color: #444;
+    color: #111;
 }
 
 .menu-btn {
@@ -105,7 +98,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    padding: 40px 8px 24px;
+    padding: 60px 40px 40px;
     position: relative;
     flex: 1;
 }
@@ -147,8 +140,13 @@ body {
 }
 
 @keyframes rotate {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .right-col {
@@ -272,6 +270,7 @@ body {
     object-fit: cover;
     background-color: #fff;
 }
+
 .avatar:first-child {
     margin-left: 0;
 }
