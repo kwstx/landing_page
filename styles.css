@@ -141,10 +141,6 @@ body {
     gap: 16px;
 }
 
-.star-icon {
-    margin-top: -10px;
-}
-
 /* Hero Right */
 .hero-right {
     display: flex;
