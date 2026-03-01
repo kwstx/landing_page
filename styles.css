@@ -800,3 +800,158 @@ body {
 .learn-more-link-wrapper {
     margin-top: 60px;
 }
+
+/* Deepfakes Section */
+.deepfakes-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 150px;
+}
+
+.deepfakes-content {
+    width: 75%;
+    margin-left: 25px;
+}
+
+.deepfakes-title {
+    font-size: 44px;
+    font-weight: 400;
+    letter-spacing: -1.2px;
+    color: #2a2a2a;
+    margin-bottom: 64px;
+    line-height: 1.15;
+    margin-top: -6px;
+}
+
+.deepfakes-subtitle {
+    font-size: 24px;
+    font-weight: 400;
+    color: #2a2a2a;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+    line-height: 1.3;
+}
+
+.deepfakes-desc {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #444;
+    margin-bottom: 40px;
+}
+
+.deepfakes-link-wrapper {
+    margin-top: 10px;
+}
+
+.deepfakes-link {
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+}
+
+/* Distinguish Section */
+.distinguish-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 100px 0;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.distinguish-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+}
+
+.distinguish-title {
+    font-size: 28px;
+    font-weight: 400;
+    color: #2a2a2a;
+    line-height: 1.3;
+    letter-spacing: -0.5px;
+}
+
+.distinguish-btn {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.distinguish-btn:hover {
+    background-color: #111;
+}
+
+/* Get World ID Section */
+.get-world-id-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 150px;
+}
+
+.get-world-id-sidebar {
+    width: 25%;
+    font-size: 16px;
+    color: #444;
+    font-weight: 400;
+    margin-top: 4px;
+}
+
+.get-world-id-content {
+    width: 75%;
+    margin-left: 25px;
+}
+
+.get-world-id-cards {
+    display: flex;
+    gap: 24px;
+}
+
+.get-world-id-card {
+    flex: 1;
+    aspect-ratio: 1 / 1;
+    border: 1px solid #e8e8e8;
+    background-color: #fdfdfd;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.get-world-id-card .card-number {
+    font-size: 20px;
+    font-weight: 400;
+    color: #111;
+}
+
+.get-world-id-card .card-text {
+    font-size: 22px;
+    font-weight: 400;
+    color: #2a2a2a;
+    line-height: 1.25;
+    letter-spacing: -0.5px;
+}
+
+/* Bottom Grey Bar */
+.bottom-grey-bar {
+    width: 100vw;
+    height: 32px;
+    background-color: #e0e0e0;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
