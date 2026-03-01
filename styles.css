@@ -356,3 +356,243 @@ body {
     color: #555;
     letter-spacing: -0.1px;
 }
+
+/* World ID Section */
+.world-id-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 150px;
+    padding-bottom: 150px;
+}
+.world-id-sidebar {
+    width: 25%;
+    font-size: 20px;
+    color: #555;
+    font-weight: 400;
+}
+.world-id-content {
+    width: 40%;
+    max-width: 480px;
+}
+.world-id-visual {
+    width: 35%;
+    display: flex;
+    justify-content: flex-end;
+}
+.world-id-title {
+    font-size: 44px;
+    font-weight: 500;
+    letter-spacing: -1.2px;
+    color: #2a2a2a;
+    margin-bottom: 24px;
+    line-height: 1.1;
+    margin-top: -6px;
+}
+.world-id-desc {
+    font-size: 20px;
+    line-height: 1.5;
+    color: #444;
+    margin-bottom: 32px;
+}
+.world-id-link-wrapper {
+    display: inline-block;
+}
+.world-id-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #333;
+    text-decoration: none;
+    position: relative;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #777;
+}
+
+/* Phone Mockup */
+.phone-mockup {
+    width: 320px;
+    height: 650px;
+    background: #ffffff;
+    border-radius: 44px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.05); /* very subtle shadow and border */
+    position: relative;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 8px solid #fdfdfd; /* Subtle outer bezel */
+    outline: 1px solid #ebebeb; /* Slight phone rim */
+}
+.phone-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.status-time {
+    font-size: 14px;
+    font-weight: 600;
+}
+.status-icons {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+.app-header-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+.app-profile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 30px;
+}
+.app-orb {
+    width: 104px;
+    height: 104px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 30%, #45b3ff 0%, #0d6efd 35%, #8b5cf6 85%);
+    box-shadow: inset -4px -4px 10px rgba(255,255,255,0.2), 0 10px 24px rgba(13, 110, 253, 0.15);
+    margin-bottom: 16px;
+}
+.app-username {
+    font-size: 22px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 4px;
+    letter-spacing: -0.5px;
+}
+.app-joined {
+    font-size: 11px;
+    color: #999;
+}
+.app-cards {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+.app-card {
+    flex: 1;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+.app-card-icon {
+    margin-bottom: 12px;
+}
+.app-card-title {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+.app-card-value {
+    font-size: 12px;
+    font-weight: 600;
+    color: #111;
+}
+.app-section-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #888;
+    margin-bottom: 16px;
+}
+.app-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.app-list-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+.app-list-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+.app-list-text {
+    flex: 1;
+}
+.app-list-title {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #111;
+}
+.app-list-subtitle {
+    font-size: 11px;
+    color: #888;
+}
+.app-list-btn {
+    padding: 6px 14px;
+    border: 1px solid #e5e5e5;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.app-list-btn:hover {
+    background: #f5f5f5;
+}
+.app-tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 84px;
+    background: #fff;
+    border-top: 1px solid #f5f5f5;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 12px;
+}
+.app-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #A0A0A0; /* Not active */
+    cursor: pointer;
+}
+.app-tab.active {
+    color: #111; /* Active */
+}
+.app-tab svg {
+    stroke: currentColor;
+}
+.app-tab-text {
+    font-size: 10px;
+    font-weight: 500;
+    color: inherit;
+}
+.home-indicator {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 35%;
+    height: 4px;
+    background: #111;
+    border-radius: 4px;
+}
