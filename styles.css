@@ -596,3 +596,57 @@ body {
     background: #111;
     border-radius: 4px;
 }
+
+/* How It Works Section */
+.how-it-works-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 150px;
+}
+
+.how-it-works-content {
+    width: 75%;
+    margin-left: 25px;
+}
+
+.how-it-works-title {
+    font-size: 44px;
+    font-weight: 400;
+    letter-spacing: -1.2px;
+    color: #2a2a2a;
+    margin-bottom: 64px;
+    line-height: 1.15;
+    margin-top: -6px;
+}
+
+.info-item {
+    margin-bottom: 64px;
+}
+
+.info-item-title {
+    font-size: 24px;
+    font-weight: 400;
+    color: #2a2a2a;
+    letter-spacing: -0.5px;
+    margin-bottom: 24px;
+}
+
+.info-item-desc {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #444;
+}
+
+.faq-link-wrapper {
+    margin-top: 10px;
+}
+
+.faq-link {
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    text-decoration: none;
+    border-bottom: 1px solid #333;
+    padding-bottom: 2px;
+}
