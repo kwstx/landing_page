@@ -650,3 +650,153 @@ body {
     border-bottom: 1px solid #333;
     padding-bottom: 2px;
 }
+
+/* Credentials Section */
+.credentials-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-bottom: 150px;
+}
+
+.credentials-title {
+    font-size: 44px;
+    font-weight: 400;
+    letter-spacing: -1.2px;
+    color: #2a2a2a;
+    margin-bottom: 24px;
+    line-height: 1.15;
+    margin-top: -6px;
+}
+
+.credentials-desc {
+    font-size: 17px;
+    line-height: 1.5;
+    color: #444;
+}
+
+.credentials-items {
+    display: flex;
+    gap: 120px;
+    margin-top: 50px;
+    margin-bottom: 40px;
+}
+
+.credential-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.credential-card-container {
+    height: 170px;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 24px;
+}
+
+.credentials-phone {
+    width: 96px;
+    height: 170px;
+    border: 1px solid #d1d1d1;
+    border-radius: 12px;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+}
+
+.credentials-phone::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background: #e0e0e0;
+    border-radius: 2px;
+}
+
+.credentials-phone::after {
+    content: '';
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 50%;
+}
+
+.phone-btn-left-1, .phone-btn-left-2, .phone-btn-right {
+    position: absolute;
+    background: #d1d1d1;
+    width: 2px;
+    border-radius: 1px;
+}
+.phone-btn-left-1 { top: 32px; left: -2px; height: 10px; }
+.phone-btn-left-2 { top: 48px; left: -2px; height: 10px; }
+.phone-btn-right { top: 42px; right: -2px; height: 16px; }
+
+.phone-inner-orb {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 20%, #effaff 0%, #45b3ff 30%, #0d6efd 70%, #8b5cf6 100%);
+}
+
+.credentials-passport {
+    width: 178px;
+    height: 112px;
+    border: 1px solid #d1d1d1;
+    border-radius: 8px;
+    position: relative;
+    background: #fff;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.passport-top {
+    display: flex;
+}
+
+.passport-globe svg {
+    width: 20px;
+    height: 20px;
+    stroke: #b0b0b0;
+    stroke-width: 1.2;
+}
+
+.passport-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.passport-text {
+    font-size: 13px;
+    color: #a0a0a0;
+    font-weight: 500;
+}
+
+.passport-chip svg {
+    width: 24px;
+    height: 16px;
+    stroke: #b0b0b0;
+    stroke-width: 1.2;
+}
+
+.credential-caption {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.5;
+}
+
+.learn-more-link-wrapper {
+    margin-top: 60px;
+}
