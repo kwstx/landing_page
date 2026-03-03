@@ -1194,6 +1194,11 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    transition: border-color 0.2s;
+}
+
+.get-world-id-card:hover {
+    border-color: #000;
 }
 
 .get-world-id-card .card-number {
