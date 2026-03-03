@@ -870,6 +870,7 @@ body {
     display: flex;
     justify-content: flex-start;
     align-items: flex-start;
+    padding-top: 120px;
     padding-bottom: 150px;
 }
 
