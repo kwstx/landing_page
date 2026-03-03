@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - Finay</title>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="stylesheet" href="docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="docs-body">
+    <div class="docs-layout">
+        <aside class="docs-sidebar">
+            <div class="sidebar-logo">
+                <a href="index.html">
+                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z"
+                            fill="#111" />
+                    </svg>
+                    <span class="logo-text">Finay</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <div class="nav-group-title">GETTING STARTED</div>
+                    <a href="#getting-started" class="nav-link active">Getting Started</a>
+                    <a href="#core-concepts" class="nav-link">Core Concepts</a>
+                    <a href="#architecture" class="nav-link">Architecture Overview</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">REFERENCE</div>
+                    <a href="#sdk-reference" class="nav-link">SDK Reference</a>
+                    <a href="#modules" class="nav-link">Module Documentation</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">ADVANCED</div>
+                    <a href="#advanced-usage" class="nav-link">Advanced Usage</a>
+                    <a href="#governance" class="nav-link">Governance & Self-Improvement</a>
+                    <a href="#deployment" class="nav-link">Deployment Guide</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">SECURITY</div>
+                    <a href="#security-model" class="nav-link">Security Model</a>
+                    <a href="#error-handling" class="nav-link">Error Handling</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">RESOURCES</div>
+                    <a href="#examples" class="nav-link">Examples & Recipes</a>
+                    <a href="#roadmap" class="nav-link">Roadmap</a>
+                    <a href="faq.html" class="nav-link">FAQ</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="docs-content">
+            <div class="docs-header">
+                <h1 class="docs-main-title">Finay Safety Documentation</h1>
+                <p class="docs-version">VERSION 3.0.0 (STABLE) | LAST UPDATED: 2026-03-04</p>
+            </div>
+
+            <hr class="docs-divider">
+
+            <section id="getting-started" class="docs-section">
+                <h2>Getting Started</h2>
+                <p>Welcome to the official Finay infrastructure documentation. This guide gives you everything you need
+                    to start operating autonomous workloads securely within minutes.</p>
+
+                <div class="critical-notice">
+                    <div class="critical-notice-title">CRITICAL SECURITY NOTICE</div>
+                    <p>All Finay safety modules are designed for strict default-deny execution boundaries. Confirm
+                        policy triggers, gating, and local host controls are active before starting your agent runs.</p>
+                </div>
+
+                <h3>Installation</h3>
+                <p>Install the SDK via <span class="code-inline">pip</span>:</p>
+                <div class="code-block">pip install finay-sdk</div>
+
+                <h3>Minimal 5-Minute Example</h3>
+                <p>Register your first agent and authorize an action to see the core control loop in action. One
+                    complete flow from start to finish:</p>
+
+                <div class="code-block">
+                    import finay
+
+                    # 1. Initialize the core
+                    core = finay.init(api_key="sk-...", env="local")
+
+                    # 2. Register an agent
+                    agent = core.identity.register(
+                    role="DevOps Bot",
+                    permissions=["deploy_server", "read_logs"]
+                    )
+
+                    # 3. Authorize an action
+                    result = core.enforcement.authorize(
+                    agent_id=agent.id,
+                    action={"type": "deploy_server", "target": "production"}
+                    )
+
+                    if result.is_approved:
+                    print("Action permitted: Executing...")
+                    else:
+                    print(f"Action denied. Reason: {result.rejection_reason}")
+                </div>
+                <p>If developers cannot run this in 5 minutes, we have failed. This snippet proves our simple mental
+                    overhead while protecting operations strictly.</p>
+            </section>
+
+            <section id="core-concepts" class="docs-section">
+                <h2>Core Concepts</h2>
+                <p>Before diving into APIs, understand the Finay mental model. Our system abstracts complex policy rules
+                    into simple, enforceable layers.</p>
+
+                <ul>
+                    <li><strong>What is an Agent?</strong> Independent workloads operating under roles. Agents perform
+                        actions but have zero inherent authority until verified.</li>
+                    <li><strong>What is Identity?</strong> Your agents are treated as users. They authenticate, verify
+                        their origins, and adopt identities that determine their clearance level.</li>
+                    <li><strong>What is Policy Enforcement?</strong> The execution barrier. Before execution, actions
+                        are mapped against allowed logic matrices.</li>
+                    <li><strong>What is Economic Autonomy?</strong> Built-in constraints (budgets, usage limits). Agents
+                        cannot spend beyond algorithmic bounds, physically ensuring no runaway costs.</li>
+                    <li><strong>What is Delegation?</strong> Scoped authority transfer. An agent can spin up a sub-agent
+                        with a strict subset of its own permissions.</li>
+                    <li><strong>What is Simulation?</strong> Testing actions against live policies without actually
+                        executing them, calculating risk scores securely.</li>
+                    <li><strong>What is Governance?</strong> State transitions via proposals. To update an agent's core
+                        capability, proposals go through programmable consensus.</li>
+                </ul>
+            </section>
+
+            <section id="architecture" class="docs-section">
+                <h2>Architecture Overview</h2>
+                <p>Understanding interaction flow ensures safe deployments. No deep implementation details here—just how
+                    components interact.</p>
+
+                <div class="architecture-diagram">
+                    <div class="architecture-flow">
+                        <div class="arch-box">Agent</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">SDK</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Core</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Packages</div>
+                    </div>
+                    <div>(Identity, Enforcement, Economic, etc.)</div>
+                </div>
+
+                <p><strong>Dependency Direction:</strong> <span class="code-inline">packages → core → sdk →
+                        server</span></p>
+                <p>Your agent logic communicates locally with the SDK, which invokes the core infrastructure. The core
+                    routes through strictly segregated packages (like enforcement rules) before confirming action states
+                    to the final server output.</p>
+            </section>
+
+            <section id="sdk-reference" class="docs-section">
+                <h2>SDK Reference</h2>
+                <p>The public methods mapping agent actions into the framework.</p>
+
+                <div class="method-doc">
+                    <div class="method-name">authorize(agent_id: str, action: dict) → AuthorizationResult</div>
+                    <p>Submits a requested action to the enforcement layers for immediate deterministic risk evaluation.
+                    </p>
+
+                    <div class="method-section">
+                        <div class="method-section-title">Parameters</div>
+                        <ul>
+                            <li><span class="code-inline">agent_id</span> - The registered identity of the executing
+                                agent.</li>
+                            <li><span class="code-inline">action</span> - Dict containing <span
+                                    class="code-inline">type</span> and specific target payload.</li>
+                        </ul>
+                    </div>
+
+                    <div class="method-section">
+                        <div class="method-section-title">Return Values</div>
+                        <p>Returns an <span class="code-inline">AuthorizationResult</span> with a boolean flag <span
+                                class="code-inline">is_approved</span>, and a strict <span
+                                class="code-inline">rejection_reason</span> string if false.</p>
+                    </div>
+
+                    <div class="method-section">
+                        <div class="method-section-title">Error Cases</div>
+                        <p>Throws <span class="code-inline">IdentityMismatchError</span> if ID is invalid. Throws <span
+                                class="code-inline">TimeoutError</span> if internal governance takes too long simulating
+                            the scope.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="modules" class="docs-section">
+                <h2>Module Documentation</h2>
+                <p>Each foundational package isolates a specific vector of agent control.</p>
+
+                <h3>Identity System</h3>
+                <ul>
+                    <li>Register agent dynamically.</li>
+                    <li>Assign role and structural hierarchy constraints.</li>
+                    <li>Authority mapping for multi-tenant environments.</li>
+                </ul>
+
+                <h3>Enforcement Layer</h3>
+                <ul>
+                    <li>Define policies in readable, strict formats.</li>
+                    <li>Rule evaluation lifecycle guarantees no race conditions.</li>
+                    <li>Rejection handling for immediate operation halts.</li>
+                </ul>
+
+                <h3>Economic Autonomy</h3>
+                <ul>
+                    <li>Create budgets at the agent or cluster level.</li>
+                    <li>Set constraints that strictly block executions when thresholds meet.</li>
+                    <li>Dynamic adjustments via governance approval only.</li>
+                </ul>
+
+                <h3>Scoring Module</h3>
+                <ul>
+                    <li>Risk scoring based on historical anomaly vectors.</li>
+                    <li>Threshold triggers to push manual review.</li>
+                    <li>Decision outputs mapping mathematically to safety constraints.</li>
+                </ul>
+
+                <h3>Simulation Layer</h3>
+                <ul>
+                    <li>Calculates potential outcomes in a shadow-state memory graph.</li>
+                    <li>Use case: High-risk database operations or financial triggers.</li>
+                    <li>Performance considerations: Expect ~20ms latency overhead during complex simulations.</li>
+                </ul>
+            </section>
+
+            <section id="advanced-usage" class="docs-section">
+                <h2>Advanced Usage</h2>
+                <p>For serious practitioners seeking to override base mechanisms or implement complex integrations.</p>
+                <ul>
+                    <li><strong>Custom policy engines:</strong> Inject your own evaluation AST matching your server's
+                        security language.</li>
+                    <li><strong>Extending modules:</strong> Override BaseModule interface to connect natively to
+                        internal messaging buses.</li>
+                    <li><strong>Writing custom scoring plugins:</strong> Import our <span
+                            class="code-inline">finay.plugins</span> spec to connect third-party anomaly ML models.</li>
+                    <li><strong>Integrating with external databases:</strong> Set persistence layers outside local
+                        SQLite, moving toward Postgres mapping.</li>
+                    <li><strong>Running locally vs production:</strong> Bypass heavy verifications locally while forcing
+                        strict signatures in production via <span class="code-inline">FINAY_ENV=production</span>.</li>
+                </ul>
+            </section>
+
+            <section id="governance" class="docs-section">
+                <h2>Governance & Self-Improvement</h2>
+                <p>Our true differentiator: Programmable organizational changes via clear states.</p>
+                <ul>
+                    <li><strong>Proposal lifecycle:</strong> Submit capability updates to agents, moving into an "Under
+                        Review" state.</li>
+                    <li><strong>Voting / approval logic:</strong> Set custom multi-sig rules relying on
+                        human-in-the-loop sign-off.</li>
+                    <li><strong>Versioning:</strong> Every agent iteration is hashed.</li>
+                    <li><strong>Rollback mechanism:</strong> An action that violated unknown parameters instantly
+                        triggers a rollback script returning to a safe agent hash state.</li>
+                </ul>
+            </section>
+
+            <section id="deployment" class="docs-section">
+                <h2>Deployment Guide</h2>
+                <p>We do not lock you into cloud environments. Keep operational logic local where possible.</p>
+                <ul>
+                    <li><strong>Local deployment:</strong> Run the background processes purely as daemons pointing to
+                        your system sockets.</li>
+                    <li><strong>Self-hosted server setup:</strong> Provided Dockerfiles mapping your control states
+                        securely behind standard API gateways.</li>
+                    <li><strong>Running as a background service:</strong> Seamless systemctl mappings or raw background
+                        Python hooks.</li>
+                    <li><strong>Production configuration notes:</strong> Secure the API keys entirely out of memory,
+                        rely strictly on environment variables or vaults.</li>
+                </ul>
+            </section>
+
+            <section id="security-model" class="docs-section">
+                <h2>Security Model</h2>
+                <p>Trust but strictly verify. Safety isn't an afterthought; it is our foundation.</p>
+                <ul>
+                    <li><strong>Deterministic enforcement vs LLM guardrails:</strong> We rely on zero LLM "vibe checks"
+                        for security. If a policy fails a deterministic logical rule, it is halted instantly.</li>
+                    <li><strong>Layered validation:</strong> Identity > Economic > Policy > Execution boundaries.</li>
+                    <li><strong>Audit logs:</strong> Read-only cryptographic hashing of every decision tree for audit
+                        compliance.</li>
+                    <li><strong>Failure modes:</strong> Fail-closed by default. If the core connects but enforcement
+                        timeouts, execution is rejected.</li>
+                    <li><strong>Threat model:</strong> We defend against injected execution requests, rogue credential
+                        misuse, and exponential recursive loops.</li>
+                </ul>
+            </section>
+
+            <section id="examples" class="docs-section">
+                <h2>Examples & Recipes</h2>
+                <p>Review real implementations serving as our operational credibility baseline.</p>
+                <ul>
+                    <li><strong>Multi-agent task delegation:</strong> An Orchestrator assigning limited DB roles to 5
+                        sub-workers.</li>
+                    <li><strong>Budget-limited AI worker:</strong> A scraping loop halting instantly after expending
+                        exactly $1.00 of compute credits.</li>
+                    <li><strong>Safe tool execution:</strong> Mapping bash command evaluations strictly via allowlists.
+                    </li>
+                    <li><strong>Governance vote simulation:</strong> Creating a dummy org and passing an upgrade policy
+                        multi-sig.</li>
+                </ul>
+            </section>
+
+            <section id="error-handling" class="docs-section">
+                <h2>Error Handling & Debugging</h2>
+                <p>Common failure cases and operational fixes:</p>
+                <ul>
+                    <li><strong>Policy rejection:</strong> Check if your agent's role permits the requested target array
+                        payload. Output verbose logs via <span class="code-inline">core.debug_logs()</span>.</li>
+                    <li><strong>Budget exceeded:</strong> Ensure the sub-agent wasn't cloned outside the parent budget
+                        scope block.</li>
+                    <li><strong>Identity mismatch:</strong> Verify your keys correlate to the active <span
+                            class="code-inline">finay.env</span> definition block.</li>
+                    <li><strong>Delegation scope violation:</strong> Standard fail-safe. Review your delegation mapping
+                        tree—agents cannot grant permissions they do not own.</li>
+                </ul>
+            </section>
+
+            <section id="roadmap" class="docs-section">
+                <h2>Roadmap</h2>
+                <p>Transparency on infrastructure maturity.</p>
+                <ul>
+                    <li><strong>Stable:</strong> Deterministic Execution, Identity System, Enforcement Engine.</li>
+                    <li><strong>Beta:</strong> Economic constraints simulation, Postgres backend connectors.</li>
+                    <li><strong>Experimental:</strong> Multi-tenant governance graph linking, distributed consensus
+                        algorithms natively hosted.</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        // Simple script to handle active navigation state
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.docs-section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    const sectionHeight = section.clientHeight;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
