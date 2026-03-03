@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finay - FAQ</title>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .faq-wrapper {
+            margin-top: 150px;
+        }
+
+        .faq-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 150px;
+        }
+
+        .faq-sidebar {
+            width: 40%;
+            font-size: 20px;
+            color: #555;
+            font-weight: 400;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+        }
+
+        .faq-sidebar-title {
+            font-size: 88px;
+            line-height: 1.05;
+            font-weight: 400;
+            letter-spacing: -2.5px;
+            color: #111;
+        }
+
+        .faq-content {
+            width: 55%;
+            /* Image shows a wider right side */
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 24px;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .faq-item:first-child {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 24px;
+        }
+
+        .faq-question-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .faq-question {
+            font-size: 18px;
+            color: #111;
+            font-weight: 400;
+            letter-spacing: -0.5px;
+            flex: 1;
+            padding-right: 24px;
+        }
+
+        .faq-arrow {
+            color: #777;
+            font-size: 20px;
+            font-weight: 300;
+            transition: transform 0.3s ease;
+        }
+
+        .faq-answer {
+            font-size: 15px;
+            color: #555;
+            line-height: 1.5;
+            margin-top: 16px;
+            display: none;
+            padding-right: 40px;
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+
+        .faq-item.active .faq-arrow {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <header class="navbar">
+            <a href="index.html" style="text-decoration: none; color: inherit;">
+                <div class="logo-container">
+                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z"
+                            fill="#111" />
+                    </svg>
+                    <span class="logo-text">Finay</span>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="#">Pricing</a>
+                <a href="#">Use Cases</a>
+                <a href="faq.html">FAQ</a>
+            </nav>
+        </header>
+
+        <main class="faq-wrapper">
+            <section class="faq-section">
+                <div class="faq-sidebar">
+                    <h1 class="faq-sidebar-title">
+                        <div>Infrastructure</div>
+                        <div>Modules</div>
+                        <div>for Agentic</div>
+                        <div>Governance</div>
+                        <div>Systems</div>
+                    </h1>
+                </div>
+                <div class="faq-content">
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">1️⃣ What problem does this solve?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Autonomous agents can execute actions without oversight, cost control, or structured
+                            accountability. This infrastructure adds programmable governance, economic guardrails,
+                            identity verification, and enforcement layers to ensure agents operate safely and
+                            predictably.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">2️⃣ How is this different from normal permission systems?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Traditional permission systems are static and user-based. This system is agent-native. It
+                            supports dynamic delegation chains, budget constraints, policy evaluation before execution,
+                            and multi-agent coordination workflows.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">3️⃣ Do I need to use all modules?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            No. Each module is modular. You can integrate identity only, enforcement only, or the full
+                            autonomy stack depending on your needs.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">4️⃣ Does this replace my existing backend?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            No. It acts as a governance and execution layer on top of your agents. Your existing systems
+                            remain intact.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">5️⃣ How are actions validated before execution?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Every action flows through identity verification, policy evaluation, budget checks, and
+                            optional simulation. If any layer fails, execution is blocked.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">6️⃣ Is this only for LLM-based agents?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            No. It works with any autonomous process capable of executing actions — LLM agents,
+                            automated workflows, robotic systems, or AI services.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">7️⃣ How are budgets enforced?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Each agent can operate under programmable economic constraints, including spending limits,
+                            dynamic adjustments, and scoped resource allocation.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">8️⃣ Can agents modify their own rules?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Only through structured governance proposals, versioning, and rollback mechanisms.
+                            Self-modification is controlled, not unrestricted.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">9️⃣ Is it cloud-based?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            No. It can run locally, self-hosted, or integrated into your existing infrastructure.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">🔟 Is this production-ready?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            It is designed as a modular infrastructure foundation. Production readiness depends on
+                            configuration, scaling, and security setup.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">1️⃣1️⃣ Who is this built for?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Developers and teams building autonomous AI systems that require structured control,
+                            economic discipline, and execution accountability.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question-container">
+                            <div class="faq-question">1️⃣2️⃣ Why not just rely on model guardrails?</div>
+                            <div class="faq-arrow">&rarr;</div>
+                        </div>
+                        <div class="faq-answer">
+                            Model guardrails are probabilistic. This infrastructure enforces deterministic, programmable
+                            controls outside the model.
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // Toggle active class on clicked item
+                item.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+
+</html>

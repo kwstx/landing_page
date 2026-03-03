@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finay - Features</title>
+    <link rel="stylesheet" href="styles.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        .features-wrapper {
+            margin-top: 150px;
+        }
+
+        .how-it-works-section .how-it-works-content {
+            transform: none !important;
+            max-width: 480px;
+            margin-left: 90px;
+        }
+
+        .key-message {
+            margin-top: 16px;
+            font-weight: 500;
+            color: #2a2a2a;
+        }
+
+        .code-block {
+            background: #f4f4f5;
+            color: #111;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 16px;
+            display: inline-block;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-container">
+        <header class="navbar">
+            <a href="index.html" style="text-decoration: none; color: inherit;">
+                <div class="logo-container">
+                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z"
+                            fill="#111" />
+                    </svg>
+                    <span class="logo-text">Finay</span>
+                </div>
+            </a>
+            <nav class="nav-links">
+                <a href="index.html">About</a>
+                <a href="features.html">Features</a>
+                <a href="#">Pricing</a>
+                <a href="#">Use Cases</a>
+                <a href="#">FAQ</a>
+            </nav>
+        </header>
+
+        <main class="features-wrapper">
+            <section class="how-it-works-section">
+                <div class="world-id-sidebar">
+                    Platform Features
+                </div>
+                <div class="how-it-works-content">
+                    <h2 class="how-it-works-title">
+                        Discover what developers gain<br>
+                        by integrating our infrastructure.
+                    </h2>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Identity & Agent Verification</h3>
+                        <p class="info-item-desc">
+                            Explain how agents are registered, verified, and assigned roles. Show that every agent has
+                            scoped permissions and cryptographic identity. No anonymous execution, no uncontrolled
+                            instances.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Every agent is identifiable, role-bound, and accountable.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Policy Enforcement Engine</h3>
+                        <p class="info-item-desc">
+                            Programmable rules run before execution occurs. The engine handles pre-execution validation,
+                            continuous rule evaluation, and automatic rejection of any unsafe actions.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Actions execute only if they pass defined governance rules.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Economic Guardrails</h3>
+                        <p class="info-item-desc">
+                            Provide absolute financial safety while maintaining true economic autonomy. Enforce strict
+                            budgets, spending caps, and rule-based resource allocation across your agent network.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Agents operate within programmable financial boundaries.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Delegation & Scoped Authority</h3>
+                        <p class="info-item-desc">
+                            Agents can safely delegate tasks to other agents. Permission inheritance mapping guarantees
+                            strict constraints, meaning secondary entities can never exceed the permissions granted to
+                            them.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Authority can be delegated — but never exceeds its scope.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Simulation & Risk Evaluation</h3>
+                        <p class="info-item-desc">
+                            Every action can be fully simulated in a secure sandbox prior to live execution. The
+                            platform utilizes comprehensive risk scoring and predictive validation to safeguard system
+                            state.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Test before you trust.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Governance & Proposals</h3>
+                        <p class="info-item-desc">
+                            Guide your autonomous network with structured proposals, reliable voting mechanisms, policy
+                            versioning, and instant rollback capabilities when things undergo structured governance.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Agents can evolve — under structured governance.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">Auditability & Transparency</h3>
+                        <p class="info-item-desc">
+                            Every single action is logged. Readily follow traceable decision paths with a deterministic
+                            evaluation chain, providing complete visibility into an agent's reasoning.
+                        </p>
+                        <p class="info-item-desc key-message">
+                            “Full traceability. No black-box autonomy.”
+                        </p>
+                    </div>
+
+                    <div class="info-item">
+                        <h3 class="info-item-title">SDK & Developer Experience</h3>
+                        <p class="info-item-desc">
+                            A clean API, robust async support, and a highly modular design makes integration incredibly
+                            straightforward.
+                        </p>
+                        <div class="code-block">
+                            client.authorize(agent_id, action)
+                        </div>
+                        <p class="info-item-desc key-message" style="margin-top: 16px;">
+                            “Plug governance into your agents in minutes.”
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>
