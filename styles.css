@@ -1226,3 +1226,198 @@ body {
     left: 50%;
     transform: translateX(-50%);
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .page-container {
+        padding: 16px;
+    }
+
+    .navbar {
+        padding: 12px 20px;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+
+    .nav-links a {
+        font-size: 14px;
+    }
+
+    .hero-top {
+        flex-direction: column;
+        align-items: flex-start;
+        margin-bottom: 30px;
+    }
+
+    .hero-title {
+        font-size: 48px;
+        letter-spacing: -1.5px;
+    }
+
+    .orb-container {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+    }
+
+    .hero-right {
+        max-width: 100%;
+        margin-top: 24px;
+        padding-bottom: 0;
+    }
+
+    .hero-bottom-card {
+        height: 480px;
+        border-radius: 24px;
+    }
+
+    .users-badge-container {
+        left: 16px;
+        bottom: 0;
+    }
+
+    .users-badge {
+        padding: 8px 16px 8px 12px;
+        border-radius: 24px 24px 0 0;
+    }
+
+    .users-badge::before,
+    .users-badge::after {
+        display: none;
+    }
+
+    .users-text {
+        font-size: 13px;
+    }
+
+    .avatars {
+        margin-right: -8px;
+    }
+
+    .glass-info-card {
+        right: auto;
+        left: 16px;
+        top: 16px;
+        transform: none;
+        width: calc(100% - 32px);
+        padding: 24px;
+        gap: 20px;
+        border-radius: 20px;
+    }
+
+    .glass-title {
+        font-size: 48px;
+    }
+
+    .glass-desc {
+        font-size: 13px;
+    }
+
+    .world-id-section,
+    .how-it-works-section,
+    .credentials-section,
+    .deepfakes-section,
+    .get-world-id-section {
+        flex-direction: column;
+        margin-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    .deepfakes-section {
+        padding-top: 60px;
+        padding-bottom: 20px;
+        /* adjusted */
+    }
+
+    .how-it-works-section {
+        padding-bottom: 20px;
+    }
+
+    .world-id-sidebar,
+    .get-world-id-sidebar {
+        width: 100%;
+        margin-bottom: 24px;
+    }
+
+    .world-id-content,
+    .world-id-visual,
+    .how-it-works-content,
+    .credentials-content,
+    .deepfakes-content,
+    .get-world-id-content {
+        width: 100%;
+        max-width: 100%;
+        margin-left: 0;
+    }
+
+    .how-it-works-section .how-it-works-content {
+        margin-left: 0;
+        transform: none;
+    }
+
+    .world-id-visual {
+        justify-content: flex-start;
+        margin-top: 32px;
+    }
+
+    .world-id-title,
+    .how-it-works-title,
+    .credentials-title,
+    .deepfakes-title {
+        font-size: 32px;
+        margin-bottom: 24px;
+    }
+
+    .credentials-items,
+    .get-world-id-cards {
+        flex-direction: column;
+        gap: 24px;
+        margin-top: 24px;
+    }
+
+    .get-world-id-card {
+        aspect-ratio: auto;
+        min-height: 200px;
+    }
+
+    .dashboard-mockup,
+    .phone-mockup {
+        width: 100%;
+        height: auto;
+        min-height: 400px;
+    }
+
+    .dash-profile {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .dash-profile-left {
+        width: 100%;
+    }
+
+    .dash-agent-status {
+        align-self: flex-start;
+    }
+
+    .distinguish-section {
+        padding: 60px 20px;
+    }
+
+    .distinguish-title {
+        font-size: 24px;
+    }
+
+    .info-item,
+    .deepfakes-subtitle {
+        margin-bottom: 32px;
+    }
+
+    .info-item-title {
+        font-size: 20px;
+        margin-bottom: 12px;
+    }
+}
