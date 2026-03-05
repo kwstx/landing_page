@@ -43,6 +43,7 @@
                     <a href="#core-api-reference" class="nav-link">Core API Reference</a>
                     <a href="#architecture-overview" class="nav-link">Architecture Overview</a>
                     <a href="#error-handling" class="nav-link">Error Handling</a>
+                    <a href="#mcp-guard-server" class="nav-link">MCP Guard Server</a>
                 </div>
 
                 <div class="nav-group">
@@ -184,6 +185,77 @@ if __name__ == "__main__":
                 <ul>
                     <li><strong>Local Mode</strong>: Initialize <span class="code-inline">AutonomyClient()</span> without a <span class="code-inline">server_url</span>. It will boot a local <span class="code-inline">AutonomyCore</span> using local SQLite/Memory state.</li>
                     <li><strong>Remote Mode</strong>: Initialize <span class="code-inline">AutonomyClient(server_url="http://...")</span> to communicate with a centralized <span class="code-inline">Autonomy Server</span> (FastAPI).</li>
+                </ul>
+            </section>
+
+            <section id="mcp-guard-server" class="docs-section">
+                <h2>Documentation Supplement: MCP Guard Server</h2>
+                <p>To ensure the <strong>Autonomy-Guard-Server</strong> is effectively utilized, add this supplement to your core documentation (<span class="code-inline">AUTONOMY_DOCS_VALID.md</span>) or a dedicated <span class="code-inline">MCP_GUIDE.md</span>.</p>
+
+                <h3>Autonomy Guard Server (MCP)</h3>
+                <p>The <strong>Autonomy-Guard-Server</strong> is a Model Context Protocol (MCP) implementation that acts as a secure bridge between AI agents and the Autonomy Infrastructure. It exposes the core safety loops (Identity, Enforcement, Economics) as actionable tools for AI assistants.</p>
+
+                <h3>AI Client Configuration</h3>
+                <p>To enable these safety tools in your AI assistant (for example, Claude Desktop or Antigravity), add the following to your configuration file:</p>
+                <div class="code-block">{
+  "mcpServers": {
+    "autonomy-guard": {
+      "command": "python",
+      "args": ["apps/mcp_server/main.py"],
+      "env": {
+          "PYTHONPATH": "packages/autonomy_sdk:packages/autonomy_core"
+      }
+    }
+  }
+}</div>
+                <p><em>Note: Use the absolute path to the virtual environment's python executable for production stability.</em></p>
+
+                <h3>Available MCP Tools</h3>
+                <p>The Guard Server exposes the following specialized tools to the AI:</p>
+
+                <div class="method-doc">
+                    <div class="method-name">1. register_agent</div>
+                    <p><strong>Purpose</strong>: Establishes a cryptographically verifiable identity.</p>
+                    <ul>
+                        <li><strong>Input</strong>: <span class="code-inline">agent_id</span>, <span class="code-inline">name</span>, <span class="code-inline">attributes</span> (Optional).</li>
+                        <li><strong>Loop</strong>: Triggers the <strong>Identity Validation Loop</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="method-doc">
+                    <div class="method-name">2. authorize_action</div>
+                    <p><strong>Purpose</strong>: The mandatory safety barrier for all operations.</p>
+                    <ul>
+                        <li><strong>Input</strong>: <span class="code-inline">agent_id</span>, <span class="code-inline">action_type</span>, <span class="code-inline">payload</span>.</li>
+                        <li><strong>Loop</strong>: Triggers the full <strong>Orchestrated Validation Loop</strong> (Identity -&gt; Enforcement -&gt; Economics -&gt; Scoring -&gt; Simulation).</li>
+                        <li><strong>Output</strong>: Returns a clear <span class="code-inline">PERMITTED</span> or <span class="code-inline">BLOCKED</span> status with a risk assessment summary.</li>
+                    </ul>
+                </div>
+
+                <div class="method-doc">
+                    <div class="method-name">3. propose_governance_change</div>
+                    <p><strong>Purpose</strong>: Modifies system-wide safety or economic policies.</p>
+                    <ul>
+                        <li><strong>Input</strong>: <span class="code-inline">proposer_id</span>, <span class="code-inline">changes</span>.</li>
+                        <li><strong>Loop</strong>: Triggers the <strong>Economic Validation and Voting Loop</strong>.</li>
+                    </ul>
+                </div>
+
+                <div class="method-doc">
+                    <div class="method-name">4. get_system_status</div>
+                    <p><strong>Purpose</strong>: Returns high-level health metrics of the autonomy stack.</p>
+                </div>
+
+                <h3>Launching the Server</h3>
+                <p>The server uses the <strong>Standard I/O (stdio)</strong> transport. It can be launched directly via:</p>
+                <div class="code-block">cd apps/mcp_server
+.\.venv\Scripts\python main.py</div>
+
+                <h3>Strategic Tips for Documentation</h3>
+                <ul>
+                    <li><strong>Highlight the mandatory nature</strong>: Emphasize that <span class="code-inline">authorize_action</span> must be called before any state-changing operation.</li>
+                    <li><strong>Explain risk scores</strong>: Detail how the Risk Assessment in the tool output reflects the internal sentiment of the Scoring and Simulation modules.</li>
+                    <li><strong>Environment isolation</strong>: Mention that the MCP server runs in its own virtual environment to prevent dependency conflicts with the core services.</li>
                 </ul>
             </section>
 
