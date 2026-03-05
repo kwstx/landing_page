@@ -1,461 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - Engram</title>
+    <title>Autonomy Infrastructure Documentation</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <link rel="stylesheet" href="docs.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
-
 <body class="docs-body">
-    <div class="docs-layout">
-        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation">
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-        </button>
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
-        <aside class="docs-sidebar" id="docsSidebar">
-            <div class="sidebar-logo">
-                <a href="index.html">
-                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z"
-                            fill="#111" />
-                    </svg>
-                    <span class="logo-text">Engram</span>
-                </a>
-            </div>
+    <main class="docs-content" style="max-width: 980px; margin: 0 auto; padding: 32px 20px;">
+        <h1>Autonomy Infrastructure Documentation</h1>
+        <p><strong>VERSION 0.1.0 (ALPHA)</strong> | <strong>LAST UPDATED: 2026-03-05</strong></p>
 
-            <nav class="sidebar-nav">
-                <div class="nav-group">
-                    <div class="nav-group-title">GETTING STARTED</div>
-                    <a href="#getting-started" class="nav-link active">Getting Started</a>
-                    <a href="#core-concepts" class="nav-link">Core Concepts</a>
-                    <a href="#architecture" class="nav-link">Architecture Overview</a>
-                </div>
+        <h2>Getting Started</h2>
+        <p>Welcome to the Autonomy Infrastructure. This guide provides the accurate technical implementation details for operating autonomous workloads securely using the current codebase.</p>
 
-                <div class="nav-group">
-                    <div class="nav-group-title">REFERENCE</div>
-                    <a href="#sdk-reference" class="nav-link">SDK Reference</a>
-                    <a href="#modules" class="nav-link">Module Documentation</a>
-                </div>
+        <h3>Installation</h3>
+        <p>Currently, the SDK is available within the monorepo. To install in editable mode:</p>
+        <pre><code class="language-bash">pip install -e .</code></pre>
 
-                <div class="nav-group">
-                    <div class="nav-group-title">ADVANCED</div>
-                    <a href="#advanced-usage" class="nav-link">Advanced Usage</a>
-                    <a href="#governance" class="nav-link">Governance & Self-Improvement</a>
-                    <a href="#deployment" class="nav-link">Deployment Guide</a>
-                </div>
+        <h2>Minimal Example</h2>
+        <p>Register an agent and authorize an action using the <code>AutonomyClient</code>. This demonstrates the core control loop using the actual SDK methods.</p>
 
-                <div class="nav-group">
-                    <div class="nav-group-title">SECURITY</div>
-                    <a href="#security-model" class="nav-link">Security Model</a>
-                    <a href="#error-handling" class="nav-link">Error Handling</a>
-                </div>
+        <pre><code class="language-python">import asyncio
+from autonomy_sdk import AutonomyClient
 
-                <div class="nav-group">
-                    <div class="nav-group-title">RESOURCES</div>
-                    <a href="#examples" class="nav-link">Examples & Recipes</a>
-                    <a href="#roadmap" class="nav-link">Roadmap</a>
-                    <a href="faq.html" class="nav-link">FAQ</a>
-                </div>
-            </nav>
-        </aside>
+async def main():
+    # 1. Initialize the client
+    # Leave server_url=None to use the local in-memory Core Engine
+    client = AutonomyClient(config={}, server_url=None)
 
-        <main class="docs-content">
-            <div class="docs-header">
-                <h1 class="docs-main-title">Engram Safety Documentation</h1>
-                <p class="docs-version">VERSION 3.0.0 (STABLE) | LAST UPDATED: 2026-03-04</p>
-            </div>
+    # 2. Register an agent
+    agent_id = await client.register_agent(
+        agent_id="agent-01",
+        name="DevOps Bot",
+        attributes={"clearance": "level_2"}
+    )
+    print(f"Agent Registered: {agent_id}")
 
-            <hr class="docs-divider">
+    # 3. Authorize an action
+    # Triggers: Identity -> Enforcement -> Economic -> Simulation -> Scoring
+    is_authorized = await client.authorize(
+        agent_id=agent_id,
+        action_id="tx_999",
+        action_type="deploy_server",
+        payload={"target": "production"}
+    )
 
-            <section id="getting-started" class="docs-section">
-                <h2>Getting Started</h2>
-                <p>Welcome to the official Engram infrastructure documentation. This guide gives you everything you need
-                    to start operating autonomous workloads securely within minutes.</p>
+    if is_authorized:
+        print("Action Permitted: Executing...")
+    else:
+        print("Action Denied.")
 
-                <div class="critical-notice">
-                    <div class="critical-notice-title">CRITICAL SECURITY NOTICE</div>
-                    <p>All Engram safety modules are designed for strict default-deny execution boundaries. Confirm
-                        policy triggers, gating, and local host controls are active before starting your agent runs.</p>
-                </div>
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
 
-                <h3>Installation</h3>
-                <p>Install the SDK via <span class="code-inline">pip</span>:</p>
-                <div class="code-block">pip install engram-sdk</div>
+        <h2>Core API Reference</h2>
 
-                <h3>Minimal 5-Minute Example</h3>
-                <p>Register your first agent and authorize an action to see the core control loop in action. One
-                    complete flow from start to finish:</p>
+        <h3><code>AutonomyClient</code></h3>
+        <p>The primary entry point for developers.</p>
 
-                <div class="code-block">
-                    import engram
+        <h4><code>register_agent(agent_id, name=None, attributes=None) -&gt; str</code></h4>
+        <p>Registers a new agent identity in the system.</p>
+        <ul>
+            <li><strong>agent_id</strong>: Unique string identifier.</li>
+            <li><strong>name</strong>: Optional human-readable name.</li>
+            <li><strong>attributes</strong>: Optional dict of properties (e.g., roles, clearance).</li>
+            <li><strong>Returns</strong>: The <code>agent_id</code> if successful.</li>
+        </ul>
 
-                    # 1. Initialize the core
-                    core = engram.init(api_key="sk-...", env="local")
+        <h4><code>authorize(agent_id, action_id, action_type, payload=None) -&gt; bool</code></h4>
+        <p>Evaluates an action against all safety modules.</p>
+        <ul>
+            <li><strong>agent_id</strong>: The ID of the executing agent.</li>
+            <li><strong>action_id</strong>: Unique ID for this specific execution attempt.</li>
+            <li><strong>action_type</strong>: The category of action (used for policy matching).</li>
+            <li><strong>payload</strong>: Data related to the action.</li>
+            <li><strong>Returns</strong>: <code>True</code> if approved, <code>False</code> if rejected.</li>
+        </ul>
 
-                    # 2. Register an agent
-                    agent = core.identity.register(
-                    role="DevOps Bot",
-                    permissions=["deploy_server", "read_logs"]
-                    )
+        <h4><code>propose_change(proposer_id, changes) -&gt; bool</code></h4>
+        <p>Submits a governance proposal to update system configuration.</p>
+        <ul>
+            <li><strong>proposer_id</strong>: The ID of the agent/user making the proposal.</li>
+            <li><strong>changes</strong>: Dict of configuration updates.</li>
+        </ul>
 
-                    # 3. Authorize an action
-                    result = core.enforcement.authorize(
-                    agent_id=agent.id,
-                    action={"type": "deploy_server", "target": "production"}
-                    )
+        <h4><code>get_system_status() -&gt; dict</code></h4>
+        <p>Returns the current health and version of the infrastructure.</p>
+        <ul>
+            <li><strong>Returns</strong>: <code>{"status": "active", "version": "1.0.0", "connected": True}</code></li>
+        </ul>
 
-                    if result.is_approved:
-                    print("Action permitted: Executing...")
-                    else:
-                    print(f"Action denied. Reason: {result.rejection_reason}")
-                </div>
-                <p>If developers cannot run this in 5 minutes, we have failed. This snippet proves our simple mental
-                    overhead while protecting operations strictly.</p>
-            </section>
+        <h2>Architecture Overview</h2>
+        <p>The system follows a strict hierarchical orchestration:</p>
+        <p><strong>Agent Layer</strong> -&gt; <strong>SDK (<code>AutonomyClient</code>)</strong> -&gt; <strong>Core (<code>AutonomyCore</code>)</strong> -&gt; <strong>Specialized Modules</strong></p>
 
-            <section id="core-concepts" class="docs-section">
-                <h2>Core Concepts</h2>
-                <p>Before diving into APIs, understand the Engram mental model. Our system abstracts complex policy
-                    rules
-                    into simple, enforceable layers.</p>
+        <p>Current Modules implemented in <code>packages/</code>:</p>
+        <ol>
+            <li><strong>Identity System</strong>: Verifies agent cryptographic tokens and registry state.</li>
+            <li><strong>Enforcement Layer</strong>: Deterministic policy validation.</li>
+            <li><strong>Economic Autonomy</strong>: Monitors budgets and PnL constraints.</li>
+            <li><strong>Simulation Layer</strong>: Predicts impact of actions in a shadow state.</li>
+            <li><strong>Scoring Module</strong>: Calculates risk scores based on anomaly vectors.</li>
+        </ol>
 
-                <ul>
-                    <li><strong>What is an Agent?</strong> Independent workloads operating under roles. Agents perform
-                        actions but have zero inherent authority until verified.</li>
-                    <li><strong>What is Identity?</strong> Your agents are treated as users. They authenticate, verify
-                        their origins, and adopt identities that determine their clearance level.</li>
-                    <li><strong>What is Policy Enforcement?</strong> The execution barrier. Before execution, actions
-                        are mapped against allowed logic matrices.</li>
-                    <li><strong>What is Economic Autonomy?</strong> Built-in constraints (budgets, usage limits). Agents
-                        cannot spend beyond algorithmic bounds, physically ensuring no runaway costs.</li>
-                    <li><strong>What is Delegation?</strong> Scoped authority transfer. An agent can spin up a sub-agent
-                        with a strict subset of its own permissions.</li>
-                    <li><strong>What is Simulation?</strong> Testing actions against live policies without actually
-                        executing them, calculating risk scores securely.</li>
-                    <li><strong>What is Governance?</strong> State transitions via proposals. To update an agent's core
-                        capability, proposals go through programmable consensus.</li>
-                </ul>
-            </section>
+        <h2>Error Handling</h2>
+        <p>The SDK raises specialized exceptions located in <code>autonomy_sdk.exceptions</code>:</p>
+        <ul>
+            <li><code>AgentRegistrationError</code>: Failed to create identity.</li>
+            <li><code>ActionAuthorizationError</code>: Denied due to policy, budget, or risk.</li>
+            <li><code>ProposalError</code>: Governance submission failed.</li>
+            <li><code>ClientConnectionError</code>: Could not reach remote Autonomy Server.</li>
+        </ul>
 
-            <section id="architecture" class="docs-section">
-                <h2>Architecture Overview</h2>
-                <p>Understanding interaction flow ensures safe deployments. No deep implementation details here—just how
-                    components interact.</p>
-
-                <div class="architecture-diagram">
-                    <div class="architecture-flow">
-                        <div class="arch-box">Agent</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">SDK</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Core</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Packages</div>
-                    </div>
-                    <div>(Identity, Enforcement, Economic, etc.)</div>
-                </div>
-
-                <p><strong>Dependency Direction:</strong> <span class="code-inline">packages → core → sdk →
-                        server</span></p>
-                <p>Your agent logic communicates locally with the SDK, which invokes the core infrastructure. The core
-                    routes through strictly segregated packages (like enforcement rules) before confirming action states
-                    to the final server output.</p>
-            </section>
-
-            <section id="sdk-reference" class="docs-section">
-                <h2>SDK Reference</h2>
-                <p>The public methods mapping agent actions into the framework.</p>
-
-                <div class="method-doc">
-                    <div class="method-name">authorize(agent_id: str, action: dict) → AuthorizationResult</div>
-                    <p>Submits a requested action to the enforcement layers for immediate deterministic risk evaluation.
-                    </p>
-
-                    <div class="method-section">
-                        <div class="method-section-title">Parameters</div>
-                        <ul>
-                            <li><span class="code-inline">agent_id</span> - The registered identity of the executing
-                                agent.</li>
-                            <li><span class="code-inline">action</span> - Dict containing <span
-                                    class="code-inline">type</span> and specific target payload.</li>
-                        </ul>
-                    </div>
-
-                    <div class="method-section">
-                        <div class="method-section-title">Return Values</div>
-                        <p>Returns an <span class="code-inline">AuthorizationResult</span> with a boolean flag <span
-                                class="code-inline">is_approved</span>, and a strict <span
-                                class="code-inline">rejection_reason</span> string if false.</p>
-                    </div>
-
-                    <div class="method-section">
-                        <div class="method-section-title">Error Cases</div>
-                        <p>Throws <span class="code-inline">IdentityMismatchError</span> if ID is invalid. Throws <span
-                                class="code-inline">TimeoutError</span> if internal governance takes too long simulating
-                            the scope.</p>
-                    </div>
-                </div>
-            </section>
-
-            <section id="modules" class="docs-section">
-                <h2>Module Documentation</h2>
-                <p>Each foundational package isolates a specific vector of agent control.</p>
-
-                <h3 id="agent-guard">Agent Guard</h3>
-                <p>Agent Guard verifies identity before any agent-to-agent action is accepted, so workflows only continue
-                    when both sides can prove they are trusted instances.</p>
-                <ul>
-                    <li>Checks each agent's cryptographic identity token against the Identity System registry.</li>
-                    <li>Rejects requests when signatures, role claims, or trust scope do not match policy.</li>
-                    <li>Maintains a verification trail for audits across multi-agent sessions and escalations.</li>
-                </ul>
-                <p>Example: verify a peer agent and block collaboration when rogue execution indicators are present.</p>
-                <div class="code-block">
-                    import engram
-
-                    core = engram.init(api_key="sk-...", env="production")
-                    my_agent = core.identity.register(role="Coordinator", permissions=["handoff_task"])
-
-                    peer = core.identity.verify_peer(
-                    agent_id="agent-peer-42",
-                    signed_challenge=peer_signature,
-                    session_id="sess-9f31"
-                    )
-
-                    risk = core.scoring.evaluate_agent(
-                    agent_id=peer.agent_id,
-                    context={"task": "joint_reconciliation"}
-                    )
-
-                    if not peer.is_verified:
-                    raise RuntimeError("Peer identity verification failed.")
-
-                    if risk.flags.get("rogue_execution", False) or risk.score >= 0.80:
-                    raise RuntimeError("Peer flagged for rogue execution risk.")
-
-                    core.enforcement.authorize(
-                    agent_id=my_agent.id,
-                    action={"type": "handoff_task", "target": peer.agent_id}
-                    )
-                    run_collaborative_task(peer.agent_id)
-                </div>
-
-                <h3>Identity System</h3>
-                <ul>
-                    <li>Register agent dynamically.</li>
-                    <li>Assign role and structural hierarchy constraints.</li>
-                    <li>Authority mapping for multi-tenant environments.</li>
-                </ul>
-
-                <h3>Enforcement Layer</h3>
-                <ul>
-                    <li>Define policies in readable, strict formats.</li>
-                    <li>Rule evaluation lifecycle guarantees no race conditions.</li>
-                    <li>Rejection handling for immediate operation halts.</li>
-                </ul>
-
-                <h3>Economic Autonomy</h3>
-                <ul>
-                    <li>Create budgets at the agent or cluster level.</li>
-                    <li>Set constraints that strictly block executions when thresholds meet.</li>
-                    <li>Dynamic adjustments via governance approval only.</li>
-                </ul>
-
-                <h3>Scoring Module</h3>
-                <ul>
-                    <li>Risk scoring based on historical anomaly vectors.</li>
-                    <li>Threshold triggers to push manual review.</li>
-                    <li>Decision outputs mapping mathematically to safety constraints.</li>
-                </ul>
-
-                <h3>Simulation Layer</h3>
-                <ul>
-                    <li>Calculates potential outcomes in a shadow-state memory graph.</li>
-                    <li>Use case: High-risk database operations or financial triggers.</li>
-                    <li>Performance considerations: Expect ~20ms latency overhead during complex simulations.</li>
-                </ul>
-            </section>
-
-            <section id="advanced-usage" class="docs-section">
-                <h2>Advanced Usage</h2>
-                <p>For serious practitioners seeking to override base mechanisms or implement complex integrations.</p>
-                <ul>
-                    <li><strong>Custom policy engines:</strong> Inject your own evaluation AST matching your server's
-                        security language.</li>
-                    <li><strong>Extending modules:</strong> Override BaseModule interface to connect natively to
-                        internal messaging buses.</li>
-                    <li><strong>Writing custom scoring plugins:</strong> Import our <span
-                            class="code-inline">engram.plugins</span> spec to connect third-party anomaly ML models.
-                    </li>
-                    <li><strong>Integrating with external databases:</strong> Set persistence layers outside local
-                        SQLite, moving toward Postgres mapping.</li>
-                    <li><strong>Running locally vs production:</strong> Bypass heavy verifications locally while forcing
-                        strict signatures in production via <span class="code-inline">ENGRAM_ENV=production</span>.</li>
-                </ul>
-            </section>
-
-            <section id="governance" class="docs-section">
-                <h2>Governance & Self-Improvement</h2>
-                <p>Our true differentiator: Programmable organizational changes via clear states.</p>
-                <ul>
-                    <li><strong>Proposal lifecycle:</strong> Submit capability updates to agents, moving into an "Under
-                        Review" state.</li>
-                    <li><strong>Voting / approval logic:</strong> Set custom multi-sig rules relying on
-                        human-in-the-loop sign-off.</li>
-                    <li><strong>Versioning:</strong> Every agent iteration is hashed.</li>
-                    <li><strong>Rollback mechanism:</strong> An action that violated unknown parameters instantly
-                        triggers a rollback script returning to a safe agent hash state.</li>
-                </ul>
-            </section>
-
-            <section id="deployment" class="docs-section">
-                <h2>Deployment Guide</h2>
-                <p>We do not lock you into cloud environments. Keep operational logic local where possible.</p>
-                <ul>
-                    <li><strong>Local deployment:</strong> Run the background processes purely as daemons pointing to
-                        your system sockets.</li>
-                    <li><strong>Self-hosted server setup:</strong> Provided Dockerfiles mapping your control states
-                        securely behind standard API gateways.</li>
-                    <li><strong>Running as a background service:</strong> Seamless systemctl mappings or raw background
-                        Python hooks.</li>
-                    <li><strong>Production configuration notes:</strong> Secure the API keys entirely out of memory,
-                        rely strictly on environment variables or vaults.</li>
-                </ul>
-            </section>
-
-            <section id="security-model" class="docs-section">
-                <h2>Security Model</h2>
-                <p>Trust but strictly verify. Safety isn't an afterthought; it is our foundation.</p>
-                <ul>
-                    <li><strong>Deterministic enforcement vs LLM guardrails:</strong> We rely on zero LLM "vibe checks"
-                        for security. If a policy fails a deterministic logical rule, it is halted instantly.</li>
-                    <li><strong>Layered validation:</strong> Identity > Economic > Policy > Execution boundaries.</li>
-                    <li><strong>Audit logs:</strong> Read-only cryptographic hashing of every decision tree for audit
-                        compliance.</li>
-                    <li><strong>Failure modes:</strong> Fail-closed by default. If the core connects but enforcement
-                        timeouts, execution is rejected.</li>
-                    <li><strong>Threat model:</strong> We defend against injected execution requests, rogue credential
-                        misuse, and exponential recursive loops.</li>
-                </ul>
-            </section>
-
-            <section id="examples" class="docs-section">
-                <h2>Examples & Recipes</h2>
-                <p>Review real implementations serving as our operational credibility baseline.</p>
-                <ul>
-                    <li><strong>Multi-agent task delegation:</strong> An Orchestrator assigning limited DB roles to 5
-                        sub-workers.</li>
-                    <li><strong>Budget-limited AI worker:</strong> A scraping loop halting instantly after expending
-                        exactly $1.00 of compute credits.</li>
-                    <li><strong>Safe tool execution:</strong> Mapping bash command evaluations strictly via allowlists.
-                    </li>
-                    <li><strong>Governance vote simulation:</strong> Creating a dummy org and passing an upgrade policy
-                        multi-sig.</li>
-                </ul>
-            </section>
-
-            <section id="error-handling" class="docs-section">
-                <h2>Error Handling & Debugging</h2>
-                <p>Common failure cases and operational fixes:</p>
-                <ul>
-                    <li><strong>Policy rejection:</strong> Check if your agent's role permits the requested target array
-                        payload. Output verbose logs via <span class="code-inline">core.debug_logs()</span>.</li>
-                    <li><strong>Budget exceeded:</strong> Ensure the sub-agent wasn't cloned outside the parent budget
-                        scope block.</li>
-                    <li><strong>Identity mismatch:</strong> Verify your keys correlate to the active <span
-                            class="code-inline">engram.env</span> definition block.</li>
-                    <li><strong>Delegation scope violation:</strong> Standard fail-safe. Review your delegation mapping
-                        tree—agents cannot grant permissions they do not own.</li>
-                </ul>
-            </section>
-
-            <section id="roadmap" class="docs-section">
-                <h2>Roadmap</h2>
-                <p>Transparency on infrastructure maturity.</p>
-                <ul>
-                    <li><strong>Stable:</strong> Deterministic Execution, Identity System, Enforcement Engine.</li>
-                    <li><strong>Beta:</strong> Economic constraints simulation, Postgres backend connectors.</li>
-                    <li><strong>Experimental:</strong> Multi-tenant governance graph linking, distributed consensus
-                        algorithms natively hosted.</li>
-                </ul>
-            </section>
-
-        </main>
-    </div>
-
-    <script>
-        // Simple script to handle active navigation state
-        document.addEventListener('DOMContentLoaded', () => {
-            const sections = document.querySelectorAll('.docs-section');
-            const navLinks = document.querySelectorAll('.nav-link');
-
-            window.addEventListener('scroll', () => {
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    const sectionHeight = section.clientHeight;
-                    if (scrollY >= (sectionTop - 200)) {
-                        current = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href') === `#${current}`) {
-                        link.classList.add('active');
-                    }
-                });
-            });
-
-            // Mobile sidebar toggle
-            const menuToggle = document.getElementById('mobileMenuToggle');
-            const sidebar = document.getElementById('docsSidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-
-            function openSidebar() {
-                sidebar.classList.add('open');
-                overlay.classList.add('active');
-                menuToggle.classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
-
-            function closeSidebar() {
-                sidebar.classList.remove('open');
-                overlay.classList.remove('active');
-                menuToggle.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-
-            menuToggle.addEventListener('click', () => {
-                if (sidebar.classList.contains('open')) {
-                    closeSidebar();
-                } else {
-                    openSidebar();
-                }
-            });
-
-            overlay.addEventListener('click', closeSidebar);
-
-            // Close sidebar when a nav link is clicked on mobile
-            navLinks.forEach(link => {
-                link.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        closeSidebar();
-                    }
-                });
-            });
-        });
-    </script>
+        <h2>Development vs Production</h2>
+        <ul>
+            <li><strong>Local Mode</strong>: Initialize <code>AutonomyClient()</code> without a <code>server_url</code>. It will boot a local <code>AutonomyCore</code> using local SQLite/Memory state.</li>
+            <li><strong>Remote Mode</strong>: Initialize <code>AutonomyClient(server_url="http://...")</code> to communicate with a centralized <code>Autonomy Server</code> (FastAPI).</li>
+        </ul>
+    </main>
 </body>
-
 </html>
