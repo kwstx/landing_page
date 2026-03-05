@@ -1,28 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Autonomy Infrastructure Documentation</title>
+    <title>Documentation - Autonomy Infrastructure</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <link rel="stylesheet" href="docs.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body class="docs-body">
-    <main class="docs-content" style="max-width: 980px; margin: 0 auto; padding: 32px 20px;">
-        <h1>Autonomy Infrastructure Documentation</h1>
-        <p><strong>VERSION 0.1.0 (ALPHA)</strong> | <strong>LAST UPDATED: 2026-03-05</strong></p>
+    <div class="docs-layout">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <h2>Getting Started</h2>
-        <p>Welcome to the Autonomy Infrastructure. This guide provides the accurate technical implementation details for operating autonomous workloads securely using the current codebase.</p>
+        <aside class="docs-sidebar" id="docsSidebar">
+            <div class="sidebar-logo">
+                <a href="index.html">
+                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z" fill="#111" />
+                    </svg>
+                    <span class="logo-text">Autonomy</span>
+                </a>
+            </div>
 
-        <h3>Installation</h3>
-        <p>Currently, the SDK is available within the monorepo. To install in editable mode:</p>
-        <pre><code class="language-bash">pip install -e .</code></pre>
+            <nav class="sidebar-nav">
+                <div class="nav-group">
+                    <div class="nav-group-title">GETTING STARTED</div>
+                    <a href="#getting-started" class="nav-link active">Getting Started</a>
+                    <a href="#minimal-example" class="nav-link">Minimal Example</a>
+                </div>
 
-        <h2>Minimal Example</h2>
-        <p>Register an agent and authorize an action using the <code>AutonomyClient</code>. This demonstrates the core control loop using the actual SDK methods.</p>
+                <div class="nav-group">
+                    <div class="nav-group-title">REFERENCE</div>
+                    <a href="#core-api-reference" class="nav-link">Core API Reference</a>
+                    <a href="#architecture-overview" class="nav-link">Architecture Overview</a>
+                    <a href="#error-handling" class="nav-link">Error Handling</a>
+                </div>
 
-        <pre><code class="language-python">import asyncio
+                <div class="nav-group">
+                    <div class="nav-group-title">ENVIRONMENTS</div>
+                    <a href="#development-vs-production" class="nav-link">Development vs Production</a>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="docs-content">
+            <div class="docs-header">
+                <h1 class="docs-main-title">Autonomy Infrastructure Documentation</h1>
+                <p class="docs-version">VERSION 0.1.0 (ALPHA) | LAST UPDATED: 2026-03-05</p>
+            </div>
+
+            <hr class="docs-divider">
+
+            <section id="getting-started" class="docs-section">
+                <h2>Getting Started</h2>
+                <p>Welcome to the Autonomy Infrastructure. This guide provides the accurate technical implementation details for operating autonomous workloads securely using the current codebase.</p>
+
+                <h3>Installation</h3>
+                <p>Currently, the SDK is available within the monorepo. To install in editable mode:</p>
+                <div class="code-block">pip install -e .</div>
+            </section>
+
+            <section id="minimal-example" class="docs-section">
+                <h2>Minimal Example</h2>
+                <p>Register an agent and authorize an action using the <span class="code-inline">AutonomyClient</span>. This demonstrates the core control loop using the actual SDK methods.</p>
+                <div class="code-block">import asyncio
 from autonomy_sdk import AutonomyClient
 
 async def main():
@@ -53,72 +103,152 @@ async def main():
         print("Action Denied.")
 
 if __name__ == "__main__":
-    asyncio.run(main())</code></pre>
+    asyncio.run(main())</div>
+            </section>
 
-        <h2>Core API Reference</h2>
+            <section id="core-api-reference" class="docs-section">
+                <h2>Core API Reference</h2>
 
-        <h3><code>AutonomyClient</code></h3>
-        <p>The primary entry point for developers.</p>
+                <h3><span class="code-inline">AutonomyClient</span></h3>
+                <p>The primary entry point for developers.</p>
 
-        <h4><code>register_agent(agent_id, name=None, attributes=None) -&gt; str</code></h4>
-        <p>Registers a new agent identity in the system.</p>
-        <ul>
-            <li><strong>agent_id</strong>: Unique string identifier.</li>
-            <li><strong>name</strong>: Optional human-readable name.</li>
-            <li><strong>attributes</strong>: Optional dict of properties (e.g., roles, clearance).</li>
-            <li><strong>Returns</strong>: The <code>agent_id</code> if successful.</li>
-        </ul>
+                <div class="method-doc">
+                    <div class="method-name">register_agent(agent_id, name=None, attributes=None) -> str</div>
+                    <p>Registers a new agent identity in the system.</p>
+                    <ul>
+                        <li><strong>agent_id</strong>: Unique string identifier.</li>
+                        <li><strong>name</strong>: Optional human-readable name.</li>
+                        <li><strong>attributes</strong>: Optional dict of properties (e.g., roles, clearance).</li>
+                        <li><strong>Returns</strong>: The <span class="code-inline">agent_id</span> if successful.</li>
+                    </ul>
+                </div>
 
-        <h4><code>authorize(agent_id, action_id, action_type, payload=None) -&gt; bool</code></h4>
-        <p>Evaluates an action against all safety modules.</p>
-        <ul>
-            <li><strong>agent_id</strong>: The ID of the executing agent.</li>
-            <li><strong>action_id</strong>: Unique ID for this specific execution attempt.</li>
-            <li><strong>action_type</strong>: The category of action (used for policy matching).</li>
-            <li><strong>payload</strong>: Data related to the action.</li>
-            <li><strong>Returns</strong>: <code>True</code> if approved, <code>False</code> if rejected.</li>
-        </ul>
+                <div class="method-doc">
+                    <div class="method-name">authorize(agent_id, action_id, action_type, payload=None) -> bool</div>
+                    <p>Evaluates an action against all safety modules.</p>
+                    <ul>
+                        <li><strong>agent_id</strong>: The ID of the executing agent.</li>
+                        <li><strong>action_id</strong>: Unique ID for this specific execution attempt.</li>
+                        <li><strong>action_type</strong>: The category of action (used for policy matching).</li>
+                        <li><strong>payload</strong>: Data related to the action.</li>
+                        <li><strong>Returns</strong>: <span class="code-inline">True</span> if approved, <span class="code-inline">False</span> if rejected.</li>
+                    </ul>
+                </div>
 
-        <h4><code>propose_change(proposer_id, changes) -&gt; bool</code></h4>
-        <p>Submits a governance proposal to update system configuration.</p>
-        <ul>
-            <li><strong>proposer_id</strong>: The ID of the agent/user making the proposal.</li>
-            <li><strong>changes</strong>: Dict of configuration updates.</li>
-        </ul>
+                <div class="method-doc">
+                    <div class="method-name">propose_change(proposer_id, changes) -> bool</div>
+                    <p>Submits a governance proposal to update system configuration.</p>
+                    <ul>
+                        <li><strong>proposer_id</strong>: The ID of the agent/user making the proposal.</li>
+                        <li><strong>changes</strong>: Dict of configuration updates.</li>
+                    </ul>
+                </div>
 
-        <h4><code>get_system_status() -&gt; dict</code></h4>
-        <p>Returns the current health and version of the infrastructure.</p>
-        <ul>
-            <li><strong>Returns</strong>: <code>{"status": "active", "version": "1.0.0", "connected": True}</code></li>
-        </ul>
+                <div class="method-doc">
+                    <div class="method-name">get_system_status() -> dict</div>
+                    <p>Returns the current health and version of the infrastructure.</p>
+                    <ul>
+                        <li><strong>Returns</strong>: <span class="code-inline">{"status": "active", "version": "1.0.0", "connected": True}</span></li>
+                    </ul>
+                </div>
+            </section>
 
-        <h2>Architecture Overview</h2>
-        <p>The system follows a strict hierarchical orchestration:</p>
-        <p><strong>Agent Layer</strong> -&gt; <strong>SDK (<code>AutonomyClient</code>)</strong> -&gt; <strong>Core (<code>AutonomyCore</code>)</strong> -&gt; <strong>Specialized Modules</strong></p>
+            <section id="architecture-overview" class="docs-section">
+                <h2>Architecture Overview</h2>
+                <p>The system follows a strict hierarchical orchestration:</p>
+                <p><strong>Agent Layer</strong> -> <strong>SDK (<span class="code-inline">AutonomyClient</span>)</strong> -> <strong>Core (<span class="code-inline">AutonomyCore</span>)</strong> -> <strong>Specialized Modules</strong></p>
 
-        <p>Current Modules implemented in <code>packages/</code>:</p>
-        <ol>
-            <li><strong>Identity System</strong>: Verifies agent cryptographic tokens and registry state.</li>
-            <li><strong>Enforcement Layer</strong>: Deterministic policy validation.</li>
-            <li><strong>Economic Autonomy</strong>: Monitors budgets and PnL constraints.</li>
-            <li><strong>Simulation Layer</strong>: Predicts impact of actions in a shadow state.</li>
-            <li><strong>Scoring Module</strong>: Calculates risk scores based on anomaly vectors.</li>
-        </ol>
+                <p>Current Modules implemented in <span class="code-inline">packages/</span>:</p>
+                <ol>
+                    <li><strong>Identity System</strong>: Verifies agent cryptographic tokens and registry state.</li>
+                    <li><strong>Enforcement Layer</strong>: Deterministic policy validation.</li>
+                    <li><strong>Economic Autonomy</strong>: Monitors budgets and PnL constraints.</li>
+                    <li><strong>Simulation Layer</strong>: Predicts impact of actions in a shadow state.</li>
+                    <li><strong>Scoring Module</strong>: Calculates risk scores based on anomaly vectors.</li>
+                </ol>
+            </section>
 
-        <h2>Error Handling</h2>
-        <p>The SDK raises specialized exceptions located in <code>autonomy_sdk.exceptions</code>:</p>
-        <ul>
-            <li><code>AgentRegistrationError</code>: Failed to create identity.</li>
-            <li><code>ActionAuthorizationError</code>: Denied due to policy, budget, or risk.</li>
-            <li><code>ProposalError</code>: Governance submission failed.</li>
-            <li><code>ClientConnectionError</code>: Could not reach remote Autonomy Server.</li>
-        </ul>
+            <section id="error-handling" class="docs-section">
+                <h2>Error Handling</h2>
+                <p>The SDK raises specialized exceptions located in <span class="code-inline">autonomy_sdk.exceptions</span>:</p>
+                <ul>
+                    <li><span class="code-inline">AgentRegistrationError</span>: Failed to create identity.</li>
+                    <li><span class="code-inline">ActionAuthorizationError</span>: Denied due to policy, budget, or risk.</li>
+                    <li><span class="code-inline">ProposalError</span>: Governance submission failed.</li>
+                    <li><span class="code-inline">ClientConnectionError</span>: Could not reach remote Autonomy Server.</li>
+                </ul>
+            </section>
 
-        <h2>Development vs Production</h2>
-        <ul>
-            <li><strong>Local Mode</strong>: Initialize <code>AutonomyClient()</code> without a <code>server_url</code>. It will boot a local <code>AutonomyCore</code> using local SQLite/Memory state.</li>
-            <li><strong>Remote Mode</strong>: Initialize <code>AutonomyClient(server_url="http://...")</code> to communicate with a centralized <code>Autonomy Server</code> (FastAPI).</li>
-        </ul>
-    </main>
+            <section id="development-vs-production" class="docs-section">
+                <h2>Development vs Production</h2>
+                <ul>
+                    <li><strong>Local Mode</strong>: Initialize <span class="code-inline">AutonomyClient()</span> without a <span class="code-inline">server_url</span>. It will boot a local <span class="code-inline">AutonomyCore</span> using local SQLite/Memory state.</li>
+                    <li><strong>Remote Mode</strong>: Initialize <span class="code-inline">AutonomyClient(server_url="http://...")</span> to communicate with a centralized <span class="code-inline">Autonomy Server</span> (FastAPI).</li>
+                </ul>
+            </section>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.docs-section');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= (sectionTop - 200)) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href') === `#${current}`) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            const menuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('docsSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                menuToggle.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                menuToggle.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            menuToggle.addEventListener('click', () => {
+                if (sidebar.classList.contains('open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            overlay.addEventListener('click', closeSidebar);
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
+
 </html>
