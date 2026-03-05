@@ -1370,6 +1370,16 @@ body {
         margin-bottom: 24px;
     }
 
+    .world-id-title br,
+    .world-id-desc br,
+    .how-it-works-title br,
+    .info-item-desc br,
+    .deepfakes-subtitle br,
+    .deepfakes-desc br,
+    .distinguish-title br {
+        display: none;
+    }
+
     .credentials-items,
     .get-world-id-cards {
         flex-direction: column;
@@ -1419,5 +1429,25 @@ body {
     .info-item-title {
         font-size: 20px;
         margin-bottom: 12px;
+    }
+
+    .how-it-works-section .world-id-sidebar {
+        font-size: 16px;
+        width: 100%;
+        margin-bottom: 16px;
+    }
+
+    .info-item-desc {
+        font-size: 15px;
+    }
+
+    .how-it-works-title {
+        font-size: 28px;
+        line-height: 1.2;
+        margin-bottom: 32px;
+    }
+
+    .faq-link-wrapper {
+        margin-top: 0;
     }
 }
