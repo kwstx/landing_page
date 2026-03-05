@@ -283,6 +283,17 @@ body.docs-body {
 /* Mobile Responsiveness for Docs */
 @media (max-width: 768px) {
 
+    html,
+    body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    .docs-layout {
+        width: 100%;
+        overflow-x: hidden;
+    }
+
     /* Hamburger menu button */
     .mobile-menu-toggle {
         display: flex;
@@ -364,8 +375,11 @@ body.docs-body {
     /* Main content: full width */
     .docs-content {
         margin-left: 0;
+        width: 100%;
+        box-sizing: border-box;
         padding: 24px 20px 60px;
         max-width: 100%;
+        overflow-x: hidden;
     }
 
     /* Docs header */
