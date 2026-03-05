@@ -14,7 +14,13 @@
 
 <body class="docs-body">
     <div class="docs-layout">
-        <aside class="docs-sidebar">
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <aside class="docs-sidebar" id="docsSidebar">
             <div class="sidebar-logo">
                 <a href="index.html">
                     <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -368,6 +374,44 @@
                     link.classList.remove('active');
                     if (link.getAttribute('href') === `#${current}`) {
                         link.classList.add('active');
+                    }
+                });
+            });
+
+            // Mobile sidebar toggle
+            const menuToggle = document.getElementById('mobileMenuToggle');
+            const sidebar = document.getElementById('docsSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+
+            function openSidebar() {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                menuToggle.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeSidebar() {
+                sidebar.classList.remove('open');
+                overlay.classList.remove('active');
+                menuToggle.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            menuToggle.addEventListener('click', () => {
+                if (sidebar.classList.contains('open')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+            overlay.addEventListener('click', closeSidebar);
+
+            // Close sidebar when a nav link is clicked on mobile
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        closeSidebar();
                     }
                 });
             });

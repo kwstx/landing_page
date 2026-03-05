@@ -96,6 +96,52 @@
         .faq-item.active .faq-arrow {
             transform: rotate(90deg);
         }
+
+        /* Mobile Responsiveness for FAQ */
+        @media (max-width: 768px) {
+            .faq-wrapper {
+                margin-top: 80px;
+            }
+
+            .faq-section {
+                flex-direction: column;
+                padding-bottom: 60px;
+            }
+
+            .faq-sidebar {
+                width: 100%;
+                margin-bottom: 32px;
+                font-size: 16px;
+            }
+
+            .faq-sidebar-title {
+                font-size: 32px;
+                letter-spacing: -0.8px;
+            }
+
+            .faq-content {
+                width: 100%;
+            }
+
+            .faq-question {
+                font-size: 16px;
+                padding-right: 16px;
+            }
+
+            .faq-answer {
+                font-size: 14px;
+                padding-right: 16px;
+            }
+
+            .faq-item {
+                padding-bottom: 18px;
+                margin-bottom: 18px;
+            }
+
+            .faq-item:first-child {
+                padding-top: 18px;
+            }
+        }
     </style>
 </head>
 
