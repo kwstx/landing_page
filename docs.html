@@ -219,6 +219,36 @@
                     <li>Rejects requests when signatures, role claims, or trust scope do not match policy.</li>
                     <li>Maintains a verification trail for audits across multi-agent sessions and escalations.</li>
                 </ul>
+                <p>Example: verify a peer agent and block collaboration when rogue execution indicators are present.</p>
+                <div class="code-block">
+                    import engram
+
+                    core = engram.init(api_key="sk-...", env="production")
+                    my_agent = core.identity.register(role="Coordinator", permissions=["handoff_task"])
+
+                    peer = core.identity.verify_peer(
+                    agent_id="agent-peer-42",
+                    signed_challenge=peer_signature,
+                    session_id="sess-9f31"
+                    )
+
+                    risk = core.scoring.evaluate_agent(
+                    agent_id=peer.agent_id,
+                    context={"task": "joint_reconciliation"}
+                    )
+
+                    if not peer.is_verified:
+                    raise RuntimeError("Peer identity verification failed.")
+
+                    if risk.flags.get("rogue_execution", False) or risk.score >= 0.80:
+                    raise RuntimeError("Peer flagged for rogue execution risk.")
+
+                    core.enforcement.authorize(
+                    agent_id=my_agent.id,
+                    action={"type": "handoff_task", "target": peer.agent_id}
+                    )
+                    run_collaborative_task(peer.agent_id)
+                </div>
 
                 <h3>Identity System</h3>
                 <ul>
