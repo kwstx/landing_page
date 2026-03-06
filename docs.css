@@ -237,6 +237,40 @@ body.docs-body {
     letter-spacing: 0.5px;
 }
 
+.docs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    border: 1px solid #eaeaea;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+}
+
+.docs-table th,
+.docs-table td {
+    text-align: left;
+    padding: 14px 16px;
+    border-bottom: 1px solid #eaeaea;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #444;
+    vertical-align: top;
+}
+
+.docs-table th {
+    background: #f8f9fa;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #666;
+}
+
+.docs-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
 .architecture-diagram {
     background: #fdfdfd;
     border: 1px solid #eaeaea;
@@ -457,6 +491,20 @@ body.docs-body {
     .code-inline {
         font-size: 11px;
         word-break: break-word;
+    }
+
+    .docs-table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 16px 0;
+    }
+
+    .docs-table th,
+    .docs-table td {
+        min-width: 140px;
+        font-size: 13px;
+        padding: 12px;
     }
 
     /* Architecture diagram */

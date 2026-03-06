@@ -43,6 +43,7 @@
                     <a href="#core-api-reference" class="nav-link">Core API Reference</a>
                     <a href="#architecture-overview" class="nav-link">Architecture Overview</a>
                     <a href="#error-handling" class="nav-link">Error Handling</a>
+                    <a href="#enforcement-circuit-breakers" class="nav-link">Enforcement &amp; Circuit Breakers</a>
                     <a href="#mcp-guard-server" class="nav-link">MCP Guard Server</a>
                 </div>
 
@@ -177,6 +178,88 @@ if __name__ == "__main__":
                     <li><span class="code-inline">ActionAuthorizationError</span>: Denied due to policy, budget, or risk.</li>
                     <li><span class="code-inline">ProposalError</span>: Governance submission failed.</li>
                     <li><span class="code-inline">ClientConnectionError</span>: Could not reach remote Autonomy Server.</li>
+                </ul>
+            </section>
+
+            <section id="enforcement-circuit-breakers" class="docs-section">
+                <h2>Documentation Guide: Enforcement &amp; Circuit Breakers</h2>
+                <p>Integrating the "Hands" into your application requires understanding how the <strong>Autonomy Infrastructure</strong> moves from simply reporting risk to physically enforcing safety. This section covers two primary methods for bytecode-level safety.</p>
+
+                <h3>The "Circuit Breaker" Middleware (SDK)</h3>
+                <p>The strongest way to protect sensitive agent functions is to apply the <strong>Circuit Breaker</strong> middleware directly to execution paths that can mutate state or transfer value.</p>
+
+                <h3>Usage Example</h3>
+                <div class="code-block">from autonomy_sdk import AutonomyClient
+from autonomy_sdk.middleware import circuit_breaker
+
+client = AutonomyClient()
+
+# This decorator intercepts the call and runs it through the Safety Brain
+@circuit_breaker(client, agent_id="agent-01", action_type="transfer_funds", threshold=0.35)
+async def perform_payment(amount: float, recipient: str):
+    # This code will ONLY run if the risk score is below 0.35
+    print(f"Transferring {amount} to {recipient}...")
+    # ... actual network/database logic here ...</div>
+
+                <h3>How it Works</h3>
+                <ol>
+                    <li><strong>Intercept</strong>: When <span class="code-inline">perform_payment</span> is called, middleware pauses function execution.</li>
+                    <li><strong>Evaluate</strong>: It forwards a request to the <strong>Safety Loop</strong> (Identity -&gt; Enforcement -&gt; Simulation) with a unique <span class="code-inline">correlationId</span>.</li>
+                    <li><strong>Brake</strong>: If the score is below threshold, execution resumes. If above threshold, the SDK raises <span class="code-inline">CircuitBreakerException</span>, preventing network/database side effects.</li>
+                </ol>
+
+                <h3>The Unified Gateway (Enforcement)</h3>
+                <p>For external agents, all traffic should route through the <strong>Gateway Service</strong>. Unlike a standard API edge, this gateway enforces <strong>Cumulative System Risk</strong> in real time.</p>
+
+                <h3>Cumulative Risk Enforcement</h3>
+                <p>The gateway tracks collective system pressure instead of only evaluating a single request in isolation.</p>
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>State</th>
+                            <th>Meaning</th>
+                            <th>Action Taken</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>QUEUED</strong></td>
+                            <td>Action passed simulation and is safe.</td>
+                            <td>Request proceeds.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>BLOCKED</strong></td>
+                            <td>Adding this single action would tip the entire system into high risk.</td>
+                            <td>Request is denied immediately.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>HUMAN_REQUIRED</strong></td>
+                            <td>Action is complex or safety checks exceeded 500ms.</td>
+                            <td>Action is frozen pending administrator signature.</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Risk Metadata vs. Boolean Authorization</h3>
+                <p>In addition to binary authorization decisions, the Enforcement Layer exposes richer risk metadata that can be used inside your own agent logic.</p>
+
+                <h3><span class="code-inline">client.authorize_action(...)</span></h3>
+                <p>Use this call to receive an audit object instead of only a boolean:</p>
+                <div class="code-block">audit = await client.authorize_action(
+    agent_id="agent-01",
+    action_type="resource_deletion",
+    payload={"id": "prod-db-01"}
+)
+
+print(f"Decision: {audit['decision']}")
+print(f"Risk Pressure: {audit['impact_score']}") # 0.0 to 1.0 (Higher is riskier)
+print(f"Enforcement Reason: {audit['reason']}")</div>
+
+                <h3>Strategic Implementation Tips</h3>
+                <ul>
+                    <li><strong>Set realistic thresholds</strong>: <span class="code-inline">0.10</span> is paranoid (financial transactions), while <span class="code-inline">0.80</span> is permissive (read-only workflows).</li>
+                    <li><strong>Handle timeouts</strong>: Build logic for <span class="code-inline">HUMAN_REQUIRED</span> when simulation latency exceeds 500ms.</li>
+                    <li><strong>Use correlation IDs</strong>: Persist each <span class="code-inline">correlationId</span> to trace blocked actions through Identity, Enforcement, and Simulation logs.</li>
                 </ul>
             </section>
 
