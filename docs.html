@@ -44,6 +44,7 @@
                     <a href="#architecture-overview" class="nav-link">Architecture Overview</a>
                     <a href="#error-handling" class="nav-link">Error Handling</a>
                     <a href="#enforcement-circuit-breakers" class="nav-link">Enforcement &amp; Circuit Breakers</a>
+                    <a href="#monitoring-observability" class="nav-link">Monitoring &amp; Observability</a>
                     <a href="#mcp-guard-server" class="nav-link">MCP Guard Server</a>
                 </div>
 
@@ -57,7 +58,7 @@
         <main class="docs-content">
             <div class="docs-header">
                 <h1 class="docs-main-title">Autonomy Infrastructure Documentation</h1>
-                <p class="docs-version">VERSION 0.1.0 (ALPHA) | LAST UPDATED: 2026-03-05</p>
+                <p class="docs-version">VERSION 0.1.0 (ALPHA) | LAST UPDATED: 2026-03-06</p>
             </div>
 
             <hr class="docs-divider">
@@ -268,6 +269,87 @@ print(f"Enforcement Reason: {audit['reason']}")</div>
                 <ul>
                     <li><strong>Local Mode</strong>: Initialize <span class="code-inline">AutonomyClient()</span> without a <span class="code-inline">server_url</span>. It will boot a local <span class="code-inline">AutonomyCore</span> using local SQLite/Memory state.</li>
                     <li><strong>Remote Mode</strong>: Initialize <span class="code-inline">AutonomyClient(server_url="http://...")</span> to communicate with a centralized <span class="code-inline">Autonomy Server</span> (FastAPI).</li>
+                </ul>
+            </section>
+
+            <section id="monitoring-observability" class="docs-section">
+                <h2>Documentation Guide: Monitoring &amp; Observability (The "Eyes")</h2>
+                <p>Adding real-time monitoring transforms the Autonomy Infrastructure into a transparent, operations-ready platform. This section reflects the <strong>Prometheus &amp; Grafana</strong> integration.</p>
+
+                <h3>Operational Command Center</h3>
+                <p>The Autonomy Platform provides a real-time command center using Prometheus and Grafana. This allows human operators to visualize agent behavior and the brakes being applied by the Safety Brain.</p>
+
+                <h3>Launching the Monitoring Stack</h3>
+                <p>The monitoring stack is containerized for easy deployment. To start dashboards alongside services, run:</p>
+                <div class="code-block">docker-compose -f docker-compose.monitoring.yml up -d</div>
+
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Access URL</th>
+                            <th>Default Credentials</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Grafana</strong> (Dashboards)</td>
+                            <td><span class="code-inline">http://localhost:3000</span></td>
+                            <td><span class="code-inline">admin</span> / <span class="code-inline">admin</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Prometheus</strong> (Raw Data)</td>
+                            <td><span class="code-inline">http://localhost:9090</span></td>
+                            <td>N/A</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Metrics Exporter</strong></td>
+                            <td><span class="code-inline">http://localhost:8000/metrics</span></td>
+                            <td>N/A</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Key Performance Metrics (Glossary)</h3>
+
+                <h3>1. Risk &amp; Safety Metrics</h3>
+                <ul>
+                    <li><strong><span class="code-inline">risk_pressure</span> (Gauge)</strong>: Real-time sentiment of the Simulation Layer.</li>
+                    <li><strong>Green (0.0 - 0.3)</strong>: Steady state.</li>
+                    <li><strong>Yellow (0.3 - 0.7)</strong>: Moderate risk; system is carefully shadowing actions.</li>
+                    <li><strong>Red (0.7+)</strong>: High risk; automatic enforcement (blocking) is likely active.</li>
+                    <li><strong><span class="code-inline">blocked_actions_total</span> (Counter)</strong>: Cumulative number of actions stopped by the circuit breaker.</li>
+                </ul>
+
+                <h3>2. Operational Efficiency</h3>
+                <ul>
+                    <li><strong><span class="code-inline">simulation_latency</span> (Histogram)</strong>: Safety-check duration. If this exceeds 500ms consistently, the system triggers <span class="code-inline">HUMAN_REQUIRED</span> failsafe states.</li>
+                    <li><strong><span class="code-inline">cumulative_system_risk</span></strong>: Risk score calculated by the Gateway when evaluating multiple agents as a single batch.</li>
+                </ul>
+
+                <h3>3. Identity &amp; Health</h3>
+                <ul>
+                    <li><strong><span class="code-inline">active_agent_count</span></strong>: Number of cryptographically verified agents currently operating.</li>
+                    <li><strong><span class="code-inline">enforcement_violation_rate</span></strong>: Percentage of actions that attempted to bypass policies but were intercepted.</li>
+                </ul>
+
+                <h3>Incident Response &amp; Human-in-the-Loop</h3>
+                <p>The dashboard is not just for viewing. It is for <strong>decision-making</strong>.</p>
+                <h3>When to Intervene</h3>
+                <ol>
+                    <li><strong>High Risk Plateau</strong>: If <span class="code-inline">risk_pressure</span> stays in Red for more than 5 minutes, investigate the "Top Risky Agents" list.</li>
+                    <li><strong>Latency Spikes</strong>: Increased simulation latency usually indicates the Simulation Layer needs more CPU/RAM.</li>
+                    <li><strong>Approval Queue Overflow</strong>: If <span class="code-inline">PENDING_APPROVAL</span> actions spike, a human administrator should review and sign frozen actions via CLI or UI.</li>
+                </ol>
+
+                <h3>Updated Architecture Flow</h3>
+                <p>The system now operates in a closed observation loop:</p>
+                <p><span class="code-inline">Agent Action</span> -&gt; <span class="code-inline">Safety Brain</span> -&gt; <span class="code-inline">Enforcement Decision</span> -&gt; <span class="code-inline">Prometheus Metric</span> -&gt; <span class="code-inline">Grafana Alert/View</span> -&gt; <span class="code-inline">Human Adjustment</span></p>
+
+                <h3>Strategic Tips</h3>
+                <ul>
+                    <li><strong>Set data retention</strong>: Prometheus defaults to 15 days retention. For long-term governance audits, consider external storage.</li>
+                    <li><strong>Custom alerts</strong>: Configure Grafana alerts for Slack or Email when <span class="code-inline">risk_pressure</span> exceeds <span class="code-inline">0.85</span>.</li>
                 </ul>
             </section>
 
