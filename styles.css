@@ -328,19 +328,19 @@ body {
 }
 
 .glass-title {
-    font-size: 72px;
-    font-weight: 400;
+    font-size: 32px;
+    font-weight: 600;
     color: #111;
-    line-height: 1;
-    letter-spacing: -2px;
+    line-height: 1.2;
+    letter-spacing: -0.5px;
     display: flex;
+    align-items: center;
 }
 
 .glass-dot {
     font-size: 24px;
     line-height: 1;
     margin-right: 6px;
-    margin-top: 10px;
 }
 
 .glass-subtitle {
