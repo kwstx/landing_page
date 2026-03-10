@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - Autonomy Infrastructure</title>
+    <title>Documentation - Agent Translator Middleware</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <link rel="stylesheet" href="docs.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
                     <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z" fill="#111" />
                     </svg>
-                    <span class="logo-text">Autonomy</span>
+                    <span class="logo-text">Translator</span>
                 </a>
             </div>
 
@@ -35,6 +35,7 @@
                 <div class="nav-group">
                     <div class="nav-group-title">GETTING STARTED</div>
                     <a href="#getting-started" class="nav-link active">Getting Started</a>
+                    <a href="#installation" class="nav-link">Installation</a>
                     <a href="#minimal-example" class="nav-link">Minimal Example</a>
                 </div>
 
@@ -43,67 +44,86 @@
                     <a href="#core-api-reference" class="nav-link">Core API Reference</a>
                     <a href="#architecture-overview" class="nav-link">Architecture Overview</a>
                     <a href="#error-handling" class="nav-link">Error Handling</a>
-                    <a href="#enforcement-circuit-breakers" class="nav-link">Enforcement &amp; Circuit Breakers</a>
-                    <a href="#monitoring-observability" class="nav-link">Monitoring &amp; Observability</a>
-                    <a href="#mcp-guard-server" class="nav-link">MCP Guard Server</a>
+                    <a href="#enforcement-semantic-resolution" class="nav-link">Semantic Resolution</a>
                 </div>
 
                 <div class="nav-group">
                     <div class="nav-group-title">ENVIRONMENTS</div>
                     <a href="#development-vs-production" class="nav-link">Development vs Production</a>
                 </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">MONITORING</div>
+                    <a href="#monitoring-observability" class="nav-link">Monitoring &amp; Observability</a>
+                    <a href="#incident-response" class="nav-link">Incident Response</a>
+                </div>
+
+                <div class="nav-group">
+                    <div class="nav-group-title">INTEGRATION</div>
+                    <a href="#mcp-networkx" class="nav-link">MCP &amp; NetworkX</a>
+                </div>
             </nav>
         </aside>
 
         <main class="docs-content">
             <div class="docs-header">
-                <h1 class="docs-main-title">Autonomy Infrastructure Documentation</h1>
-                <p class="docs-version">VERSION 0.1.0 (ALPHA) | LAST UPDATED: 2026-03-06</p>
+                <h1 class="docs-main-title">Agent Translator Middleware Documentation</h1>
+                <p class="docs-version">VERSION 0.1.0 (ALPHA) | LAST UPDATED: 2026-03-10</p>
             </div>
 
             <hr class="docs-divider">
 
             <section id="getting-started" class="docs-section">
                 <h2>Getting Started</h2>
-                <p>Welcome to the Autonomy Infrastructure. This guide provides the accurate technical implementation details for operating autonomous workloads securely using the current codebase.</p>
+                <p>Welcome to the Agent Translator Middleware. This guide provides the accurate technical implementation details for operating seamless cross-protocol agent handoffs (A2A, MCP, ACP) securely using the current codebase.</p>
+            </section>
 
-                <h3>Installation</h3>
-                <p>Currently, the SDK is available within the monorepo. To install in editable mode:</p>
-                <div class="code-block">pip install -e .</div>
+            <section id="installation" class="docs-section">
+                <h2>Installation</h2>
+                <p>Currently, the easiest way to run the middleware with its dependencies (Neon, Redis) is using Docker Compose:</p>
+                <div class="code-block">docker compose up --build</div>
+                
+                <p>To install directly for local development:</p>
+                <div class="code-block">python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt</div>
             </section>
 
             <section id="minimal-example" class="docs-section">
                 <h2>Minimal Example</h2>
-                <p>Register an agent and authorize an action using the <span class="code-inline">AutonomyClient</span>. This demonstrates the core control loop using the actual SDK methods.</p>
+                <p>Initialize the core engine to translate a message and route it via the Orchestrator. This demonstrates the core translation and routing capabilities using the actual SDK-like methods.</p>
                 <div class="code-block">import asyncio
-from autonomy_sdk import AutonomyClient
+from app.core.translator import TranslatorEngine
+from app.core.orchestrator import Orchestrator
 
 async def main():
-    # 1. Initialize the client
-    # Leave server_url=None to use the local in-memory Core Engine
-    client = AutonomyClient(config={}, server_url=None)
+    # 1. Initialize the components
+    translator = TranslatorEngine()
+    orchestrator = Orchestrator(db_url="postgresql://neon_connection_string")
 
-    # 2. Register an agent
-    agent_id = await client.register_agent(
-        agent_id="agent-01",
-        name="DevOps Bot",
-        attributes={"clearance": "level_2"}
-    )
-    print(f"Agent Registered: {agent_id}")
-
-    # 3. Authorize an action
-    # Triggers: Identity -> Enforcement -> Economic -> Simulation -> Scoring
-    is_authorized = await client.authorize(
-        agent_id=agent_id,
-        action_id="tx_999",
-        action_type="deploy_server",
-        payload={"target": "production"}
-    )
-
-    if is_authorized:
-        print("Action Permitted: Executing...")
-    else:
-        print("Action Denied.")
+    # 2. Translate a payload between protocols
+    try:
+        translated = translator.translate(
+            source_message={"payload": {"intent": "schedule_meeting"}},
+            source_protocol="mcp",
+            target_protocol="a2a"
+        )
+        print("Translation successful:", translated)
+        
+        # 3. Handoff via Orchestrator
+        # Triggers: Translation -&gt; Semantic Resolution -&gt; Neon Publish
+        success = await orchestrator.publish(
+            target_queue="agent-a-queue",
+            message=translated
+        )
+        
+        if success:
+            print("Action Permitted: Message routed to target agent.")
+        else:
+            print("Action Denied/Failed in routing.")
+            
+    except Exception as e:
+        print(f"Translation Error: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())</div>
@@ -112,318 +132,189 @@ if __name__ == "__main__":
             <section id="core-api-reference" class="docs-section">
                 <h2>Core API Reference</h2>
 
-                <h3><span class="code-inline">AutonomyClient</span></h3>
-                <p>The primary entry point for developers.</p>
-
+                <h3><span class="code-inline">TranslatorEngine</span></h3>
+                <p>The primary protocol mapping engine.</p>
                 <div class="method-doc">
-                    <div class="method-name">register_agent(agent_id, name=None, attributes=None) -> str</div>
-                    <p>Registers a new agent identity in the system.</p>
+                    <div class="method-name">translate(source_message, source_protocol, target_protocol) -&gt; dict</div>
+                    <p>Applies specific mapping rules for protocol transformations.</p>
                     <ul>
-                        <li><strong>agent_id</strong>: Unique string identifier.</li>
-                        <li><strong>name</strong>: Optional human-readable name.</li>
-                        <li><strong>attributes</strong>: Optional dict of properties (e.g., roles, clearance).</li>
-                        <li><strong>Returns</strong>: The <span class="code-inline">agent_id</span> if successful.</li>
+                        <li><strong>source_message</strong>: The original payload dict.</li>
+                        <li><strong>source_protocol</strong>: Origin protocol (e.g., 'mcp').</li>
+                        <li><strong>target_protocol</strong>: Destination protocol (e.g., 'a2a').</li>
+                        <li><strong>Returns</strong>: Translated dictionary (e.g., converting keys from 'payload' to 'data_bundle'). Raises <span class="code-inline">ProtocolMismatchError</span> if translation is impossible.</li>
                     </ul>
                 </div>
 
+                <h3><span class="code-inline">SemanticMapper</span></h3>
+                <p>The engine for resolving meaning and data schema disparities.</p>
                 <div class="method-doc">
-                    <div class="method-name">authorize(agent_id, action_id, action_type, payload=None) -> bool</div>
-                    <p>Evaluates an action against all safety modules.</p>
+                    <div class="method-name">DataSiloResolver(source_data, target_schema) -&gt; dict</div>
+                    <p>Uses JSON Schema validation to detect differences and resolves them.</p>
                     <ul>
-                        <li><strong>agent_id</strong>: The ID of the executing agent.</li>
-                        <li><strong>action_id</strong>: Unique ID for this specific execution attempt.</li>
-                        <li><strong>action_type</strong>: The category of action (used for policy matching).</li>
-                        <li><strong>payload</strong>: Data related to the action.</li>
-                        <li><strong>Returns</strong>: <span class="code-inline">True</span> if approved, <span class="code-inline">False</span> if rejected.</li>
+                        <li><strong>source_data</strong>: Input data dict.</li>
+                        <li><strong>target_schema</strong>: Expected output schema.</li>
+                        <li><strong>Returns</strong>: Transformed data, flattening nested objects and dynamically mapping fields using PyDatalog and OWL ontologies.</li>
                     </ul>
                 </div>
 
+                <h3><span class="code-inline">DiscoveryService</span></h3>
+                <p>Finds compatible agents based on capabilities.</p>
                 <div class="method-doc">
-                    <div class="method-name">propose_change(proposer_id, changes) -> bool</div>
-                    <p>Submits a governance proposal to update system configuration.</p>
+                    <div class="method-name">ping_agents() -&gt; None</div>
+                    <p>Periodically pings registered agents via <span class="code-inline">aiohttp</span> to check availability.</p>
+                </div>
+                <div class="method-doc">
+                    <div class="method-name">get_collaborators(required_capability) -&gt; list</div>
+                    <p>Calculates compatibility using <span class="code-inline">(shared_protocols + mappable_protocols) / total_protocols</span>.</p>
                     <ul>
-                        <li><strong>proposer_id</strong>: The ID of the agent/user making the proposal.</li>
-                        <li><strong>changes</strong>: Dict of configuration updates.</li>
+                        <li><strong>Returns</strong>: List of agent IDs with scores above 0.7.</li>
                     </ul>
                 </div>
 
+                <h3><span class="code-inline">Orchestrator</span></h3>
+                <p>Handles asynchronous delivery and task chaining.</p>
                 <div class="method-doc">
-                    <div class="method-name">get_system_status() -> dict</div>
-                    <p>Returns the current health and version of the infrastructure.</p>
-                    <ul>
-                        <li><strong>Returns</strong>: <span class="code-inline">{"status": "active", "version": "1.0.0", "connected": True}</span></li>
-                    </ul>
+                    <div class="method-name">publish(target_queue, message) -&gt; bool</div>
+                    <p>Publishes translated messages to agent-specific Neon database queues (e.g., 'agent-uuid-queue').</p>
                 </div>
             </section>
 
             <section id="architecture-overview" class="docs-section">
                 <h2>Architecture Overview</h2>
-                <p>The system follows a strict hierarchical orchestration:</p>
-                <p><strong>Agent Layer</strong> -> <strong>SDK (<span class="code-inline">AutonomyClient</span>)</strong> -> <strong>Core (<span class="code-inline">AutonomyCore</span>)</strong> -> <strong>Specialized Modules</strong></p>
+                <p>The system follows a strict orchestrational hierarchy for agent communication:</p>
+                <div class="architecture-diagram">
+                    <div class="architecture-flow">
+                        <div class="arch-box">Source Agent</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">API Gateway</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Protocol Mapper</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Semantic Resolver</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Orchestration</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Target Agent</div>
+                    </div>
+                </div>
 
-                <p>Current Modules implemented in <span class="code-inline">packages/</span>:</p>
-                <ol>
-                    <li><strong>Identity System</strong>: Verifies agent cryptographic tokens and registry state.</li>
-                    <li><strong>Enforcement Layer</strong>: Deterministic policy validation.</li>
-                    <li><strong>Economic Autonomy</strong>: Monitors budgets and PnL constraints.</li>
-                    <li><strong>Simulation Layer</strong>: Predicts impact of actions in a shadow state.</li>
-                    <li><strong>Scoring Module</strong>: Calculates risk scores based on anomaly vectors.</li>
-                </ol>
+                <p><strong>Current Modules implemented:</strong></p>
+                <ul>
+                    <li><strong>Protocol Mapper</strong>: Deterministic envelope translation (A2A ↔ MCP ↔ ACP).</li>
+                    <li><strong>Semantic Resolver</strong>: Overcomes data silos via JSON schema flattening.</li>
+                    <li><strong>Discovery Service</strong>: Registry state and compatibility scoring.</li>
+                    <li><strong>Orchestration Engine</strong>: Asynchronous task handoffs via Neon Postgres.</li>
+                </ul>
             </section>
 
             <section id="error-handling" class="docs-section">
                 <h2>Error Handling</h2>
-                <p>The SDK raises specialized exceptions located in <span class="code-inline">autonomy_sdk.exceptions</span>:</p>
+                <p>The middleware raises specialized exceptions:</p>
                 <ul>
-                    <li><span class="code-inline">AgentRegistrationError</span>: Failed to create identity.</li>
-                    <li><span class="code-inline">ActionAuthorizationError</span>: Denied due to policy, budget, or risk.</li>
-                    <li><span class="code-inline">ProposalError</span>: Governance submission failed.</li>
-                    <li><span class="code-inline">ClientConnectionError</span>: Could not reach remote Autonomy Server.</li>
+                    <li><span class="code-inline">ProtocolMismatchError</span>: Raised when a requested protocol pairing lacks a translation strategy.</li>
+                    <li><span class="code-inline">AuthError</span>: HTTP 401/403 when JWT validation fails against expected <span class="code-inline">AUTH_ISSUER</span> and <span class="code-inline">AUTH_AUDIENCE</span>.</li>
+                    <li><span class="code-inline">SemanticMappingError</span>: Failed to map payload structurally.</li>
                 </ul>
             </section>
 
-            <section id="enforcement-circuit-breakers" class="docs-section">
-                <h2>Enforcement &amp; Circuit Breakers</h2>
-                <p>Integrating the "Hands" into your application requires understanding how the <strong>Autonomy Infrastructure</strong> moves from simply reporting risk to physically enforcing safety. This section covers two primary methods for bytecode-level safety.</p>
+            <section id="enforcement-semantic-resolution" class="docs-section">
+                <h2>Enforcement &amp; Semantic Resolution</h2>
+                <p>Integrating the Middleware requires understanding how the engine moves from identifying protocol differences to physically morphing data structures. This section covers two primary methods for data-level integration.</p>
 
-                <h3>The "Circuit Breaker" Middleware (SDK)</h3>
-                <p>The strongest way to protect sensitive agent functions is to apply the <strong>Circuit Breaker</strong> middleware directly to execution paths that can mutate state or transfer value.</p>
-
-                <h3>Usage Example</h3>
-                <div class="code-block">from autonomy_sdk import AutonomyClient
-from autonomy_sdk.middleware import circuit_breaker
-
-client = AutonomyClient()
-
-# This decorator intercepts the call and runs it through the Safety Brain
-@circuit_breaker(client, agent_id="agent-01", action_type="transfer_funds", threshold=0.35)
-async def perform_payment(amount: float, recipient: str):
-    # This code will ONLY run if the risk score is below 0.35
-    print(f"Transferring {amount} to {recipient}...")
-    # ... actual network/database logic here ...</div>
+                <h3>The Data Silo Resolver</h3>
+                <p>The strongest way to unify disparate agents is by passing payloads through the <span class="code-inline">DataSiloResolver</span>.</p>
 
                 <h3>How it Works</h3>
                 <ol>
-                    <li><strong>Intercept</strong>: When <span class="code-inline">perform_payment</span> is called, middleware pauses function execution.</li>
-                    <li><strong>Evaluate</strong>: It forwards a request to the <strong>Safety Loop</strong> (Identity -&gt; Enforcement -&gt; Simulation) with a unique <span class="code-inline">correlationId</span>.</li>
-                    <li><strong>Brake</strong>: If the score is below threshold, execution resumes. If above threshold, the SDK raises <span class="code-inline">CircuitBreakerException</span>, preventing network/database side effects.</li>
+                    <li><strong>Intercept</strong>: The resolver intercepts data mid-flight before hitting the <span class="code-inline">Orchestrator</span> queues.</li>
+                    <li><strong>Evaluate Schema</strong>: Uses JSON schema to detect disparities (e.g., checking if the nested <span class="code-inline">user_info.name</span> maps to a flat <span class="code-inline">profile.fullname</span>).</li>
+                    <li><strong>Resolve</strong>: Applies PyDatalog rule engine dynamically. If successful, data flows to the target. If failed, it logs and attempts an ML fallback.</li>
                 </ol>
-
-                <h3>The Unified Gateway (Enforcement)</h3>
-                <p>For external agents, all traffic should route through the <strong>Gateway Service</strong>. Unlike a standard API edge, this gateway enforces <strong>Cumulative System Risk</strong> in real time.</p>
-
-                <h3>Cumulative Risk Enforcement</h3>
-                <p>The gateway tracks collective system pressure instead of only evaluating a single request in isolation.</p>
-                <table class="docs-table">
-                    <thead>
-                        <tr>
-                            <th>State</th>
-                            <th>Meaning</th>
-                            <th>Action Taken</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>QUEUED</strong></td>
-                            <td>Action passed simulation and is safe.</td>
-                            <td>Request proceeds.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>BLOCKED</strong></td>
-                            <td>Adding this single action would tip the entire system into high risk.</td>
-                            <td>Request is denied immediately.</td>
-                        </tr>
-                        <tr>
-                            <td><strong>HUMAN_REQUIRED</strong></td>
-                            <td>Action is complex or safety checks exceeded 500ms.</td>
-                            <td>Action is frozen pending administrator signature.</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>Risk Metadata vs. Boolean Authorization</h3>
-                <p>In addition to binary authorization decisions, the Enforcement Layer exposes richer risk metadata that can be used inside your own agent logic.</p>
-
-                <h3><span class="code-inline">client.authorize_action(...)</span></h3>
-                <p>Use this call to receive an audit object instead of only a boolean:</p>
-                <div class="code-block">audit = await client.authorize_action(
-    agent_id="agent-01",
-    action_type="resource_deletion",
-    payload={"id": "prod-db-01"}
-)
-
-print(f"Decision: {audit['decision']}")
-print(f"Risk Pressure: {audit['impact_score']}") # 0.0 to 1.0 (Higher is riskier)
-print(f"Enforcement Reason: {audit['reason']}")</div>
 
                 <h3>Strategic Implementation Tips</h3>
                 <ul>
-                    <li><strong>Set realistic thresholds</strong>: <span class="code-inline">0.10</span> is paranoid (financial transactions), while <span class="code-inline">0.80</span> is permissive (read-only workflows).</li>
-                    <li><strong>Handle timeouts</strong>: Build logic for <span class="code-inline">HUMAN_REQUIRED</span> when simulation latency exceeds 500ms.</li>
-                    <li><strong>Use correlation IDs</strong>: Persist each <span class="code-inline">correlationId</span> to trace blocked actions through Identity, Enforcement, and Simulation logs.</li>
+                    <li><strong>Set realistic compatibility thresholds</strong>: The Discovery engine considers a score <span class="code-inline">&gt; 0.7</span> as compatible. Monitor how often mismatched agents fail tasks and adjust your queries.</li>
+                    <li><strong>Handle routing paths</strong>: Ensure you handle multi-hop routing paths properly across multiple translations.</li>
+                    <li><strong>Token management</strong>: Standardize JWT deployment so external agents aren't blocked at the external Gateway.</li>
                 </ul>
             </section>
 
             <section id="development-vs-production" class="docs-section">
                 <h2>Development vs Production</h2>
                 <ul>
-                    <li><strong>Local Mode</strong>: Initialize <span class="code-inline">AutonomyClient()</span> without a <span class="code-inline">server_url</span>. It will boot a local <span class="code-inline">AutonomyCore</span> using local SQLite/Memory state.</li>
-                    <li><strong>Remote Mode</strong>: Initialize <span class="code-inline">AutonomyClient(server_url="http://...")</span> to communicate with a centralized <span class="code-inline">Autonomy Server</span> (FastAPI).</li>
+                    <li><strong>Local Mode</strong>: Run using <span class="code-inline">uvicorn app.main:app --reload</span> with a local SQLite/Memory state. Useful for direct HTTP testing.</li>
+                    <li><strong>Remote Mode</strong>: Run via <span class="code-inline">docker compose up --build</span> which boots Redis (Semantic Cache) and connects to Neon configurations required for high-availability production routing.</li>
                 </ul>
             </section>
 
             <section id="monitoring-observability" class="docs-section">
                 <h2>Monitoring &amp; Observability</h2>
-                <p>Adding real-time monitoring transforms the Autonomy Infrastructure into a transparent, operations-ready platform. This section reflects the <strong>Prometheus &amp; Grafana</strong> integration.</p>
+                <p>Adding real-time monitoring transforms the Middleware into an operations-ready platform.</p>
 
                 <h3>Operational Command Center</h3>
-                <p>The Autonomy Platform provides a real-time command center using Prometheus and Grafana. This allows human operators to visualize agent behavior and the brakes being applied by the Safety Brain.</p>
-
-                <h3>Launching the Monitoring Stack</h3>
-                <p>The monitoring stack is containerized for easy deployment. To start dashboards alongside services, run:</p>
-                <div class="code-block">docker-compose -f docker-compose.monitoring.yml up -d</div>
-
-                <table class="docs-table">
-                    <thead>
-                        <tr>
-                            <th>Service</th>
-                            <th>Access URL</th>
-                            <th>Default Credentials</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Grafana</strong> (Dashboards)</td>
-                            <td><span class="code-inline">http://localhost:3000</span></td>
-                            <td><span class="code-inline">admin</span> / <span class="code-inline">admin</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Prometheus</strong> (Raw Data)</td>
-                            <td><span class="code-inline">http://localhost:9090</span></td>
-                            <td>N/A</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Metrics Exporter</strong></td>
-                            <td><span class="code-inline">http://localhost:8000/metrics</span></td>
-                            <td>N/A</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <p>You can view the translation traffic via standard monitoring tools integrated via Docker Compose.</p>
 
                 <h3>Key Performance Metrics (Glossary)</h3>
-
-                <h3>1. Risk &amp; Safety Metrics</h3>
-                <ul>
-                    <li><strong><span class="code-inline">risk_pressure</span> (Gauge)</strong>: Real-time sentiment of the Simulation Layer.</li>
-                    <li><strong>Green (0.0 - 0.3)</strong>: Steady state.</li>
-                    <li><strong>Yellow (0.3 - 0.7)</strong>: Moderate risk; system is carefully shadowing actions.</li>
-                    <li><strong>Red (0.7+)</strong>: High risk; automatic enforcement (blocking) is likely active.</li>
-                    <li><strong><span class="code-inline">blocked_actions_total</span> (Counter)</strong>: Cumulative number of actions stopped by the circuit breaker.</li>
-                </ul>
-
-                <h3>2. Operational Efficiency</h3>
-                <ul>
-                    <li><strong><span class="code-inline">simulation_latency</span> (Histogram)</strong>: Safety-check duration. If this exceeds 500ms consistently, the system triggers <span class="code-inline">HUMAN_REQUIRED</span> failsafe states.</li>
-                    <li><strong><span class="code-inline">cumulative_system_risk</span></strong>: Risk score calculated by the Gateway when evaluating multiple agents as a single batch.</li>
-                </ul>
-
-                <h3>3. Identity &amp; Health</h3>
-                <ul>
-                    <li><strong><span class="code-inline">active_agent_count</span></strong>: Number of cryptographically verified agents currently operating.</li>
-                    <li><strong><span class="code-inline">enforcement_violation_rate</span></strong>: Percentage of actions that attempted to bypass policies but were intercepted.</li>
-                </ul>
-
-                <h3>Incident Response &amp; Human-in-the-Loop</h3>
-                <p>The dashboard is not just for viewing. It is for <strong>decision-making</strong>.</p>
-                <h3>When to Intervene</h3>
                 <ol>
-                    <li><strong>High Risk Plateau</strong>: If <span class="code-inline">risk_pressure</span> stays in Red for more than 5 minutes, investigate the "Top Risky Agents" list.</li>
-                    <li><strong>Latency Spikes</strong>: Increased simulation latency usually indicates the Simulation Layer needs more CPU/RAM.</li>
-                    <li><strong>Approval Queue Overflow</strong>: If <span class="code-inline">PENDING_APPROVAL</span> actions spike, a human administrator should review and sign frozen actions via CLI or UI.</li>
+                    <li><strong>Translation Latency (Histogram)</strong>: Time taken to map and semantically translate a payload.</li>
+                    <li><strong>Protocol Distribution (Counter)</strong>: Metrics differentiating A2A, MCP, and ACP traffic loads.</li>
+                    <li><strong>Compatibility Match Rate (Gauge)</strong>: Shows the average compatibility scores across the <span class="code-inline">DiscoveryService</span>.</li>
                 </ol>
-
-                <h3>Updated Architecture Flow</h3>
-                <p>The system now operates in a closed observation loop:</p>
-                <p><span class="code-inline">Agent Action</span> -&gt; <span class="code-inline">Safety Brain</span> -&gt; <span class="code-inline">Enforcement Decision</span> -&gt; <span class="code-inline">Prometheus Metric</span> -&gt; <span class="code-inline">Grafana Alert/View</span> -&gt; <span class="code-inline">Human Adjustment</span></p>
-
-                <h3>Strategic Tips</h3>
-                <ul>
-                    <li><strong>Set data retention</strong>: Prometheus defaults to 15 days retention. For long-term governance audits, consider external storage.</li>
-                    <li><strong>Custom alerts</strong>: Configure Grafana alerts for Slack or Email when <span class="code-inline">risk_pressure</span> exceeds <span class="code-inline">0.85</span>.</li>
-                </ul>
             </section>
 
-            <section id="mcp-guard-server" class="docs-section">
-                <h2>MCP Guard Server</h2>
-                <p>To ensure the <strong>Autonomy-Guard-Server</strong> is effectively utilized, add this supplement to your core documentation (<span class="code-inline">AUTONOMY_DOCS_VALID.md</span>) or a dedicated <span class="code-inline">MCP_GUIDE.md</span>.</p>
+            <section id="incident-response" class="docs-section">
+                <h2>Incident Response &amp; Human-in-the-Loop</h2>
+                <p>When to Intervene:</p>
+                <ul>
+                    <li><strong>Translation Failures Plateau</strong>: If <span class="code-inline">ProtocolMismatchError</span> rates spike, an ontology patch is needed. Investigate the "Top Incompatible Agents".</li>
+                    <li><strong>Latency Spikes</strong>: Increased semantic mapping latency usually indicates complex nested JSON objects stalling the PyDatalog engine.</li>
+                    <li><strong>Orchestration Queues</strong>: If Neon database queues stall, check if Target Agents are reachable despite <span class="code-inline">DiscoveryService</span> pings.</li>
+                </ul>
 
-                <h3>Autonomy Guard Server (MCP)</h3>
-                <p>The <strong>Autonomy-Guard-Server</strong> is a Model Context Protocol (MCP) implementation that acts as a secure bridge between AI agents and the Autonomy Infrastructure. It exposes the core safety loops (Identity, Enforcement, Economics) as actionable tools for AI assistants.</p>
+                <h3>Updated Architecture Flow</h3>
+                <p>The system operates in a closed observation loop for multi-hop collaborations:</p>
+                <div class="architecture-diagram">
+                    <div class="architecture-flow" style="flex-wrap: wrap;">
+                        <div class="arch-box">Agent Action</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Middleware</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Orchestrator Payload</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Semantic Log</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Metrics</div>
+                        <div class="arch-arrow">→</div>
+                        <div class="arch-box">Human Adjustment</div>
+                    </div>
+                </div>
+            </section>
 
-                <h3>AI Client Configuration</h3>
-                <p>To enable these safety tools in your AI assistant (for example, Claude Desktop or Antigravity), add the following to your configuration file:</p>
+            <section id="mcp-networkx" class="docs-section">
+                <h2>Integrating with MCP &amp; NetworkX</h2>
+                <p>To ensure multi-hop collaborations are efficient, the Orchestrator supports complex routing calculations.</p>
+
+                <h3>NetworkX Handoff Chaining</h3>
+                <p>The Orchestrator utilizes NetworkX to model protocol compatibilities. For complex tasks spanning multiple agents (e.g., A2A -&gt; MCP -&gt; ACP), the engine calculates the shortest path for optimal mapping sequences to minimize data loss.</p>
+
+                <h3>AI Client Configuration for MCP</h3>
+                <p>If using this middleware in front of a standard MCP Guard Server or Claude Desktop, point your MCP client to the middleware.</p>
                 <div class="code-block">{
   "mcpServers": {
-    "autonomy-guard": {
+    "translator-middleware": {
       "command": "python",
-      "args": ["apps/mcp_server/main.py"],
-      "env": {
-          "PYTHONPATH": "packages/autonomy_sdk:packages/autonomy_core"
-      }
+      "args": ["-m", "uvicorn", "app.main:app", "--port", "8000"]
     }
   }
 }</div>
-                <p><em>Note: Use the absolute path to the virtual environment's python executable for production stability.</em></p>
-
-                <h3>Available MCP Tools</h3>
-                <p>The Guard Server exposes the following specialized tools to the AI:</p>
-
-                <div class="method-doc">
-                    <div class="method-name">1. register_agent</div>
-                    <p><strong>Purpose</strong>: Establishes a cryptographically verifiable identity.</p>
-                    <ul>
-                        <li><strong>Input</strong>: <span class="code-inline">agent_id</span>, <span class="code-inline">name</span>, <span class="code-inline">attributes</span> (Optional).</li>
-                        <li><strong>Loop</strong>: Triggers the <strong>Identity Validation Loop</strong>.</li>
-                    </ul>
-                </div>
-
-                <div class="method-doc">
-                    <div class="method-name">2. authorize_action</div>
-                    <p><strong>Purpose</strong>: The mandatory safety barrier for all operations.</p>
-                    <ul>
-                        <li><strong>Input</strong>: <span class="code-inline">agent_id</span>, <span class="code-inline">action_type</span>, <span class="code-inline">payload</span>.</li>
-                        <li><strong>Loop</strong>: Triggers the full <strong>Orchestrated Validation Loop</strong> (Identity -&gt; Enforcement -&gt; Economics -&gt; Scoring -&gt; Simulation).</li>
-                        <li><strong>Output</strong>: Returns a clear <span class="code-inline">PERMITTED</span> or <span class="code-inline">BLOCKED</span> status with a risk assessment summary.</li>
-                    </ul>
-                </div>
-
-                <div class="method-doc">
-                    <div class="method-name">3. propose_governance_change</div>
-                    <p><strong>Purpose</strong>: Modifies system-wide safety or economic policies.</p>
-                    <ul>
-                        <li><strong>Input</strong>: <span class="code-inline">proposer_id</span>, <span class="code-inline">changes</span>.</li>
-                        <li><strong>Loop</strong>: Triggers the <strong>Economic Validation and Voting Loop</strong>.</li>
-                    </ul>
-                </div>
-
-                <div class="method-doc">
-                    <div class="method-name">4. get_system_status</div>
-                    <p><strong>Purpose</strong>: Returns high-level health metrics of the autonomy stack.</p>
-                </div>
-
-                <h3>Launching the Server</h3>
-                <p>The server uses the <strong>Standard I/O (stdio)</strong> transport. It can be launched directly via:</p>
-                <div class="code-block">cd apps/mcp_server
-.\.venv\Scripts\python main.py</div>
 
                 <h3>Strategic Tips for Documentation</h3>
                 <ul>
-                    <li><strong>Highlight the mandatory nature</strong>: Emphasize that <span class="code-inline">authorize_action</span> must be called before any state-changing operation.</li>
-                    <li><strong>Explain risk scores</strong>: Detail how the Risk Assessment in the tool output reflects the internal sentiment of the Scoring and Simulation modules.</li>
-                    <li><strong>Environment isolation</strong>: Mention that the MCP server runs in its own virtual environment to prevent dependency conflicts with the core services.</li>
+                    <li><strong>Highlight Semantic Importance</strong>: Emphasize that protocol mapping envelope translation is incomplete without semantic ontology mapping.</li>
+                    <li><strong>Explain Compatibility Scores</strong>: Detail how the Discovery service score effectively filters appropriate agents using <span class="code-inline">(shared_protocols + mappable_protocols) / total_protocols</span>.</li>
+                    <li><strong>Environment Isolation</strong>: Mention that Redis is essential to cache ontology trees to prevent latency bottlenecks in <span class="code-inline">DataSiloResolver</span>.</li>
                 </ul>
             </section>
-
         </main>
     </div>
 
