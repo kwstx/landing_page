@@ -170,10 +170,10 @@
             <section class="faq-section">
                 <div class="faq-sidebar">
                     <h1 class="faq-sidebar-title">
-                        <div>Infrastructure</div>
-                        <div>Modules</div>
-                        <div>for Agentic</div>
-                        <div>Governance</div>
+                        <div>Agent</div>
+                        <div>Translator</div>
+                        <div>Middleware</div>
+                        <div>for Interoperable</div>
                         <div>Systems</div>
                     </h1>
                 </div>
@@ -185,55 +185,47 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Autonomous agents can execute actions without oversight, cost control, or structured
-                            accountability. This infrastructure adds programmable governance, economic guardrails,
-                            identity verification, and enforcement layers to ensure agents operate safely and
-                            predictably.
+                            AI agents today are often isolated because they speak different protocols (MCP, ACP, native A2A) and use differing data schemas. This middleware acts as a universal translator, allowing agents to seamlessly collaborate without changing their underlying code.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">How is this different from normal permission systems?</div>
+                            <div class="faq-question">How is this different from normal API gateways?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Traditional permission systems are static and user-based. This system is agent-native. It
-                            supports dynamic delegation chains, budget constraints, policy evaluation before execution,
-                            and multi-agent coordination workflows.
+                            Traditional API gateways just route raw requests between services. This system is agent-native. It translates protocol envelopes (MCP, ACP, A2A) and actively resolves semantic differences in data payloads using ontologies and rule engines.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Do I need to use all modules?</div>
+                            <div class="faq-question">Do I need to use all features?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. Each module is modular. You can integrate identity only, enforcement only, or the full
-                            autonomy stack depending on your needs.
+                            No. Each feature is modular. You can integrate protocol translation only, semantic mapping only, or the full orchestration and discovery stack depending on your needs.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Does this replace my existing backend?</div>
+                            <div class="faq-question">Does this replace my existing agents?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. It acts as a governance and execution layer on top of your agents. Your existing systems
-                            remain intact.
+                            No. It acts as a translation and communication layer between your agents. Your existing agents and underlying backends remain intact.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">How are actions validated before execution?</div>
+                            <div class="faq-question">How are messages translated before delivery?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Every action flows through identity verification, policy evaluation, budget checks, and
-                            optional simulation. If any layer fails, execution is blocked.
+                            Every message flows through protocol conversion, semantic mapping rules, and validation. If default mapping fails, an ML fallback model suggests field alignments before forwarding to ensure data integrity.
                         </div>
                     </div>
 
@@ -243,30 +235,27 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. It works with any autonomous process capable of executing actions — LLM agents,
-                            automated workflows, robotic systems, or AI services.
+                            No. It works with any autonomous process capable of communicating over network protocols — LLM agents, automated workflows, robotic systems, or traditional software services.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">How are budgets enforced?</div>
+                            <div class="faq-question">How are data schemas aligned?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Each agent can operate under programmable economic constraints, including spending limits,
-                            dynamic adjustments, and scoped resource allocation.
+                            Through OWL ontologies, JSON Schema validation, and PyDatalog rules that dynamically map fields (e.g., `user_info.name` to `profile.fullname`) between different agent schemas.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Can agents modify their own rules?</div>
+                            <div class="faq-question">Can agents dynamically discover collaborators?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Only through structured governance proposals, versioning, and rollback mechanisms.
-                            Self-modification is controlled, not unrestricted.
+                            Yes. Agents can use the Registry & Discovery service to find collaborators. They publish their capabilities, and a compatibility score is evaluated before handoff.
                         </div>
                     </div>
 
@@ -276,7 +265,7 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. It can run locally, self-hosted, or integrated into your existing infrastructure.
+                            No. It can run locally via Docker Compose, be self-hosted, or integrated into your existing cloud infrastructure like Render or Cloud Run.
                         </div>
                     </div>
 
@@ -286,8 +275,7 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            It is designed as a modular infrastructure foundation. Production readiness depends on
-                            configuration, scaling, and security setup.
+                            It is designed as a robust middleware foundation. Production readiness depends on your specific scaling, high availability (e.g., Redis deployment), and authentication configuration.
                         </div>
                     </div>
 
@@ -297,19 +285,17 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Developers and teams building autonomous AI systems that require structured control,
-                            economic discipline, and execution accountability.
+                            Developers and teams building multi-agent AI systems that require seamless interoperability, protocol translation, and semantic data coordination across isolated stacks.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Why not just rely on model guardrails?</div>
+                            <div class="faq-question">Why not just force all agents to use one standard?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Model guardrails are probabilistic. This infrastructure enforces deterministic, programmable
-                            controls outside the model.
+                            Standardization across diverse ecosystems is difficult and slow. This middleware embraces protocol diversity, enforcing translation outside the agent so you don't have to rewrite existing integrations.
                         </div>
                     </div>
 
