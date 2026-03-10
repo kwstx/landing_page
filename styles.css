@@ -112,7 +112,7 @@ body {
     color: #111;
 }
 
-.line2 {
+.line1, .line2 {
     display: flex;
     align-items: center;
     gap: 12px;
