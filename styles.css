@@ -926,7 +926,7 @@ body {
 }
 
 .api-cta-inner {
-    max-width: 760px;
+    max-width: 980px;
     padding-left: 16px;
 }
 
@@ -945,6 +945,7 @@ body {
     color: #f07ea1;
     letter-spacing: -1.8px;
     margin-bottom: 48px;
+    max-width: 900px;
 }
 
 .api-cta-desc {
