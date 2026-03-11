@@ -169,6 +169,8 @@ body {
     line-height: 1.5;
     color: #555;
     letter-spacing: -0.2px;
+    animation: fadeInUp 0.8s ease-out 0.2s forwards;
+    opacity: 0; /* Starts hidden before the animation */
 }
 
 .features-list {
