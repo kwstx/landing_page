@@ -30,28 +30,26 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background-color: #ffffff;
-    padding: 16px 32px;
-    border-radius: 999px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.02);
+    width: 100%;
+    padding: 16px 0;
 }
 
 .logo-container {
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.logo-icon {
-    width: 24px;
-    height: 24px;
 }
 
 .logo-text {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    font-weight: 400;
     letter-spacing: -0.5px;
     color: #111;
+}
+
+.nav-right-container {
+    display: flex;
+    align-items: center;
+    gap: 32px;
 }
 
 .nav-links {
@@ -61,14 +59,35 @@ body {
 
 .nav-links a {
     text-decoration: none;
-    color: #555;
+    color: #111;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 400;
     transition: color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .nav-links a:hover {
+    color: #555;
+}
+
+.nav-button {
+    background-color: #6ef1d2;
     color: #111;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.2s;
+}
+
+.nav-button:hover {
+    background-color: #5ce3c4;
 }
 
 /* Hero Section */
