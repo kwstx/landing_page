@@ -281,12 +281,22 @@
             const showcaseItems = Array.from(document.querySelectorAll('.showcase-item'));
             const showcaseLeft = document.querySelector('.showcase-left');
             const showcaseRight = document.querySelector('.showcase-right');
+            const showcaseDesc = document.querySelector('.showcase-desc');
+
+            const showcaseCopy = [
+                "A bridging layer for agents connects incompatible systems without rewriting core protocols, enabling seamless handoffs across networks and tools.",
+                "Use Protocol Orchestration to ensure that messages are mapped and schema-compliant (and not isolated silos) to enable collaborations that require seamless interoperability, semantic resolution, and cross-protocol handoffs.",
+                "Semantic Mapping normalizes intent across schemas, so data stays meaningful and consistent even when agents speak different formats."
+            ];
 
             const setShowcaseActive = (activeIndex) => {
                 showcaseItems.forEach((item, index) => {
                     item.classList.toggle('active', index === activeIndex);
                     item.classList.toggle('inactive', index !== activeIndex);
                 });
+                if (showcaseDesc && showcaseCopy[activeIndex]) {
+                    showcaseDesc.textContent = showcaseCopy[activeIndex];
+                }
             };
 
             if (showcaseSection && showcaseItems.length) {
