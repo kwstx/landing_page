@@ -1415,7 +1415,7 @@ body {
 }
 
 .showcase-card {
-    background: #f4f4f5;
+    background: #DFDFDF;
     border-radius: 28px;
     padding: 60px 48px;
     display: flex;
@@ -1434,7 +1434,6 @@ body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background-color: #DFDFDF;
 }
 
 .showcase-image img {
