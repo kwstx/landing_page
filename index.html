@@ -126,8 +126,18 @@
                             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                     </div>
-                    <div class="showcase-item inactive">Protocol orchestration</div>
-                    <div class="showcase-item inactive">Semantic mapping</div>
+                    <div class="showcase-item inactive">
+                        Protocol orchestration
+                        <svg class="arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <div class="showcase-item inactive">
+                        Semantic mapping
+                        <svg class="arrow-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 
@@ -266,6 +276,48 @@
             // Target the specific section headers and descriptions
             const elementsToAnimate = document.querySelectorAll('.world-id-title, .world-id-desc');
             elementsToAnimate.forEach(el => observer.observe(el));
+
+            const showcaseSection = document.querySelector('.products-showcase-section');
+            const showcaseItems = Array.from(document.querySelectorAll('.showcase-item'));
+
+            const setShowcaseActive = (activeIndex) => {
+                showcaseItems.forEach((item, index) => {
+                    item.classList.toggle('active', index === activeIndex);
+                    item.classList.toggle('inactive', index !== activeIndex);
+                });
+            };
+
+            if (showcaseSection && showcaseItems.length) {
+                let ticking = false;
+
+                const updateShowcaseOnScroll = () => {
+                    const rect = showcaseSection.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+                    const inView = rect.top < viewportHeight && rect.bottom > 0;
+
+                    if (!inView) {
+                        ticking = false;
+                        return;
+                    }
+
+                    const scrollSpan = Math.max(1, rect.height - viewportHeight);
+                    const progress = Math.min(1, Math.max(0, (0 - rect.top) / scrollSpan));
+                    const index = Math.min(showcaseItems.length - 1, Math.floor(progress * showcaseItems.length));
+
+                    setShowcaseActive(index);
+                    ticking = false;
+                };
+
+                const onScroll = () => {
+                    if (!ticking) {
+                        window.requestAnimationFrame(updateShowcaseOnScroll);
+                        ticking = true;
+                    }
+                };
+
+                window.addEventListener('scroll', onScroll, { passive: true });
+                updateShowcaseOnScroll();
+            }
         });
     </script>
 </body>
