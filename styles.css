@@ -939,12 +939,12 @@ body {
 }
 
 .api-cta-title {
-    font-size: 64px;
+    font-size: 88px;
     line-height: 1.05;
     font-weight: 500;
     color: #f07ea1;
     letter-spacing: -1.8px;
-    margin-bottom: 28px;
+    margin-bottom: 48px;
 }
 
 .api-cta-desc {
@@ -1810,7 +1810,7 @@ body {
     }
 
     .api-cta-title {
-        font-size: 36px;
+        font-size: 44px;
         letter-spacing: -1px;
         margin-bottom: 20px;
     }
