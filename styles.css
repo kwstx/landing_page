@@ -928,6 +928,7 @@ body {
 .api-cta-inner {
     max-width: 980px;
     padding-left: 16px;
+    margin-top: -10px;
 }
 
 .api-cta-kicker {
