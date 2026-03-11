@@ -1437,8 +1437,8 @@ body {
 }
 
 .showcase-image img {
-    width: 140%;
-    height: 140%;
+    width: 155%;
+    height: 155%;
     object-fit: contain;
     mix-blend-mode: multiply;
     max-width: none;
