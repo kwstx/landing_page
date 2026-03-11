@@ -328,7 +328,7 @@ body {
 }
 
 .glass-title {
-    font-size: 32px;
+    font-size: 28px;
     font-weight: 400;
     color: #2a2a2a;
     line-height: 1.2;
@@ -344,7 +344,7 @@ body {
 }
 
 .glass-subtitle {
-    font-size: 20px;
+    font-size: 28px;
     font-weight: 400;
     color: #2a2a2a;
     line-height: 1.2;
@@ -1355,13 +1355,10 @@ body {
         border-radius: 20px;
     }
 
-    .glass-title {
-        font-size: 40px;
-    }
-
+    .glass-title,
     .glass-subtitle {
-        font-size: 24px;
-        margin-top: 2px;
+        font-size: 28px;
+        line-height: 1.2;
     }
 
     .glass-desc {
