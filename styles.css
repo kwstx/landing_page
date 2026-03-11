@@ -216,7 +216,6 @@ body {
     height: 100%;
     object-fit: cover;
     object-position: center 45%;
-    transform: scale(0.9);
     /* Keeps aspect ratio perfectly normal while showing the best part of the rings */
 }
 
