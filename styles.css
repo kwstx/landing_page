@@ -1440,6 +1440,8 @@ body {
     height: 100%;
     object-fit: contain;
     mix-blend-mode: multiply;
+    transform: scale(1.08);
+    transform-origin: center;
 }
 
 .showcase-desc {
