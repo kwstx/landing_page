@@ -1339,6 +1339,135 @@ body {
     transform: translateX(-50%);
 }
 
+/* Products Showcase Section */
+.products-showcase-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-top: 150px;
+    padding-bottom: 150px;
+    gap: 80px;
+}
+
+.showcase-left {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+}
+
+.showcase-subtitle {
+    font-size: 15px;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 60px;
+}
+
+.showcase-indicator {
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+}
+
+.showcase-indicator .active-num {
+    color: #111;
+}
+
+.showcase-indicator .line {
+    color: #d1d1d1;
+}
+
+.showcase-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.showcase-item {
+    font-size: 40px;
+    font-weight: 400;
+    letter-spacing: -1.2px;
+    color: #c0c0c0;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.showcase-item.active {
+    color: #111;
+}
+
+.showcase-item .arrow-icon {
+    opacity: 0;
+    transform: translateX(-16px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.showcase-item.active .arrow-icon {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.showcase-right {
+    width: 60%;
+}
+
+.showcase-card {
+    background: #f4f4f5;
+    border-radius: 28px;
+    padding: 60px 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.showcase-image {
+    width: 240px;
+    height: 240px;
+    margin-bottom: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.showcase-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+}
+
+.showcase-desc {
+    font-size: 16px;
+    line-height: 1.5;
+    color: #111;
+    margin-bottom: 32px;
+    text-align: left;
+    width: 100%;
+    max-width: 480px;
+}
+
+.showcase-btn {
+    align-self: flex-start;
+    background-color: #000;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.showcase-btn:hover {
+    background-color: #333;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .page-container {
@@ -1429,7 +1558,7 @@ body {
         font-size: 13px;
     }
 
-    .world-id-section,
+    .products-showcase-section,
     .how-it-works-section,
     .credentials-section,
     .deepfakes-section,
@@ -1450,14 +1579,35 @@ body {
         padding-bottom: 20px;
     }
 
-    .world-id-sidebar,
     .get-world-id-sidebar {
         width: 100%;
         margin-bottom: 24px;
     }
 
-    .world-id-content,
-    .world-id-visual,
+    .showcase-left,
+    .showcase-right {
+        width: 100%;
+    }
+
+    .showcase-subtitle,
+    .showcase-indicator {
+        margin-bottom: 24px;
+    }
+
+    .showcase-item {
+        font-size: 32px;
+    }
+
+    .showcase-card {
+        padding: 32px 24px;
+    }
+
+    .showcase-image {
+        width: 180px;
+        height: 180px;
+        margin-bottom: 32px;
+    }
+
     .how-it-works-content,
     .credentials-content,
     .deepfakes-content,
