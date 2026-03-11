@@ -1347,12 +1347,16 @@ body {
     margin-top: 150px;
     padding-bottom: 150px;
     gap: 80px;
+    min-height: 300vh;
+    position: relative;
 }
 
 .showcase-left {
     width: 40%;
     display: flex;
     flex-direction: column;
+    position: sticky;
+    top: 120px;
 }
 
 .showcase-subtitle {
@@ -1412,6 +1416,8 @@ body {
 
 .showcase-right {
     width: 60%;
+    position: sticky;
+    top: 120px;
 }
 
 .showcase-card {
