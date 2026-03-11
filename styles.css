@@ -213,7 +213,7 @@ body {
     position: relative;
     width: 100vw;
     margin-left: calc(50% - 50vw);
-    height: 480px;
+    height: 380px;
     border-radius: 36px 36px 0 0;
     overflow: hidden;
     flex-shrink: 0;
