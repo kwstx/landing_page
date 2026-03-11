@@ -279,6 +279,8 @@
 
             const showcaseSection = document.querySelector('.products-showcase-section');
             const showcaseItems = Array.from(document.querySelectorAll('.showcase-item'));
+            const showcaseLeft = document.querySelector('.showcase-left');
+            const showcaseRight = document.querySelector('.showcase-right');
 
             const setShowcaseActive = (activeIndex) => {
                 showcaseItems.forEach((item, index) => {
@@ -289,6 +291,16 @@
 
             if (showcaseSection && showcaseItems.length) {
                 let ticking = false;
+
+                const updateStickyOffset = () => {
+                    if (!showcaseLeft || !showcaseRight) {
+                        return;
+                    }
+                    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+                    const blockHeight = Math.max(showcaseLeft.offsetHeight, showcaseRight.offsetHeight);
+                    const topOffset = Math.max(24, Math.round((viewportHeight - blockHeight) / 2));
+                    document.documentElement.style.setProperty('--showcase-sticky-top', `${topOffset}px`);
+                };
 
                 const updateShowcaseOnScroll = () => {
                     const rect = showcaseSection.getBoundingClientRect();
@@ -315,7 +327,9 @@
                     }
                 };
 
+                window.addEventListener('resize', updateStickyOffset);
                 window.addEventListener('scroll', onScroll, { passive: true });
+                updateStickyOffset();
                 updateShowcaseOnScroll();
             }
         });
