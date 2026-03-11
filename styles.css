@@ -209,12 +209,12 @@ body {
     background-color: #000;
 }
 
-/* Hero Bottom Card */
 .hero-bottom-card {
     position: relative;
-    width: 100%;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
     height: 380px;
-    border-radius: 36px;
+    border-radius: 36px 36px 0 0;
     overflow: hidden;
     flex-shrink: 0;
 }
