@@ -110,6 +110,19 @@ body {
     font-weight: 400;
     letter-spacing: -2.5px;
     color: #111;
+    animation: fadeInUpPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    opacity: 0; /* Starts hidden before the animation */
+}
+
+@keyframes fadeInUpPop {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 .line1, .line2 {
