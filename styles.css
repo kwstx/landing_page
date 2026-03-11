@@ -918,6 +918,68 @@ body {
     padding-bottom: 150px;
 }
 
+/* API CTA Section */
+.api-cta-section {
+    display: flex;
+    justify-content: flex-start;
+    padding: 120px 0 140px;
+}
+
+.api-cta-inner {
+    max-width: 760px;
+    padding-left: 16px;
+}
+
+.api-cta-kicker {
+    display: inline-block;
+    font-size: 14px;
+    color: #6f6f6f;
+    margin-bottom: 22px;
+    letter-spacing: -0.1px;
+}
+
+.api-cta-title {
+    font-size: 64px;
+    line-height: 1.05;
+    font-weight: 500;
+    color: #f07ea1;
+    letter-spacing: -1.8px;
+    margin-bottom: 28px;
+}
+
+.api-cta-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #333;
+    max-width: 620px;
+    margin-bottom: 22px;
+}
+
+.api-cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #bdbdbd;
+    color: #111;
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color 0.2s, color 0.2s, transform 0.2s;
+}
+
+.api-cta-button:hover {
+    border-color: #8c8c8c;
+    color: #000;
+    transform: translateY(-1px);
+}
+
+.api-cta-arrow {
+    font-size: 16px;
+    line-height: 1;
+}
+
 .how-it-works-content {
     width: 75%;
     margin-left: 25px;
@@ -1577,7 +1639,8 @@ body {
     .credentials-section,
     .deepfakes-section,
     .get-world-id-section,
-    .financial-section {
+    .financial-section,
+    .api-cta-section {
         flex-direction: column;
         margin-top: 60px;
         padding-bottom: 60px;
@@ -1657,7 +1720,9 @@ body {
     .deepfakes-subtitle br,
     .deepfakes-desc br,
     .distinguish-title br,
-    .financial-content br {
+    .financial-content br,
+    .api-cta-title br,
+    .api-cta-desc br {
         display: none;
     }
 
@@ -1734,5 +1799,24 @@ body {
 
     .faq-link-wrapper {
         margin-top: 0;
+    }
+
+    .api-cta-section {
+        padding: 60px 0 80px;
+    }
+
+    .api-cta-inner {
+        padding-left: 0;
+    }
+
+    .api-cta-title {
+        font-size: 36px;
+        letter-spacing: -1px;
+        margin-bottom: 20px;
+    }
+
+    .api-cta-desc {
+        font-size: 13px;
+        margin-bottom: 18px;
     }
 }
