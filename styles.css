@@ -387,11 +387,11 @@ body {
 
 .world-id-title {
     font-size: 44px;
-    font-weight: 500;
+    font-weight: 400;
     letter-spacing: -1.2px;
     color: #2a2a2a;
     margin-bottom: 24px;
-    line-height: 1.1;
+    line-height: 1.15;
     margin-top: -6px;
 }
 
