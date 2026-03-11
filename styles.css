@@ -1308,6 +1308,26 @@ body {
     letter-spacing: -0.5px;
 }
 
+/* Financial Section */
+.financial-section {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: 150px;
+    padding-bottom: 150px;
+}
+
+.financial-content {
+    font-size: 44px;
+    line-height: 1.15;
+    font-weight: 400;
+    color: #111;
+    letter-spacing: -1.2px;
+}
+
+.financial-content .text-gray {
+    color: #a0a0a0;
+}
+
 /* Bottom Grey Bar */
 .bottom-grey-bar {
     width: 100vw;
@@ -1413,7 +1433,8 @@ body {
     .how-it-works-section,
     .credentials-section,
     .deepfakes-section,
-    .get-world-id-section {
+    .get-world-id-section,
+    .financial-section {
         flex-direction: column;
         margin-top: 60px;
         padding-bottom: 60px;
@@ -1440,7 +1461,8 @@ body {
     .how-it-works-content,
     .credentials-content,
     .deepfakes-content,
-    .get-world-id-content {
+    .get-world-id-content,
+    .financial-content {
         width: 100%;
         max-width: 100%;
         margin-left: 0;
@@ -1470,8 +1492,13 @@ body {
     .info-item-desc br,
     .deepfakes-subtitle br,
     .deepfakes-desc br,
-    .distinguish-title br {
+    .distinguish-title br,
+    .financial-content br {
         display: none;
+    }
+
+    .financial-content {
+        font-size: 32px;
     }
 
     .credentials-items,
