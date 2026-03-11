@@ -1444,6 +1444,7 @@ body {
     mix-blend-mode: multiply;
     max-width: none;
     max-height: none;
+    background-color: #DFDFDF;
 }
 
 .showcase-desc {
