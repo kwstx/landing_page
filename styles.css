@@ -1426,8 +1426,8 @@ body {
 
 .showcase-image {
     width: 100%;
-    max-width: 420px;
-    height: 420px;
+    max-width: 380px;
+    height: 380px;
     margin-bottom: 32px;
     align-self: center;
     display: flex;
@@ -1605,8 +1605,8 @@ body {
     }
 
     .showcase-image {
-        width: 180px;
-        height: 180px;
+        width: 160px;
+        height: 160px;
         margin-bottom: 32px;
     }
 
