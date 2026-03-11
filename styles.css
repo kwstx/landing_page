@@ -948,6 +948,10 @@ body {
     max-width: 900px;
 }
 
+.nowrap {
+    white-space: nowrap;
+}
+
 .api-cta-desc {
     font-size: 14px;
     line-height: 1.6;
