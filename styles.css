@@ -1420,24 +1420,26 @@ body {
     padding: 60px 48px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    text-align: left;
 }
 
 .showcase-image {
-    width: 240px;
-    height: 240px;
-    margin-bottom: 48px;
+    width: 100%;
+    height: 380px;
+    margin-bottom: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
 }
 
 .showcase-image img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
     mix-blend-mode: multiply;
+    transform: scale(1.2);
 }
 
 .showcase-desc {
