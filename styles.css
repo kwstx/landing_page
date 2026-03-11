@@ -1356,7 +1356,7 @@ body {
     display: flex;
     flex-direction: column;
     position: sticky;
-    top: 120px;
+    top: 180px;
 }
 
 .showcase-subtitle {
@@ -1417,7 +1417,7 @@ body {
 .showcase-right {
     width: 60%;
     position: sticky;
-    top: 120px;
+    top: 180px;
 }
 
 .showcase-card {
