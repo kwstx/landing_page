@@ -1256,21 +1256,21 @@ body {
 }
 
 .why-choose-right {
-    flex: 0 0 320px;
+    flex: 0 0 360px;
     display: flex;
     flex-direction: column;
     gap: 56px;
     padding-right: 8px;
     margin-left: auto;
     padding-top: 18px;
-    transform: translateX(12px);
+    transform: translateX(-56px);
 }
 
 .why-choose-item {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    max-width: 320px;
+    max-width: 360px;
 }
 
 .why-choose-icon {
@@ -1875,6 +1875,17 @@ body {
         padding-right: 0;
         padding-top: 0;
         transform: none;
+    }
+
+    .why-choose-right {
+        max-width: 320px;
+        margin-left: 0;
+        padding-left: 12px;
+        align-self: flex-start;
+    }
+
+    .why-choose-item {
+        max-width: 320px;
     }
 
     .how-it-works-section .how-it-works-content {
