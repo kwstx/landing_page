@@ -1742,6 +1742,10 @@ body {
         border-radius: 24px;
     }
 
+    .bottom-card-bg img {
+        object-position: center 40%;
+    }
+
     .users-badge-container {
         left: 16px;
         bottom: 0;
