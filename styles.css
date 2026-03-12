@@ -1738,13 +1738,13 @@ body {
     }
 
     .hero-bottom-card {
-        height: 340px;
+        height: 380px;
         border-radius: 24px;
     }
 
     .bottom-card-bg img {
-        object-position: center top;
-        transform: scale(1.12) translateY(-14%);
+        object-position: center 10%;
+        transform: scale(1.02);
     }
 
     .users-badge-container {
