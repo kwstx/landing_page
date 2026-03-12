@@ -1820,8 +1820,9 @@ body {
     }
 
     .products-showcase-section {
-        min-height: auto;
+        min-height: 200vh;
         gap: 24px;
+        padding-bottom: 120px;
     }
 
     .showcase-left {
@@ -1831,6 +1832,7 @@ body {
     .showcase-right {
         position: sticky;
         top: var(--showcase-sticky-top, 180px);
+        align-self: flex-start;
     }
 
     .showcase-subtitle,
