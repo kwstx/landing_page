@@ -1218,65 +1218,73 @@ body {
     margin-top: 60px;
 }
 
-/* Deepfakes Section */
+/* Why Choose Section */
 .deepfakes-section {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: flex-start;
-    padding-top: 120px;
-    padding-bottom: 150px;
+    padding: 120px 0 150px;
+    gap: 80px;
 }
 
-.deepfakes-content {
-    width: 75%;
-    margin-left: 25px;
+.why-choose-left {
+    width: 44%;
+    min-width: 320px;
 }
 
-.deepfakes-title {
-    font-size: 44px;
-    font-weight: 400;
-    letter-spacing: -1.2px;
-    color: #2a2a2a;
-    margin-bottom: 64px;
-    line-height: 1.15;
-    margin-top: -6px;
+.why-choose-kicker {
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b6b6b;
+    letter-spacing: -0.2px;
+    display: inline-block;
+    margin-bottom: 22px;
 }
 
-.deepfakes-subtitle {
-    font-size: 24px;
-    font-weight: 400;
-    color: #2a2a2a;
-    letter-spacing: -0.5px;
-    margin-bottom: 24px;
-    line-height: 1.3;
+.why-choose-title {
+    font-size: 48px;
+    font-weight: 500;
+    letter-spacing: -1.4px;
+    color: #111;
+    line-height: 1.1;
 }
 
-.deepfakes-desc {
-    font-size: 17px;
-    line-height: 1.5;
-    color: #444;
-    margin-bottom: 40px;
+.why-choose-right {
+    width: 56%;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
 }
 
-.deepfakes-link-wrapper {
-    margin-top: 10px;
+.why-choose-item {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
 }
 
-.deepfakes-link {
-    font-size: 16px;
-    font-weight: 400;
-    color: #333;
-    text-decoration: none;
-    border-bottom: 1px solid #333;
-    padding-bottom: 2px;
-    transition: color 90ms ease-out, border-color 90ms ease-out, box-shadow 90ms ease-out;
+.why-choose-icon {
+    width: 36px;
+    height: 36px;
+    color: #111;
 }
 
-.deepfakes-link:hover,
-.deepfakes-link:focus-visible {
-    color: #0b6a3f;
-    border-bottom-color: #0b6a3f;
-    box-shadow: 0 2px 0 0 rgba(11, 106, 63, 0.28);
+.why-choose-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.why-choose-item-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #111;
+    letter-spacing: -0.2px;
+}
+
+.why-choose-item-desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #4b4b4b;
+    max-width: 420px;
 }
 
 /* Distinguish Section */
@@ -1654,8 +1662,8 @@ body {
 
     .deepfakes-section {
         padding-top: 60px;
-        padding-bottom: 20px;
-        /* adjusted */
+        padding-bottom: 40px;
+        gap: 40px;
     }
 
     .how-it-works-section {
@@ -1693,9 +1701,10 @@ body {
 
     .how-it-works-content,
     .credentials-content,
-    .deepfakes-content,
     .get-world-id-content,
-    .financial-content {
+    .financial-content,
+    .why-choose-left,
+    .why-choose-right {
         width: 100%;
         max-width: 100%;
         margin-left: 0;
@@ -1714,7 +1723,7 @@ body {
     .world-id-title,
     .how-it-works-title,
     .credentials-title,
-    .deepfakes-title {
+    .why-choose-title {
         font-size: 32px;
         margin-bottom: 24px;
     }
@@ -1723,8 +1732,6 @@ body {
     .world-id-desc br,
     .how-it-works-title br,
     .info-item-desc br,
-    .deepfakes-subtitle br,
-    .deepfakes-desc br,
     .distinguish-title br,
     .financial-content br,
     .api-cta-title br,
@@ -1777,9 +1784,17 @@ body {
         font-size: 24px;
     }
 
-    .info-item,
-    .deepfakes-subtitle {
+    .info-item {
         margin-bottom: 32px;
+    }
+
+    .why-choose-item {
+        gap: 10px;
+    }
+
+    .why-choose-item-desc {
+        max-width: 100%;
+        font-size: 14px;
     }
 
     .info-item-title {
