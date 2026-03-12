@@ -1881,6 +1881,7 @@ body {
         max-width: 320px;
         margin-left: 0;
         padding-left: 12px;
+        margin-top: -16px;
         align-self: flex-start;
     }
 
