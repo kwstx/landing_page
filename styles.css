@@ -2031,10 +2031,14 @@ body {
     }
 
     .api-cta-title {
-        font-size: 38px;
-        line-height: 1.08;
-        letter-spacing: -0.8px;
+        font-size: 30px;
+        line-height: 1.1;
+        letter-spacing: -0.6px;
         margin-bottom: 20px;
+    }
+
+    .api-cta-title .nowrap {
+        white-space: normal;
     }
 
     .api-cta-desc {
