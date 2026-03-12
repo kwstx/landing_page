@@ -1355,7 +1355,7 @@ body {
     right: 50%;
     margin-left: -50vw;
     margin-right: -50vw;
-    padding-left: max(56px, calc(50vw - 720px + 56px));
+    padding-left: max(80px, calc(50vw - 720px + 80px));
     padding-right: max(40px, calc(50vw - 720px + 40px));
 }
 
