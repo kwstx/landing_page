@@ -1743,7 +1743,8 @@ body {
     }
 
     .bottom-card-bg img {
-        object-position: center 40%;
+        object-position: center top;
+        transform: scale(1.08) translateY(-6%);
     }
 
     .users-badge-container {
