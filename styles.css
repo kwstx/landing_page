@@ -1224,7 +1224,7 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     padding: 120px 0 150px;
-    gap: 120px;
+    gap: 72px;
 }
 
 .why-choose-left {
@@ -1259,6 +1259,7 @@ body {
     padding-right: 8px;
     margin-left: auto;
     padding-top: 18px;
+    transform: translateX(-36px);
 }
 
 .why-choose-item {
