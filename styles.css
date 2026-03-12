@@ -1343,29 +1343,41 @@ body {
 }
 
 .partners-cards {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
     gap: 24px;
-    padding: 0 8px;
+    padding: 0 0;
+    overflow-x: hidden;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding-left: max(40px, calc(50vw - 720px + 40px));
+}
+
+.partners-cards::-webkit-scrollbar {
+    display: none;
 }
 
 .partners-card {
     background: #fff;
     border: 1px solid #e8e8e8;
-    border-radius: 24px;
+    border-radius: 20px;
     padding: 40px 32px;
-    min-height: 420px;
+    min-height: 440px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     box-shadow: none;
+    flex: 0 0 420px;
 }
 
 .partners-card-title {
     font-size: 24px;
     font-weight: 400;
     color: #111;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
     letter-spacing: -0.5px;
 }
 
@@ -1373,7 +1385,7 @@ body {
     font-size: 15px;
     line-height: 1.6;
     color: #777;
-    max-width: 280px;
+    max-width: 320px;
 }
 
 .partners-card-btn {
