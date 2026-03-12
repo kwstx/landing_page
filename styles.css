@@ -1829,7 +1829,8 @@ body {
     }
 
     .showcase-right {
-        position: static;
+        position: sticky;
+        top: var(--showcase-sticky-top, 180px);
     }
 
     .showcase-subtitle,
