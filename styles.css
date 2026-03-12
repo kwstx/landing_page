@@ -1294,6 +1294,107 @@ body {
     max-width: 380px;
 }
 
+/* Partners Section */
+.partners-section {
+    padding: 110px 0 140px;
+}
+
+.partners-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0 8px 32px;
+}
+
+.partners-title {
+    font-size: 36px;
+    font-weight: 500;
+    letter-spacing: -0.8px;
+    color: #111;
+    margin-bottom: 14px;
+}
+
+.partners-indicator {
+    font-size: 14px;
+    letter-spacing: 0.4px;
+    color: #b6b6b6;
+}
+
+.partners-indicator .active {
+    color: #111;
+}
+
+.partners-nav {
+    display: flex;
+    gap: 12px;
+}
+
+.partners-nav-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    color: #111;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+}
+
+.partners-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    padding: 0 8px;
+}
+
+.partners-card {
+    background: #fff;
+    border: 1px solid #ededed;
+    border-radius: 20px;
+    padding: 26px;
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.02);
+}
+
+.partners-card-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: #111;
+    margin-bottom: 10px;
+    letter-spacing: -0.2px;
+}
+
+.partners-card-desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #7a7a7a;
+    max-width: 280px;
+}
+
+.partners-card-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #d8d8d8;
+    color: #111;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    width: fit-content;
+}
+
+.partners-card-arrow {
+    font-size: 15px;
+    line-height: 1;
+}
+
 /* Distinguish Section */
 .distinguish-section {
     display: flex;
@@ -1659,6 +1760,7 @@ body {
     .how-it-works-section,
     .credentials-section,
     .deepfakes-section,
+    .partners-section,
     .get-world-id-section,
     .financial-section,
     .api-cta-section {
@@ -1802,6 +1904,27 @@ body {
     .why-choose-item-desc {
         max-width: 100%;
         font-size: 14px;
+    }
+
+    .partners-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 0;
+    }
+
+    .partners-title {
+        font-size: 28px;
+    }
+
+    .partners-cards {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 0;
+    }
+
+    .partners-card {
+        min-height: 240px;
     }
 
     .info-item-title {
