@@ -1865,6 +1865,18 @@ body {
         margin-left: 0;
     }
 
+    .why-choose-left {
+        min-width: 0;
+        padding-left: 0;
+    }
+
+    .why-choose-right {
+        flex: 1 1 auto;
+        padding-right: 0;
+        padding-top: 0;
+        transform: none;
+    }
+
     .how-it-works-section .how-it-works-content {
         margin-left: 0;
         transform: none;
