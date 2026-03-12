@@ -208,6 +208,10 @@ body {
 }
 
 .cta-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
     background-color: #151515;
     background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255, 255, 255, 0.02) 4px, rgba(255, 255, 255, 0.02) 8px);
     color: white;
@@ -2030,6 +2034,7 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: space-between;
+    text-decoration: none;
     background-color: #31302b;
     color: #fff;
     padding: 8px 6px 8px 16px;
