@@ -40,6 +40,29 @@
                     </svg>
                 </a>
             </div>
+            <!-- Mobile hamburger button -->
+            <button class="burger-btn" id="burger-btn" aria-label="Open menu" aria-expanded="false">
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+                <span class="burger-line"></span>
+            </button>
+            <!-- Mobile nav overlay -->
+            <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+                <div class="mobile-nav-header">
+                    <span class="logo-text">Engram</span>
+                    <button class="mobile-nav-close" id="mobile-nav-close" aria-label="Close menu">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </button>
+                </div>
+                <nav class="mobile-nav-links">
+                    <a href="about.html">About</a>
+                    <a href="docs.html">Docs</a>
+                    <a href="faq.html">FAQ</a>
+                    <a href="docs.html" class="mobile-nav-button">Begin</a>
+                </nav>
+            </div>
         </header>
 
         <main class="hero-section">
@@ -464,6 +487,30 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Mobile hamburger menu
+            const burgerBtn = document.getElementById('burger-btn');
+            const mobileOverlay = document.getElementById('mobile-nav-overlay');
+            const mobileClose = document.getElementById('mobile-nav-close');
+
+            const openMobileMenu = () => {
+                mobileOverlay.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+                burgerBtn.setAttribute('aria-expanded', 'true');
+            };
+
+            const closeMobileMenu = () => {
+                mobileOverlay.classList.remove('is-open');
+                document.body.style.overflow = '';
+                burgerBtn.setAttribute('aria-expanded', 'false');
+            };
+
+            if (burgerBtn) burgerBtn.addEventListener('click', openMobileMenu);
+            if (mobileClose) mobileClose.addEventListener('click', closeMobileMenu);
+
+            // Close menu when a link is clicked
+            const mobileLinks = document.querySelectorAll('.mobile-nav-links a');
+            mobileLinks.forEach(link => link.addEventListener('click', closeMobileMenu));
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
