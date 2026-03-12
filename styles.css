@@ -1993,3 +1993,137 @@ body {
         margin-bottom: 18px;
     }
 }
+
+/* Footer Section */
+.site-footer {
+    display: grid;
+    grid-template-columns: 2.2fr 1.5fr 1fr;
+    padding: 120px 0 40px;
+    width: 100%;
+}
+
+.footer-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-logo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 24px;
+    letter-spacing: -0.5px;
+}
+
+.footer-tagline {
+    font-size: 24px;
+    color: #555;
+    line-height: 1.4;
+    margin-bottom: 28px;
+    font-family: 'Codan Light Regular', Georgia, serif;
+}
+
+.footer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #31302b;
+    color: #fff;
+    padding: 8px 6px 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    width: fit-content;
+    gap: 12px;
+    transition: background-color 0.2s;
+}
+
+.footer-btn:hover {
+    background-color: #1a1916;
+}
+
+.footer-btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #fff;
+    color: #31302b;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+}
+
+.footer-btn-icon svg {
+    width: 12px;
+    height: 12px;
+}
+
+.footer-copyright {
+    margin-top: 80px;
+    font-size: 12px;
+    color: #888;
+    font-weight: 400;
+}
+
+.footer-center {
+    display: flex;
+    gap: 90px;
+}
+
+.footer-column {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.footer-column h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.footer-column a {
+    font-size: 14px;
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 400;
+}
+
+.footer-column a:hover {
+    color: #111;
+}
+
+.footer-right {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.footer-social {
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.footer-social a {
+    color: #111;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footer-social a:hover {
+    opacity: 0.6;
+}
+
+.footer-social svg {
+    width: 18px;
+    height: 18px;
+}
