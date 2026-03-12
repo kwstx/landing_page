@@ -1819,6 +1819,19 @@ body {
         width: 100%;
     }
 
+    .products-showcase-section {
+        min-height: auto;
+        gap: 24px;
+    }
+
+    .showcase-left {
+        display: none;
+    }
+
+    .showcase-right {
+        position: static;
+    }
+
     .showcase-subtitle,
     .showcase-indicator {
         margin-bottom: 24px;
