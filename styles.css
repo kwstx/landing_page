@@ -1346,7 +1346,9 @@ body {
     display: flex;
     gap: 24px;
     padding: 0 0;
-    overflow-x: hidden;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
     width: 100vw;
     position: relative;
     left: 50%;
@@ -1354,6 +1356,7 @@ body {
     margin-left: -50vw;
     margin-right: -50vw;
     padding-left: max(40px, calc(50vw - 720px + 40px));
+    padding-right: max(40px, calc(50vw - 720px + 40px));
 }
 
 .partners-cards::-webkit-scrollbar {
@@ -1361,6 +1364,7 @@ body {
 }
 
 .partners-card {
+    scroll-snap-align: start;
     background: #fff;
     border: 1px solid #e8e8e8;
     border-radius: 20px;

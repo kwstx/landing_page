@@ -245,7 +245,7 @@
                     <span class="active">01</span><span class="muted">&nbsp;&mdash;&nbsp;07</span>
                 </div>
                 <div class="partners-nav" aria-hidden="true">
-                    <button class="partners-nav-btn" type="button" aria-label="Previous">
+                    <button class="partners-nav-btn" type="button" aria-label="Previous" id="partners-btn-prev">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path d="M11 6L5 12L11 18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
@@ -254,7 +254,7 @@
                                 stroke-linejoin="round" />
                         </svg>
                     </button>
-                    <button class="partners-nav-btn" type="button" aria-label="Next">
+                    <button class="partners-nav-btn" type="button" aria-label="Next" id="partners-btn-next">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
@@ -309,6 +309,78 @@
                         <p class="partners-card-desc">
                             Facilitating real-time, scalable accounts that seamlessly clear transactions on or off
                             ramp between fiat and crypto.
+                        </p>
+                    </div>
+                    <a href="#" class="partners-card-btn">
+                        Learn more
+                        <svg class="partners-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M4 12H19" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                </article>
+                <article class="partners-card">
+                    <div>
+                        <h3 class="partners-card-title">Marketplaces</h3>
+                        <p class="partners-card-desc">
+                            Automating payouts to sellers and managing complex multi-party money movement.
+                        </p>
+                    </div>
+                    <a href="#" class="partners-card-btn">
+                        Learn more
+                        <svg class="partners-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M4 12H19" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                </article>
+                <article class="partners-card">
+                    <div>
+                        <h3 class="partners-card-title">Fintechs</h3>
+                        <p class="partners-card-desc">
+                            Building new financial products on modern infrastructure.
+                        </p>
+                    </div>
+                    <a href="#" class="partners-card-btn">
+                        Learn more
+                        <svg class="partners-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M4 12H19" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                </article>
+                <article class="partners-card">
+                    <div>
+                        <h3 class="partners-card-title">Platforms</h3>
+                        <p class="partners-card-desc">
+                            Embedding financial services directly into their software offerings.
+                        </p>
+                    </div>
+                    <a href="#" class="partners-card-btn">
+                        Learn more
+                        <svg class="partners-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 6L19 12L13 18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                            <path d="M4 12H19" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </a>
+                </article>
+                <article class="partners-card">
+                    <div>
+                        <h3 class="partners-card-title">Enterprises</h3>
+                        <p class="partners-card-desc">
+                            Modernizing treasury operations and automating corporate payments.
                         </p>
                     </div>
                     <a href="#" class="partners-card-btn">
@@ -439,6 +511,43 @@
                 window.addEventListener('scroll', onScroll, { passive: true });
                 updateStickyOffset();
                 updateShowcaseOnScroll();
+            }
+
+            const partnersTrack = document.querySelector('.partners-cards');
+            const partnersCards = Array.from(document.querySelectorAll('.partners-card'));
+            const partnersNext = document.getElementById('partners-btn-next');
+            const partnersPrev = document.getElementById('partners-btn-prev');
+
+            const getPartnersStep = () => {
+                if (!partnersTrack || !partnersCards.length) {
+                    return 0;
+                }
+                const cardWidth = partnersCards[0].getBoundingClientRect().width;
+                const styles = window.getComputedStyle(partnersTrack);
+                const gapValue = parseFloat(styles.columnGap || styles.gap || '0');
+                return cardWidth + (Number.isNaN(gapValue) ? 0 : gapValue);
+            };
+
+            const scrollPartners = (direction) => {
+                if (!partnersTrack) {
+                    return;
+                }
+                const step = getPartnersStep();
+                if (!step) {
+                    return;
+                }
+                partnersTrack.scrollBy({
+                    left: direction * step,
+                    behavior: 'smooth'
+                });
+            };
+
+            if (partnersNext) {
+                partnersNext.addEventListener('click', () => scrollPartners(1));
+            }
+
+            if (partnersPrev) {
+                partnersPrev.addEventListener('click', () => scrollPartners(-1));
             }
         });
     </script>
