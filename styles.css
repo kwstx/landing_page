@@ -2031,8 +2031,9 @@ body {
     }
 
     .api-cta-title {
-        font-size: 44px;
-        letter-spacing: -1px;
+        font-size: 38px;
+        line-height: 1.08;
+        letter-spacing: -0.8px;
         margin-bottom: 20px;
     }
 
