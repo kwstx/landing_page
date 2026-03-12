@@ -1256,21 +1256,21 @@ body {
 }
 
 .why-choose-right {
-    flex: 0 0 360px;
+    flex: 0 0 320px;
     display: flex;
     flex-direction: column;
     gap: 56px;
     padding-right: 8px;
     margin-left: auto;
     padding-top: 18px;
-    transform: translateX(-56px);
+    transform: translateX(12px);
 }
 
 .why-choose-item {
     display: flex;
     flex-direction: column;
     gap: 14px;
-    max-width: 360px;
+    max-width: 320px;
 }
 
 .why-choose-icon {
