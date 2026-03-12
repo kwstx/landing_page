@@ -1269,8 +1269,8 @@ body {
 }
 
 .why-choose-icon {
-    width: 32px;
-    height: 32px;
+    width: 36px;
+    height: 36px;
     color: #111;
 }
 
@@ -1280,17 +1280,17 @@ body {
 }
 
 .why-choose-item-title {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 500;
     color: #111;
     letter-spacing: -0.3px;
 }
 
 .why-choose-item-desc {
-    font-size: 13px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.65;
     color: #555;
-    max-width: 340px;
+    max-width: 360px;
 }
 
 /* Distinguish Section */
