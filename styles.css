@@ -1224,12 +1224,12 @@ body {
     justify-content: space-between;
     align-items: flex-start;
     padding: 120px 0 150px;
-    gap: 60px;
+    gap: 120px;
 }
 
 .why-choose-left {
-    width: 50%;
-    min-width: 340px;
+    flex: 1 1 520px;
+    min-width: 360px;
     padding-left: 8px;
 }
 
@@ -1252,13 +1252,13 @@ body {
 }
 
 .why-choose-right {
-    width: 50%;
+    flex: 0 0 360px;
     display: flex;
     flex-direction: column;
     gap: 56px;
     padding-right: 8px;
     margin-left: auto;
-    padding-top: 6px;
+    padding-top: 18px;
 }
 
 .why-choose-item {
@@ -1280,7 +1280,7 @@ body {
 }
 
 .why-choose-item-title {
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 500;
     color: #111;
     letter-spacing: -0.3px;
