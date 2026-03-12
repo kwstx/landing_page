@@ -1744,7 +1744,7 @@ body {
 
     .bottom-card-bg img {
         object-position: center top;
-        transform: scale(1.08) translateY(-6%);
+        transform: scale(1.12) translateY(-14%);
     }
 
     .users-badge-container {
