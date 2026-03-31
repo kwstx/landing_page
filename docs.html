@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - Agent Translator Middleware</title>
+    <title>Documentation - Engram</title>
     <link rel="stylesheet" href="styles.css?v=2">
     <link rel="stylesheet" href="docs.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,502 +27,271 @@
                     <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z" fill="#111" />
                     </svg>
-                    <span class="logo-text">Translator</span>
+                    <span class="logo-text">Engram</span>
                 </a>
             </div>
 
             <nav class="sidebar-nav">
                 <div class="nav-group">
-                    <div class="nav-group-title">GETTING STARTED</div>
-                    <a href="#getting-started" class="nav-link active">Getting Started</a>
-                    <a href="#installation" class="nav-link">Installation</a>
-                    <a href="#minimal-example" class="nav-link">Minimal Example</a>
+                    <div class="nav-group-title">CORE</div>
+                    <a href="#system-vision" class="nav-link active">System Vision</a>
+                    <a href="#protocol-routing" class="nav-link">Protocol Routing</a>
+                    <a href="#semantic-resolution" class="nav-link">Semantic Resolution</a>
                 </div>
 
                 <div class="nav-group">
-                    <div class="nav-group-title">REFERENCE</div>
-                    <a href="#core-api-reference" class="nav-link">Core API Reference</a>
-                    <a href="#architecture-overview" class="nav-link">Architecture Overview</a>
-                    <a href="#error-handling" class="nav-link">Error Handling</a>
-                    <a href="#enforcement-semantic-resolution" class="nav-link">Semantic Resolution</a>
+                    <div class="nav-group-title">SECURITY</div>
+                    <a href="#execution-proof" class="nav-link">Execution Proof</a>
+                    <a href="#eat-system" class="nav-link">EAT System</a>
                 </div>
 
                 <div class="nav-group">
-                    <div class="nav-group-title">ENVIRONMENTS</div>
-                    <a href="#development-vs-production" class="nav-link">Development vs Production</a>
+                    <div class="nav-group-title">FEATURES</div>
+                    <a href="#modules-bridges" class="nav-link">Modules &amp; Bridges</a>
                 </div>
 
                 <div class="nav-group">
-                    <div class="nav-group-title">MONITORING</div>
-                    <a href="#monitoring-observability" class="nav-link">Monitoring &amp; Observability</a>
-                    <a href="#incident-response" class="nav-link">Incident Response</a>
-                </div>
-
-                <div class="nav-group">
-                    <div class="nav-group-title">INTEGRATION</div>
-                    <a href="#mcp-networkx" class="nav-link">MCP &amp; NetworkX</a>
-                </div>
-
-                <div class="nav-group">
-                    <div class="nav-group-title">NEW FEATURES</div>
-                    <a href="#mirofish-bridge" class="nav-link">MiroFish Swarm Bridge</a>
-                    <a href="#trading-templates" class="nav-link">Trading Templates</a>
+                    <div class="nav-group-title">OPERATIONS</div>
+                    <a href="#command-control" class="nav-link">Command &amp; Control</a>
+                    <a href="#deployment-tips" class="nav-link">Deployment Tips</a>
+                    <a href="#troubleshooting" class="nav-link">Troubleshooting</a>
                 </div>
             </nav>
         </aside>
 
         <main class="docs-content">
             <div class="docs-header">
-                <h1 class="docs-main-title">Agent Translator Middleware Documentation</h1>
-                <p class="docs-version">VERSION 0.1.0 (ALPHA) | LAST UPDATED: 2026-03-10</p>
+                <h1 class="docs-main-title">Engram: The Neural Interoperability Layer for AI Agents</h1>
+                <p class="docs-version">CONNECT ANY AGENT. ANY TOOL. ANY API.</p>
             </div>
+
+            <p style="font-size: 1.1em; line-height: 1.6; max-width: 800px; margin-bottom: 2rem;">Engram is a mission-critical middleware platform that provides a universal bridge for AI agents, tools, and third-party APIs. It abstracts away protocol complexities (A2A, MCP, ACP), auto-heals semantic schema mismatches through a combination of ontologies and machine learning, and orchestrates multi-agent tasks through a performance-aware routing engine.</p>
 
             <hr class="docs-divider">
 
-            <section id="getting-started" class="docs-section">
-                <h2>Getting Started</h2>
-                <p>Welcome to the Agent Translator Middleware. This guide provides the accurate technical implementation details for operating seamless cross-protocol agent handoffs (A2A, MCP, ACP) securely using the current codebase.</p>
-                <div class="critical-notice" style="margin-top: 24px; border-left-color: #00f0ff; background-color: #f0faff;">
-                    <div class="critical-notice-title" style="color: #0088aa;">EVOLUTION NOTICE</div>
-                    <p>Engram has evolved from a simple protocol translator to a complete <em>predict-and-execute orchestration platform</em>. We've added native swarm simulation syncing and multi-platform trading schemas to transform your bots into high-fidelity predict + execute hybrid systems.</p>
-                </div>
-            </section>
+            <section id="system-vision" class="docs-section">
+                <h2>1. System Vision &amp; The Request Lifecycle</h2>
+                <p>Engram acts as the "connective tissue" of the agentic web. It is designed to be a transparent, high-throughput layer that ensures semantic fidelity and operational reliability across heterogeneous agent ecosystems.</p>
 
-            <section id="installation" class="docs-section">
-                <h2>Installation</h2>
-                <p>Currently, the easiest way to run the middleware with its dependencies (Neon, Redis) is using Docker Compose:</p>
-                <div class="code-block">docker compose up --build</div>
-                
-                <p>To install directly for local development:</p>
-                <div class="code-block">python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt</div>
-            </section>
-
-            <section id="minimal-example" class="docs-section">
-                <h2>Minimal Example</h2>
-                <p>Initialize the core engine to translate a message and route it via the Orchestrator. This demonstrates the core translation and routing capabilities using the actual SDK-like methods.</p>
-                <div class="code-block">import asyncio
-from app.core.translator import TranslatorEngine
-from app.core.orchestrator import Orchestrator
-
-async def main():
-    # 1. Initialize the components
-    translator = TranslatorEngine()
-    orchestrator = Orchestrator(db_url="postgresql://neon_connection_string")
-
-    # 2. Translate a payload between protocols
-    try:
-        translated = translator.translate(
-            source_message={"payload": {"intent": "schedule_meeting"}},
-            source_protocol="mcp",
-            target_protocol="a2a"
-        )
-        print("Translation successful:", translated)
-        
-        # 3. Handoff via Orchestrator
-        # Triggers: Translation -&gt; Semantic Resolution -&gt; Neon Publish
-        success = await orchestrator.publish(
-            target_queue="agent-a-queue",
-            message=translated
-        )
-        
-        if success:
-            print("Action Permitted: Message routed to target agent.")
-        else:
-            print("Action Denied/Failed in routing.")
-            
-    except Exception as e:
-        print(f"Translation Error: {e}")
-
-if __name__ == "__main__":
-    asyncio.run(main())</div>
-            </section>
-
-            <section id="core-api-reference" class="docs-section">
-                <h2>Core API Reference</h2>
-
-                <h3><span class="code-inline">TranslatorEngine</span></h3>
-                <p>The primary protocol mapping engine.</p>
-                <div class="method-doc">
-                    <div class="method-name">translate(source_message, source_protocol, target_protocol) -&gt; dict</div>
-                    <p>Applies specific mapping rules for protocol transformations.</p>
-                    <ul>
-                        <li><strong>source_message</strong>: The original payload dict.</li>
-                        <li><strong>source_protocol</strong>: Origin protocol (e.g., 'mcp').</li>
-                        <li><strong>target_protocol</strong>: Destination protocol (e.g., 'a2a').</li>
-                        <li><strong>Returns</strong>: Translated dictionary (e.g., converting keys from 'payload' to 'data_bundle'). Raises <span class="code-inline">ProtocolMismatchError</span> if translation is impossible.</li>
-                    </ul>
-                </div>
-
-                <h3><span class="code-inline">SemanticMapper</span></h3>
-                <p>The engine for resolving meaning and data schema disparities.</p>
-                <div class="method-doc">
-                    <div class="method-name">DataSiloResolver(source_data, target_schema) -&gt; dict</div>
-                    <p>Uses JSON Schema validation to detect differences and resolves them.</p>
-                    <ul>
-                        <li><strong>source_data</strong>: Input data dict.</li>
-                        <li><strong>target_schema</strong>: Expected output schema.</li>
-                        <li><strong>Returns</strong>: Transformed data, flattening nested objects and dynamically mapping fields using PyDatalog and OWL ontologies.</li>
-                    </ul>
-                </div>
-
-                <h3><span class="code-inline">DiscoveryService</span></h3>
-                <p>Finds compatible agents based on capabilities.</p>
-                <div class="method-doc">
-                    <div class="method-name">ping_agents() -&gt; None</div>
-                    <p>Periodically pings registered agents via <span class="code-inline">aiohttp</span> to check availability.</p>
-                </div>
-                <div class="method-doc">
-                    <div class="method-name">get_collaborators(required_capability) -&gt; list</div>
-                    <p>Calculates compatibility using <span class="code-inline">(shared_protocols + mappable_protocols) / total_protocols</span>.</p>
-                    <ul>
-                        <li><strong>Returns</strong>: List of agent IDs with scores above 0.7.</li>
-                    </ul>
-                </div>
-
-                <h3><span class="code-inline">Orchestrator</span></h3>
-                <p>Handles asynchronous delivery and task chaining.</p>
-                <div class="method-doc">
-                    <div class="method-name">publish(target_queue, message) -&gt; bool</div>
-                    <p>Publishes translated messages to agent-specific Neon database queues (e.g., 'agent-uuid-queue').</p>
-                </div>
-            </section>
-
-            <section id="architecture-overview" class="docs-section">
-                <h2>Architecture Overview</h2>
-                <p>The system follows a strict orchestrational hierarchy for agent communication:</p>
-                <div class="architecture-diagram">
-                    <div class="architecture-flow" style="flex-wrap: wrap;">
-                        <div class="arch-box">Source Agent</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">API Gateway</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Protocol Mapper</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Semantic Resolver</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Orchestration</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Target Agent</div>
-                    </div>
-                </div>
-
-                <p><strong>Current Modules implemented:</strong></p>
-                <ul>
-                    <li><strong>Protocol Mapper</strong>: Deterministic envelope translation (A2A ↔ MCP ↔ ACP).</li>
-                    <li><strong>Semantic Resolver</strong>: Overcomes data silos via JSON schema flattening.</li>
-                    <li><strong>Discovery Service</strong>: Registry state and compatibility scoring.</li>
-                    <li><strong>Orchestration Engine</strong>: Asynchronous task handoffs via Neon Postgres.</li>
-                </ul>
-            </section>
-
-            <section id="error-handling" class="docs-section">
-                <h2>Error Handling</h2>
-                <p>The middleware raises specialized exceptions:</p>
-                <ul>
-                    <li><span class="code-inline">ProtocolMismatchError</span>: Raised when a requested protocol pairing lacks a translation strategy.</li>
-                    <li><span class="code-inline">AuthError</span>: HTTP 401/403 when JWT validation fails against expected <span class="code-inline">AUTH_ISSUER</span> and <span class="code-inline">AUTH_AUDIENCE</span>.</li>
-                    <li><span class="code-inline">SemanticMappingError</span>: Failed to map payload structurally.</li>
-                </ul>
-            </section>
-
-            <section id="enforcement-semantic-resolution" class="docs-section">
-                <h2>Enforcement &amp; Semantic Resolution</h2>
-                <p>Integrating the Middleware requires understanding how the engine moves from identifying protocol differences to physically morphing data structures. This section covers two primary methods for data-level integration.</p>
-
-                <h3>The Data Silo Resolver</h3>
-                <p>The strongest way to unify disparate agents is by passing payloads through the <span class="code-inline">DataSiloResolver</span>.</p>
-
-                <h3>How it Works</h3>
+                <h3>The Full Execution Cycle</h3>
+                <p>A typical request (e.g., a natural language command via <span class="code-inline">POST /api/v1/delegate</span>) undergoes the following transformations:</p>
                 <ol>
-                    <li><strong>Intercept</strong>: The resolver intercepts data mid-flight before hitting the <span class="code-inline">Orchestrator</span> queues.</li>
-                    <li><strong>Evaluate Schema</strong>: Uses JSON schema to detect disparities (e.g., checking if the nested <span class="code-inline">user_info.name</span> maps to a flat <span class="code-inline">profile.fullname</span>).</li>
-                    <li><strong>Resolve</strong>: Applies PyDatalog rule engine dynamically. If successful, data flows to the target. If failed, it logs and attempts an ML fallback.</li>
-                </ol>
-
-                <h3>Strategic Implementation Tips</h3>
-                <ul>
-                    <li><strong>Set realistic compatibility thresholds</strong>: The Discovery engine considers a score <span class="code-inline">&gt; 0.7</span> as compatible. Monitor how often mismatched agents fail tasks and adjust your queries.</li>
-                    <li><strong>Handle routing paths</strong>: Ensure you handle multi-hop routing paths properly across multiple translations.</li>
-                    <li><strong>Token management</strong>: Standardize JWT deployment so external agents aren't blocked at the external Gateway.</li>
-                </ul>
-            </section>
-
-            <section id="development-vs-production" class="docs-section">
-                <h2>Development vs Production</h2>
-                <ul>
-                    <li><strong>Local Mode</strong>: Run using <span class="code-inline">uvicorn app.main:app --reload</span> with a local SQLite/Memory state. Useful for direct HTTP testing.</li>
-                    <li><strong>Remote Mode</strong>: Run via <span class="code-inline">docker compose up --build</span> which boots Redis (Semantic Cache) and connects to Neon configurations required for high-availability production routing.</li>
-                </ul>
-            </section>
-
-            <section id="monitoring-observability" class="docs-section">
-                <h2>Monitoring &amp; Observability</h2>
-                <p>Adding real-time monitoring transforms the Middleware into an operations-ready platform.</p>
-
-                <h3>Operational Command Center</h3>
-                <p>You can view the translation traffic via standard monitoring tools integrated via Docker Compose.</p>
-
-                <h3>Key Performance Metrics (Glossary)</h3>
-                <ol>
-                    <li><strong>Translation Latency (Histogram)</strong>: Time taken to map and semantically translate a payload.</li>
-                    <li><strong>Protocol Distribution (Counter)</strong>: Metrics differentiating A2A, MCP, and ACP traffic loads.</li>
-                    <li><strong>Compatibility Match Rate (Gauge)</strong>: Shows the average compatibility scores across the <span class="code-inline">DiscoveryService</span>.</li>
-                </ol>
-            </section>
-
-            <section id="incident-response" class="docs-section">
-                <h2>Incident Response &amp; Human-in-the-Loop</h2>
-                <p>When to Intervene:</p>
-                <ul>
-                    <li><strong>Translation Failures Plateau</strong>: If <span class="code-inline">ProtocolMismatchError</span> rates spike, an ontology patch is needed. Investigate the "Top Incompatible Agents".</li>
-                    <li><strong>Latency Spikes</strong>: Increased semantic mapping latency usually indicates complex nested JSON objects stalling the PyDatalog engine.</li>
-                    <li><strong>Orchestration Queues</strong>: If Neon database queues stall, check if Target Agents are reachable despite <span class="code-inline">DiscoveryService</span> pings.</li>
-                </ul>
-
-                <h3>Updated Architecture Flow</h3>
-                <p>The system operates in a closed observation loop for multi-hop collaborations:</p>
-                <div class="architecture-diagram">
-                    <div class="architecture-flow" style="flex-wrap: wrap;">
-                        <div class="arch-box">Agent Action</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Middleware</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Orchestrator Payload</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Semantic Log</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Metrics</div>
-                        <div class="arch-arrow">→</div>
-                        <div class="arch-box">Human Adjustment</div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="mcp-networkx" class="docs-section">
-                <h2>Integrating with MCP &amp; NetworkX</h2>
-                <p>To ensure multi-hop collaborations are efficient, the Orchestrator supports complex routing calculations.</p>
-
-                <h3>NetworkX Handoff Chaining</h3>
-                <p>The Orchestrator utilizes NetworkX to model protocol compatibilities. For complex tasks spanning multiple agents (e.g., A2A -&gt; MCP -&gt; ACP), the engine calculates the shortest path for optimal mapping sequences to minimize data loss.</p>
-
-                <h3>AI Client Configuration for MCP</h3>
-                <p>If using this middleware in front of a standard MCP Guard Server or Claude Desktop, point your MCP client to the middleware.</p>
-                <div class="code-block">{
-  "mcpServers": {
-    "translator-middleware": {
-      "command": "python",
-      "args": ["-m", "uvicorn", "app.main:app", "--port", "8000"]
-    }
-  }
-}</div>
-
-                <h3>Strategic Tips for Documentation</h3>
-                <ul>
-                    <li><strong>Highlight Semantic Importance</strong>: Emphasize that protocol mapping envelope translation is incomplete without semantic ontology mapping.</li>
-                    <li><strong>Explain Compatibility Scores</strong>: Detail how the Discovery service score effectively filters appropriate agents using <span class="code-inline">(shared_protocols + mappable_protocols) / total_protocols</span>.</li>
-                    <li><strong>Environment Isolation</strong>: Mention that Redis is essential to cache ontology trees to prevent latency bottlenecks in <span class="code-inline">DataSiloResolver</span>.</li>
-                </ul>
-            </section>
-
-            <section id="mirofish-bridge" class="docs-section">
-                <h2>MiroFish Swarm Bridge</h2>
-                <p>The <strong>MiroFish Swarm Bridge</strong> is a native integration layer that connects Engram's protocol translation pipeline directly to a running <a href="https://github.com/666ghj/MiroFish" target="_blank" style="color: #111; text-decoration: underline;">MiroFish</a> swarm-intelligence simulation.</p>
-                <p>MiroFish is a next-generation AI prediction engine that spawns thousands of autonomous agents inside a high-fidelity digital world. The bridge allows any AI agent (OpenClaw, Clawdbot, or any agent using A2A/MCP/ACP) to:</p>
-                <ol>
-                    <li>Pipe inter-agent messages and live data (news, prices, sentiment) into a swarm.</li>
-                    <li>Receive a compiled, high-fidelity prediction report back in a single call.</li>
-                    <li>Turn a simple bot into a <strong>real-time predict + execute hybrid system</strong>.</li>
-                </ol>
-
-                <h3>How It Works</h3>
-                <p>When a message is routed with <span class="code-inline">target_protocol="mirofish"</span>, the following occurs:</p>
-                <ol>
-                    <li><strong>Normalization</strong>: The source payload (A2A, ACP, etc.) is normalized to the MCP format via Engram's <span class="code-inline">TranslatorEngine</span>, preserving semantic fidelity.</li>
-                    <li><strong>Context Enrichment</strong>: The bridge automatically fetches live market data (via CCXT), sentiment scores (X/Reuters), and recent headlines.</li>
-                    <li><strong>Injection</strong>: The enriched data is injected as "God's-eye variables" and seed text into the MiroFish simulation.</li>
-                    <li><strong>Execution</strong>: The payload is <span class="code-inline">POST</span>ed to the user's local MiroFish <span class="code-inline">/api/simulation/start</span> endpoint.</li>
-                    <li><strong>Reporting</strong>: The resulting simulation report (predictions, consensus, recommendations) is returned to the agent.</li>
-                </ol>
-
-                <h3>Prerequisites</h3>
-                <div class="critical-notice">
-                    <div class="critical-notice-title">IMPORTANT: SELF-HOSTED INFRASTRUCTURE</div>
-                    <p>Users must run their own MiroFish instance. Engram connects to <em>your</em> local or self-hosted installation to ensure data privacy and use of your own LLM keys.</p>
-                </div>
-                <ol>
-                    <li><strong>Set up MiroFish</strong>: Clone the repository and configure it with your API keys.
-                        <div class="code-block">cd MiroFish
-cp .env.example .env</div>
+                    <li><strong>Ingress &amp; Auth</strong>: The edge gateway verifies the <strong>Engram Access Token (EAT)</strong> for tool-level permissions.</li>
+                    <li><strong>Intent Resolution</strong>: The <span class="code-inline">IntentResolver</span> decomposes the prompt into <span class="code-inline">AtomicTask</span> objects with confidence scores.</li>
+                    <li><strong>Pathfinding</strong>: The <span class="code-inline">ProtocolGraph</span> (NetworkX) runs a Dijkstra shortest-path search to find the most efficient corridor between protocols (e.g., <span class="code-inline">NL &rarr; MCP &rarr; MiroFish</span>).</li>
+                    <li><strong>Envelope Normalization</strong>: The <span class="code-inline">TranslatorEngine</span> applies <strong>Version Deltas</strong> (BFS-based upgrades) to ensure the source message matches the current standard before translation.</li>
+                    <li><strong>Multi-Hop Translation</strong>: For each hop in the determined path:
+                        <ul>
+                            <li><strong>Structural Translation</strong>: Field names and envelopes are morphed.</li>
+                            <li><strong>Tiered Semantic Resolution</strong>: (See Section 3).</li>
+                            <li><strong>Crypto Snapshot</strong>: A SHA-256 state proof is generated for the hop.</li>
+                        </ul>
                     </li>
-                    <li><strong>Configure LLM Keys</strong>: Add your personal API keys (e.g., OpenAI, DashScope, ZEP) to the MiroFish <span class="code-inline">.env</span>.</li>
-                    <li><strong>Start MiroFish</strong>: Run <span class="code-inline">npm run dev</span> or <span class="code-inline">docker compose up -d</span>. Verify it is running at <span class="code-inline">http://localhost:5001</span>.</li>
+                    <li><strong>Task Enqueueing</strong>: The resulting payload is persisted to the Postgres <strong>Task Queue</strong>.</li>
+                    <li><strong>Async Processing</strong>: The <span class="code-inline">TaskWorker</span> picks up the task, executes the final connector (e.g., MiroFish or a Tool), and manages the lifecycle (Retries &rarr; Ack &rarr; Success/Dead-Letter).</li>
+                    <li><strong>Verification</strong>: The final <span class="code-inline">HandoffResult</span> returns an aggregate execution proof (<span class="code-inline">v1:agg</span>) proving the integrity of the entire chain.</li>
                 </ol>
+            </section>
 
-                <h3>Configuration</h3>
-                <p>Customize the bridge by adding these variables to your Engram <span class="code-inline">.env</span>:</p>
+            <section id="protocol-routing" class="docs-section">
+                <h2>2. Advanced Protocol Routing</h2>
+                
+                <h3>The Dynamic Protocol Graph</h3>
+                <p>Engram treats protocols as nodes and translators as edges. Each edge carries a <strong>Dynamic Weight</strong> that shifts based on real-time agent performance.</p>
+
+                <h4>The Weighting Formula</h4>
+                <p>Weights are computed by the <span class="code-inline">DiscoveryService</span> and injected into the graph during pathfinding:</p>
+                <div class="code-block">W = 1.0 + (L &times; 0.1) + ((1.0 - R) &times; 50.0)</div>
+                <ul>
+                    <li><strong>Base (1.0)</strong>: Minimum cost per hop.</li>
+                    <li><strong>Latency (L)</strong>: 0.1 point penalty per second of average response time.</li>
+                    <li><strong>Reliability (R)</strong>: 5.0 points per 10% drop below 100% success rate.</li>
+                </ul>
+                <p><em>Example: An agent with 1.5s latency and 90% success rate has a weight of 1.0 + 0.15 + 5.0 = 6.15, making it 6x less likely to be chosen than a perfectly reliable, sub-second agent.</em></p>
+            </section>
+
+            <section id="semantic-resolution" class="docs-section">
+                <h2>3. Tiered Semantic Resolution (The Bridge)</h2>
+                <p>Engram's <span class="code-inline">SemanticMapper</span> solves the "Data Silo" problem using a tiered fall-through strategy to maximize both speed and depth.</p>
+
                 <table class="docs-table">
                     <thead>
                         <tr>
-                            <th>Variable</th>
-                            <th>Default</th>
-                            <th>Description</th>
+                            <th>Tier</th>
+                            <th>Technology</th>
+                            <th>Rationale</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><span class="code-inline">MIROFISH_BASE_URL</span></td>
-                            <td><span class="code-inline">http://localhost:5001</span></td>
-                            <td>Base URL of your MiroFish service.</td>
+                            <td><strong>1. Validation</strong></td>
+                            <td><span class="code-inline">jsonschema</span></td>
+                            <td>Ensures the incoming payload matches the expected contract.</td>
                         </tr>
                         <tr>
-                            <td><span class="code-inline">MIROFISH_DEFAULT_NUM_AGENTS</span></td>
-                            <td><span class="code-inline">1000</span></td>
-                            <td>Default agents to spawn per simulation.</td>
+                            <td><strong>2. Flattening</strong></td>
+                            <td>Recursive Walk</td>
+                            <td>Converts nested structures (<span class="code-inline">user.info.name</span>) into dotted paths for mapping.</td>
                         </tr>
                         <tr>
-                            <td><span class="code-inline">MIROFISH_DEFAULT_SWARM_ID</span></td>
-                            <td><span class="code-inline">default</span></td>
-                            <td>Default identifier for parallel simulations.</td>
+                            <td><strong>3. Explicit Rules</strong></td>
+                            <td><span class="code-inline">PyDatalog</span></td>
+                            <td>Near-instant renaming for high-traffic, known field pairs.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Ontology</strong></td>
+                            <td><span class="code-inline">owlready2</span></td>
+                            <td>High-depth resolution of concept IRIs in <span class="code-inline">protocols.owl</span> (Namespaces: A2A, MCP, ACP).</td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. ML Inference</strong></td>
+                            <td>TF-IDF + LogReg</td>
+                            <td>Bayesian fallback that predicts field names based on training data from the <span class="code-inline">ProtocolMapping</span> table.</td>
                         </tr>
                     </tbody>
                 </table>
 
-                <h3>Usage Examples</h3>
-                <h4>TypeScript SDK (One-Liner)</h4>
-                <div class="code-block">import { engram } from './mirofish-bridge';
-
-const report = await engram.routeTo('mirofish', 'Analyse upcoming ETH merge impact', {
-  swarmId: 'prediction-market-1',
-  numAgents: 1000,
-});
-console.log(report); // Full simulation report</div>
-
-                <h4>Python Backend</h4>
-                <div class="code-block">from app.messaging.orchestrator import Orchestrator
-
-orchestrator = Orchestrator()
-result = await orchestrator.handoff_async(
-    source_message={"content": "BTC 7-day forecast"},
-    source_protocol="A2A",
-    target_protocol="mirofish"
-)
-print(result.translated_message)</div>
+                <h3>The Self-Healing Loop</h3>
+                <p>When Tier 5 reaches a confidence threshold of <strong>&ge; 85%</strong>, the system <strong>auto-applies</strong> the mapping to the database and marks the <span class="code-inline">MappingFailureLog</span> as <span class="code-inline">applied</span>. After 5 such corrections, the ML model automatically triggers a <strong>background retraining loop</strong> to incorporate the new knowledge.</p>
             </section>
 
-            <section id="trading-templates" class="docs-section">
-                <h2>Multi-Platform Trading Semantic Templates</h2>
-                
-                <h3>Overview</h3>
-                <p>The <strong>Trading Semantic Templates</strong> module (<span class="code-inline">@engram/trading-templates</span>) provides drop-in, one-click adapters for major crypto exchanges, prediction markets, payment rails, and live data feeds.</p>
-                <p>It allows agents to route a <strong>single unified payload</strong> across multiple platforms simultaneously without writing custom schema transformations or endpoint-specific code.</p>
+            <section id="execution-proof" class="docs-section">
+                <h2>4. Cryptographic Proof of Execution</h2>
+                <p>Every data transformation in Engram is verifiable. This prevents "Man-in-the-Middle" payload manipulation within the middleware.</p>
+                <ul>
+                    <li><strong>Hop Proof (<span class="code-inline">v1:sha256</span>)</strong>: A hash of <span class="code-inline">(Input + Output + Source + Target + Timestamp)</span>.</li>
+                    <li><strong>Aggregate Proof (<span class="code-inline">v1:agg</span>)</strong>: A hash of the concatenated hop proofs.</li>
+                </ul>
+                <p>Agents can verify the <span class="code-inline">execution_proof</span> field in the API response to ensure that the data they received is exactly what was generated by the translation chain.</p>
+            </section>
 
-                <h3>Supported Platforms</h3>
+            <section id="eat-system" class="docs-section">
+                <h2>5. Security &amp; Identity: The EAT System</h2>
+                <p>The <strong>Engram Access Token (EAT)</strong> is the project's security backbone.</p>
+                <ul>
+                    <li><strong>Stateless but Revocable</strong>: JTI-based revocation in Redis allows for immediate global sign-out of long-lived tokens.</li>
+                    <li><strong>Scoped Permissions</strong>:
+                        <ul>
+                            <li><span class="code-inline">translate:a2a</span>: Access to the protocol translator.</li>
+                            <li><span class="code-inline">discovery:read</span>: Access to search for collaborators.</li>
+                            <li><span class="code-inline">tools:*</span>: Recursive access to all tool connectors.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Credential Vaulting</strong>: AI provider keys (OpenAI, Anthropic, etc.) are stored as <strong>encrypted metadata</strong> in the <span class="code-inline">ProviderCredential</span> table, accessible only to the owner's sub-tasks.</li>
+                </ul>
+            </section>
+
+            <section id="modules-bridges" class="docs-section">
+                <h2>6. Functional Modules &amp; Special Bridges</h2>
+                
+                <h3>MiroFish Swarm Bridge</h3>
+                <p>Designed for predictive financial modeling, this bridge pipes data directly into a <a href="https://github.com/666ghj/MiroFish" target="_blank" style="color: #111; text-decoration: underline;">MiroFish</a> simulation.</p>
+                <ul>
+                    <li><strong>Context Injection</strong>: Automatically enriches seeds with real-time prices (Binance/Kalshi), sentiment scores (X), and headlines.</li>
+                    <li><strong>God's-Eye Mode</strong>: Allows for mid-simulation "shocks" (event injection) to test swarm stability under volatility.</li>
+                </ul>
+
+                <h3>Trading Developer Templates</h3>
+                <p>Unified schemas for the decentralized economy:</p>
+                <ul>
+                    <li><strong>Trade Order</strong>: Symbols, actions (buy/sell/limit/market), and quantities.</li>
+                    <li><strong>Payment Intent</strong>: Amounts and currencies across Stripe and PayPal.</li>
+                    <li><strong>Data Feed</strong>: Structured queries for FRED economic data or X-sentiment.</li>
+                </ul>
+            </section>
+
+            <section id="command-control" class="docs-section">
+                <h2>7. Operational Command &amp; Control</h2>
+                
+                <h3>Terminal Dashboard (TUI)</h3>
+                <p>Run <span class="code-inline">python app/cli.py debug</span> for a live NOC-style view:</p>
+                <ul>
+                    <li><strong>Side-by-Side Trace</strong>: Inspect <span class="code-inline">Input Protocol</span> vs <span class="code-inline">Output Protocol</span> payloads in real-time.</li>
+                    <li><strong>Task Telemetry</strong>: View lease timestamps and worker attempts for the background queue.</li>
+                    <li><strong>Event Stream</strong>: Real-time structured logs from the <span class="code-inline">DiscoveryService</span> and <span class="code-inline">Orchestrator</span>.</li>
+                </ul>
+
+                <h3>Performance Benchmarks (JMeter Verified)</h3>
                 <table class="docs-table">
                     <thead>
                         <tr>
-                            <th>Category</th>
-                            <th>Platforms</th>
-                            <th>Key Integration</th>
+                            <th>Metric</th>
+                            <th>Result</th>
+                            <th>Environment</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>Crypto</strong></td>
-                            <td>Binance, Coinbase, Robinhood Crypto</td>
-                            <td>CCXT / Direct REST</td>
+                            <td><strong>Throughput</strong></td>
+                            <td>&ge; 150 requests/sec</td>
+                            <td>Local Docker Stack</td>
                         </tr>
                         <tr>
-                            <td><strong>Prediction</strong></td>
-                            <td>Kalshi</td>
-                            <td>Direct REST (trade-api/v2)</td>
+                            <td><strong>p50 Latency</strong></td>
+                            <td>&le; 120 ms</td>
+                            <td>Local Docker Stack</td>
                         </tr>
                         <tr>
-                            <td><strong>Payments</strong></td>
-                            <td>Stripe, PayPal</td>
-                            <td>Payment Intents / Orders API</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Data Feeds</strong></td>
-                            <td>X (Twitter), FRED, Reuters, Bloomberg</td>
-                            <td>Search &amp; Series APIs</td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h3>How It Works</h3>
-                <ol>
-                    <li><strong>Unified Schema</strong>: Agents construct a standard <span class="code-inline">tradeOrder</span>, <span class="code-inline">balanceQuery</span>, <span class="code-inline">paymentIntent</span>, or <span class="code-inline">feedRequest</span> object.</li>
-                    <li><strong>Semantic Normalization</strong>: Engram maps these fields to the platform's native API (e.g., mapping <span class="code-inline">quantity</span> to <span class="code-inline">amount</span> or <span class="code-inline">size</span> as required).</li>
-                    <li><strong>Authentication</strong>: Adapters use keys provided in your environment configuration, stored securely and never shared.</li>
-                    <li><strong>Response Unification</strong>: Heterogeneous responses from different APIs are normalized back into a consistent structure for your agent to parse easily.</li>
-                </ol>
-
-                <h3>Setup &amp; Configuration</h3>
-                <ol>
-                    <li><strong>Install</strong>:
-                        <div class="code-block">cd trading-templates &amp;&amp; npm install</div>
-                    </li>
-                    <li><strong>Configure <span class="code-inline">.env</span></strong>: Add your API keys for the platforms you intend to use (e.g., <span class="code-inline">BINANCE_API_KEY</span>, <span class="code-inline">KALSHI_TOKEN</span>, <span class="code-inline">STRIPE_SECRET_KEY</span>).</li>
-                    <li><strong>Enable in SDK</strong>:
-                        <div class="code-block">engram.enableTradingTemplate('binance', {
-  BINANCE_API_KEY: process.env.BINANCE_API_KEY,
-  BINANCE_SECRET: process.env.BINANCE_SECRET,
-});</div>
-                    </li>
-                </ol>
-
-                <h3>Usage: The Predict-Execute Loop</h3>
-                <p>The most powerful way to use these features is by combining them. Use a <strong>Feed Request</strong> to gather data, a <strong>MiroFish Swarm</strong> to predict, and a <strong>Trading Template</strong> to execute.</p>
-                
-                <h4>Example: Enriching a Trade with Live Data</h4>
-                <div class="code-block">const result = await engram.routeTo('binance', {
-  tradeOrder: {
-    symbol: 'ETH/USDT',
-    action: 'market',
-    quantity: 0.5,
-  },
-  feedRequest: {
-    source: 'x',
-    query: 'Ethereum sentiment',
-  }
-});
-// result contains both the trade confirmation and the recent sentiment data</div>
-
-                <h4>Example: Sequential Multi-Platform Execution</h4>
-                <div class="code-block">const order = {
-  tradeOrder: { symbol: 'BTC/USDT', action: 'limit', quantity: 0.01, price: 60000 }
-};
-
-await engram.routeTo('binance', order);
-await engram.routeTo('coinbase', order);
-// The same 'order' object works for both platforms instantly</div>
-
-                <h3>Unified Schema Reference</h3>
-                <table class="docs-table">
-                    <thead>
-                        <tr>
-                            <th>Payload Type</th>
-                            <th>Key Fields</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Trade Order</strong></td>
-                            <td><span class="code-inline">symbol</span>, <span class="code-inline">action</span> (buy/sell/limit/market/balance), <span class="code-inline">quantity</span>, <span class="code-inline">price</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Payment Intent</strong></td>
-                            <td><span class="code-inline">amount</span>, <span class="code-inline">currency</span>, <span class="code-inline">customerId</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Feed Request</strong></td>
-                            <td><span class="code-inline">source</span> (x/fred/reuters/bloomberg), <span class="code-inline">query</span></td>
+                            <td><strong>p99 Latency</strong></td>
+                            <td>&le; 600 ms</td>
+                            <td>Local Docker Stack</td>
                         </tr>
                     </tbody>
                 </table>
             </section>
+
+            <section id="deployment-tips" class="docs-section">
+                <h2>8. Implementation &amp; Deployment Tips</h2>
+                
+                <h3>Deployment Matrix</h3>
+                <ul>
+                    <li><strong>Docker (Standard)</strong>: Use <span class="code-inline">docker compose up --build</span> for the full stack (Redis, Postgres, Prometheus).</li>
+                    <li><strong>Staging</strong>: Use <span class="code-inline">docker compose -f docker-compose.staging.yml</span> for a WireMock-enriched environment for mocking external agent APIs.</li>
+                </ul>
+
+                <h3>Essential Env Vars</h3>
+                <ul>
+                    <li><span class="code-inline">DATABASE_URL</span>: Your primary Postgres sink.</li>
+                    <li><span class="code-inline">REDIS_ENABLED</span>: Critical for caching OWL ontology hits.</li>
+                    <li><span class="code-inline">AUTH_JWT_SECRET</span>: The master key for signing EATs.</li>
+                    <li><span class="code-inline">SENTRY_DSN</span>: Required for production error tracking.</li>
+                </ul>
+            </section>
+
+            <section id="troubleshooting" class="docs-section">
+                <h2>9. Troubleshooting &amp; Common Errors</h2>
+                
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>HTTP Code</th>
+                            <th>Error Category</th>
+                            <th>Solution</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>401/403</strong></td>
+                            <td>EAT Failure</td>
+                            <td>Check token <span class="code-inline">exp</span> and <span class="code-inline">iss</span> claims. Verify tool scopes.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>422</strong></td>
+                            <td>Mapping Gap</td>
+                            <td>The <span class="code-inline">MappingFailureLog</span> contains the raw fields. Check the <span class="code-inline">mapping_suggestions</span> in the response.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>503</strong></td>
+                            <td>Worker Lag</td>
+                            <td>Monitor <span class="code-inline">/metrics</span>. If <span class="code-inline">task_latency_seconds</span> spikes, scale the <span class="code-inline">app</span> service containers.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <div style="margin-top: 40px; font-size: 0.9em; color: #666; font-weight: 500; padding: 20px 0; border-top: 1px solid #eee;">
+                <strong>Version 0.1.0 | Documentation Hub | March 2026</strong>
+            </div>
         </main>
     </div>
 
