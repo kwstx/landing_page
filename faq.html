@@ -181,121 +181,101 @@
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">What problem does this solve?</div>
+                            <div class="faq-question">What problem does Engram solve?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            AI agents today are often isolated because they speak different protocols (MCP, ACP, native A2A) and use differing data schemas. This middleware acts as a universal translator, allowing agents to seamlessly collaborate without changing their underlying code.
+                            AI agents today are often isolated because they speak different protocols (MCP, ACP, native A2A) and use differing data schemas. Engram acts as a universal neural interoperability layer, allowing agents, tools, and third-party APIs to seamlessly collaborate without changing their underlying code.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">How is this different from normal API gateways?</div>
+                            <div class="faq-question">How does protocol routing actually work?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Traditional API gateways just route raw requests between services. This system is agent-native. It translates protocol envelopes (MCP, ACP, A2A) and actively resolves semantic differences in data payloads using ontologies and rule engines.
+                            Engram treats protocols as nodes in a Dynamic Protocol Graph. It uses a Dijkstra shortest-path search to find the most efficient translation corridor. The routing dynamically weighs real-time agent latency and reliability, routing around degraded agents.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Do I need to use all features?</div>
+                            <div class="faq-question">How does tiered semantic resolution align data schemas?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. Each feature is modular. You can integrate protocol translation only, semantic mapping only, or the full orchestration and discovery stack depending on your needs.
+                            Engram uses a 5-tier fall-through strategy to maximize speed and depth. It goes sequentially from JSonschema validations, to structural flattening, explicit PyDatalog rules, and deep OWL ontologies. If all fail, it falls back to an ML prediction model.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Does this replace my existing agents?</div>
+                            <div class="faq-question">What happens if a mapping isn't recognized by the system?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. It acts as a translation and communication layer between your agents. Your existing agents and underlying backends remain intact.
+                            If default rules and ontologies fail, our ML fallback (TF-IDF + LogReg) predicts field alignments. When predictions hit a high confidence threshold (&ge; 85%), a Self-Healing Loop automatically applies the mapping and periodically retrains the model in the background.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">How are messages translated before delivery?</div>
+                            <div class="faq-question">How do I know my payload wasn't manipulated mid-flight?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Every message flows through protocol conversion, semantic mapping rules, and validation. If default mapping fails, an ML fallback model suggests field alignments before forwarding to ensure data integrity.
+                            Every data transformation across the translation chain is verifiable. Engram generates cryptographic SHA-256 hop proofs for each step, ending with a final Aggregate Proof (<span class="code-inline">v1:agg</span>) that guarantees the exact path and integrity of the execution.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Is this only for LLM-based agents?</div>
+                            <div class="faq-question">How are security and permissions handled?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. It works with any autonomous process capable of communicating over network protocols — LLM agents, automated workflows, robotic systems, or traditional software services.
+                            Security is governed by the Engram Access Token (EAT) system. EAT provides scoped permissions (e.g., translator access vs. tool execution) and stateless-yet-revocable identity. Furthermore, AI provider credentials are vaulted and securely injected only into authorized sub-tasks.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">How are data schemas aligned?</div>
+                            <div class="faq-question">Are there dedicated templates for financial trading agents?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Through OWL ontologies, JSON Schema validation, and PyDatalog rules that dynamically map fields (e.g., `user_info.name` to `profile.fullname`) between different agent schemas.
+                            Yes. Engram provides Trading Developer Templates (trade orders, payment intents, data feeds) and specific integrations, such as the MiroFish Swarm Bridge, which natively injects real-time prices and sentiment data into predictive modeling swarms.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Can agents dynamically discover collaborators?</div>
+                            <div class="faq-question">Is Engram performant enough for real-time agent swarms?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Yes. Agents can use the Registry & Discovery service to find collaborators. They publish their capabilities, and a compatibility score is evaluated before handoff.
+                            Absolutely. Based on standard benchmark environments, the translation middleware sustains &ge; 150 requests per second with a p50 latency of &le; 120 ms, making it highly effective for live agent swarming and orchestrations.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Is it cloud-based?</div>
+                            <div class="faq-question">Can I monitor what translator chains are doing?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            No. It can run locally via Docker Compose, be self-hosted, or integrated into your existing cloud infrastructure like Render or Cloud Run.
+                            Yes. Engram includes an operational Command &amp; Control TUI (Terminal Dashboard). You can run a side-by-side trace of input versus output payloads in real-time to debug complex multi-hop transformations.
                         </div>
                     </div>
 
                     <div class="faq-item">
                         <div class="faq-question-container">
-                            <div class="faq-question">Is this production-ready?</div>
+                            <div class="faq-question">Is it cloud-based or self-hosted?</div>
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            It is designed as a robust middleware foundation. Production readiness depends on your specific scaling, high availability (e.g., Redis deployment), and authentication configuration.
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <div class="faq-question-container">
-                            <div class="faq-question">Who is this built for?</div>
-                            <div class="faq-arrow">&rarr;</div>
-                        </div>
-                        <div class="faq-answer">
-                            Developers and teams building multi-agent AI systems that require seamless interoperability, protocol translation, and semantic data coordination across isolated stacks.
-                        </div>
-                    </div>
-
-                    <div class="faq-item">
-                        <div class="faq-question-container">
-                            <div class="faq-question">Why not just force all agents to use one standard?</div>
-                            <div class="faq-arrow">&rarr;</div>
-                        </div>
-                        <div class="faq-answer">
-                            Standardization across diverse ecosystems is difficult and slow. This middleware embraces protocol diversity, enforcing translation outside the agent so you don't have to rewrite existing integrations.
+                            Engram is built to be self-managed. The standard deployment leans on a Docker Compose stack containing Redis, Postgres, and Prometheus, enabling it to run entirely in your local, edge, or cloud enclaves.
                         </div>
                     </div>
 
