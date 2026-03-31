@@ -150,12 +150,6 @@
         <header class="navbar">
             <a href="index.html" style="text-decoration: none; color: inherit;">
                 <div class="logo-container">
-                    <svg class="logo-icon" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M12 0C12.5 5.5 16.5 9.5 22 10V14C16.5 14.5 12.5 18.5 12 24H10C9.5 18.5 5.5 14.5 0 14V10C5.5 9.5 9.5 5.5 10 0H12Z"
-                            fill="#111" />
-                    </svg>
                     <span class="logo-text">Engram</span>
                 </div>
             </a>
@@ -171,10 +165,8 @@
                 <div class="faq-sidebar">
                     <h1 class="faq-sidebar-title">
                         <div>Agent</div>
-                        <div>Translator</div>
-                        <div>Middleware</div>
-                        <div>for Interoperable</div>
-                        <div>Systems</div>
+                        <div>interoperability</div>
+                        <div>Layer</div>
                     </h1>
                 </div>
                 <div class="faq-content">
@@ -185,7 +177,10 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            AI agents today are often isolated because they speak different protocols (MCP, ACP, native A2A) and use differing data schemas. Engram acts as a universal neural interoperability layer, allowing agents, tools, and third-party APIs to seamlessly collaborate without changing their underlying code.
+                            AI agents today are often isolated because they speak different protocols (MCP, ACP, native
+                            A2A) and use differing data schemas. Engram acts as a universal neural interoperability
+                            layer, allowing agents, tools, and third-party APIs to seamlessly collaborate without
+                            changing their underlying code.
                         </div>
                     </div>
 
@@ -195,7 +190,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Engram treats protocols as nodes in a Dynamic Protocol Graph. It uses a Dijkstra shortest-path search to find the most efficient translation corridor. The routing dynamically weighs real-time agent latency and reliability, routing around degraded agents.
+                            Engram treats protocols as nodes in a Dynamic Protocol Graph. It uses a Dijkstra
+                            shortest-path search to find the most efficient translation corridor. The routing
+                            dynamically weighs real-time agent latency and reliability, routing around degraded agents.
                         </div>
                     </div>
 
@@ -205,7 +202,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Engram uses a 5-tier fall-through strategy to maximize speed and depth. It goes sequentially from JSonschema validations, to structural flattening, explicit PyDatalog rules, and deep OWL ontologies. If all fail, it falls back to an ML prediction model.
+                            Engram uses a 5-tier fall-through strategy to maximize speed and depth. It goes sequentially
+                            from JSonschema validations, to structural flattening, explicit PyDatalog rules, and deep
+                            OWL ontologies. If all fail, it falls back to an ML prediction model.
                         </div>
                     </div>
 
@@ -215,7 +214,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            If default rules and ontologies fail, our ML fallback (TF-IDF + LogReg) predicts field alignments. When predictions hit a high confidence threshold (&ge; 85%), a Self-Healing Loop automatically applies the mapping and periodically retrains the model in the background.
+                            If default rules and ontologies fail, our ML fallback (TF-IDF + LogReg) predicts field
+                            alignments. When predictions hit a high confidence threshold (&ge; 85%), a Self-Healing Loop
+                            automatically applies the mapping and periodically retrains the model in the background.
                         </div>
                     </div>
 
@@ -225,7 +226,10 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Every data transformation across the translation chain is verifiable. Engram generates cryptographic SHA-256 hop proofs for each step, ending with a final Aggregate Proof (<span class="code-inline">v1:agg</span>) that guarantees the exact path and integrity of the execution.
+                            Every data transformation across the translation chain is verifiable. Engram generates
+                            cryptographic SHA-256 hop proofs for each step, ending with a final Aggregate Proof (<span
+                                class="code-inline">v1:agg</span>) that guarantees the exact path and integrity of the
+                            execution.
                         </div>
                     </div>
 
@@ -235,7 +239,10 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Security is governed by the Engram Access Token (EAT) system. EAT provides scoped permissions (e.g., translator access vs. tool execution) and stateless-yet-revocable identity. Furthermore, AI provider credentials are vaulted and securely injected only into authorized sub-tasks.
+                            Security is governed by the Engram Access Token (EAT) system. EAT provides scoped
+                            permissions (e.g., translator access vs. tool execution) and stateless-yet-revocable
+                            identity. Furthermore, AI provider credentials are vaulted and securely injected only into
+                            authorized sub-tasks.
                         </div>
                     </div>
 
@@ -245,7 +252,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Yes. Engram provides Trading Developer Templates (trade orders, payment intents, data feeds) and specific integrations, such as the MiroFish Swarm Bridge, which natively injects real-time prices and sentiment data into predictive modeling swarms.
+                            Yes. Engram provides Trading Developer Templates (trade orders, payment intents, data feeds)
+                            and specific integrations, such as the MiroFish Swarm Bridge, which natively injects
+                            real-time prices and sentiment data into predictive modeling swarms.
                         </div>
                     </div>
 
@@ -255,7 +264,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Absolutely. Based on standard benchmark environments, the translation middleware sustains &ge; 150 requests per second with a p50 latency of &le; 120 ms, making it highly effective for live agent swarming and orchestrations.
+                            Absolutely. Based on standard benchmark environments, the translation middleware sustains
+                            &ge; 150 requests per second with a p50 latency of &le; 120 ms, making it highly effective
+                            for live agent swarming and orchestrations.
                         </div>
                     </div>
 
@@ -265,7 +276,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Yes. Engram includes an operational Command &amp; Control TUI (Terminal Dashboard). You can run a side-by-side trace of input versus output payloads in real-time to debug complex multi-hop transformations.
+                            Yes. Engram includes an operational Command &amp; Control TUI (Terminal Dashboard). You can
+                            run a side-by-side trace of input versus output payloads in real-time to debug complex
+                            multi-hop transformations.
                         </div>
                     </div>
 
@@ -275,7 +288,9 @@
                             <div class="faq-arrow">&rarr;</div>
                         </div>
                         <div class="faq-answer">
-                            Engram is built to be self-managed. The standard deployment leans on a Docker Compose stack containing Redis, Postgres, and Prometheus, enabling it to run entirely in your local, edge, or cloud enclaves.
+                            Engram is built to be self-managed. The standard deployment leans on a Docker Compose stack
+                            containing Redis, Postgres, and Prometheus, enabling it to run entirely in your local, edge,
+                            or cloud enclaves.
                         </div>
                     </div>
 
