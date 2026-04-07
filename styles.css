@@ -1536,6 +1536,11 @@ body {
     font-weight: 400;
     color: #111;
     letter-spacing: -1.2px;
+    opacity: 0; /* Starts hidden before the animation */
+}
+
+.financial-content.is-visible {
+    animation: fadeInUp 0.8s ease-out forwards;
 }
 
 .financial-content .text-gray {
