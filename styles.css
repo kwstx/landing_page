@@ -953,6 +953,16 @@ body {
     max-width: 900px;
 }
 
+.fade-letter {
+    opacity: 0;
+    display: inline-block;
+    transition: opacity 0.5s ease;
+}
+
+.api-cta-title.is-visible .fade-letter {
+    opacity: 1;
+}
+
 .nowrap {
     white-space: nowrap;
 }

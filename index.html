@@ -517,8 +517,32 @@
                 threshold: 0.15 // Triggers when 15% of the element is visible
             });
 
+            // Process api-cta-title for letter-by-letter fade in
+            const apiCtaTitle = document.querySelector('.api-cta-title');
+            if (apiCtaTitle) {
+                const line1Text = "Build anything you want";
+                const line2Text = "without worrying about connecting tools or agents";
+                
+                let delayCounter = 0;
+                const delayIncrement = 0.03; // seconds
+
+                const wrapLetters = (text) => text.split('').map(char => {
+                    const delay = (delayCounter * delayIncrement).toFixed(2);
+                    delayCounter++;
+                    if (char === ' ') {
+                        return `<span class="fade-letter" style="transition-delay: ${delay}s">&nbsp;</span>`;
+                    }
+                    return `<span class="fade-letter" style="transition-delay: ${delay}s">${char}</span>`;
+                }).join('');
+
+                apiCtaTitle.innerHTML = `
+                    <span class="nowrap">${wrapLetters(line1Text)}</span><br>
+                    ${wrapLetters(line2Text)}
+                `;
+            }
+
             // Target the specific section headers and descriptions
-            const elementsToAnimate = document.querySelectorAll('.world-id-title, .world-id-desc, .financial-content');
+            const elementsToAnimate = document.querySelectorAll('.world-id-title, .world-id-desc, .financial-content, .api-cta-title');
             elementsToAnimate.forEach(el => observer.observe(el));
 
             const showcaseSection = document.querySelector('.products-showcase-section');
