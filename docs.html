@@ -1785,6 +1785,147 @@ python -c "import keyring; keyring.delete_password('engram', 'eat_token')"
 <li><strong><a href="./02-installation.md">Installation</a></strong> — Reinstall from scratch</li>
 <li><strong><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></strong> — Deploy with containers</li>
 </ul>
+
+<hr />
+<h1 id="learning-path">Learning Path</h1>
+<p>This page helps you find the right documentation based on your experience level and goals. Engram has a lot of surface area — from basic tool registration to ML-driven self-evolving tools — so this guide ensures you don't waste time on sections you don't need yet.</p>
+
+<hr />
+
+<h2 id="start-here">Start Here</h2>
+<p>If you haven't installed Engram yet, begin with the <a href="./02-installation.md">Installation</a> guide and then run through the <a href="./01-quickstart.md">Quickstart</a>. Everything below assumes you have a working installation with at least one tool registered.</p>
+
+<hr />
+
+<h2 id="how-to-use-this-page">How to Use This Page</h2>
+<ul>
+<li><strong>Know your level?</strong> Jump to the experience-level table and follow the reading order for your tier.</li>
+<li><strong>Have a specific goal?</strong> Skip to "By Use Case" and find the scenario that matches.</li>
+<li><strong>Just browsing?</strong> Check the "Key Features" table for a quick overview of everything Engram can do.</li>
+</ul>
+
+<hr />
+
+<h2 id="by-experience-level">By Experience Level</h2>
+<table>
+<thead>
+<tr><th>Level</th><th>Goal</th><th>Recommended Reading</th><th>Time Estimate</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Beginner</strong></td><td>Install, register first tool, test routing</td><td>Installation → Quickstart → CLI Reference → Configuration</td><td>~1 hour</td></tr>
+<tr><td><strong>Intermediate</strong></td><td>Set up healing, connect multiple protocols, deploy with Docker</td><td>Universal Onboarding → Self-Healing Engine → Hybrid Routing → Docker Setup → Observability</td><td>~2–3 hours</td></tr>
+<tr><td><strong>Advanced</strong></td><td>Build custom adapters, extend the SDK, deploy at scale, contribute</td><td>Architecture → SDK &amp; Python Library → Protocol Federation → Self-Evolving Tools → Contributing</td><td>~4–6 hours</td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="by-use-case">By Use Case</h2>
+
+<h3 id="i-want-to-connect-my-agents-to-apis-reliably">"I want to connect my agents to APIs reliably"</h3>
+<p>Use Engram as the semantic middleware between your agents and any API, ensuring tools stay working as APIs evolve.</p>
+<p><strong>Reading order:</strong></p>
+<ol>
+<li><a href="./02-installation.md">Installation</a></li>
+<li><a href="./01-quickstart.md">Quickstart</a></li>
+<li><a href="./08-universal-onboarding.md">Universal Onboarding</a></li>
+<li><a href="./09-self-healing-engine.md">Self-Healing Engine</a></li>
+<li><a href="./07-configuration.md">Configuration</a></li>
+</ol>
+<blockquote>
+<p><strong>Tip:</strong> Register tools via OpenAPI specs for the fastest path. Engram auto-generates dual MCP and CLI representations and begins monitoring for schema drift immediately.</p>
+</blockquote>
+
+<h3 id="i-want-intelligent-routing-between-mcp-and-cli">"I want intelligent routing between MCP and CLI"</h3>
+<p>Let Engram automatically choose the best execution backend for each task based on historical performance data.</p>
+<p><strong>Reading order:</strong></p>
+<ol>
+<li><a href="./01-quickstart.md">Quickstart</a></li>
+<li><a href="./10-hybrid-routing.md">Hybrid Routing</a></li>
+<li><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></li>
+<li><a href="./07-configuration.md">Configuration</a> (routing weights section)</li>
+</ol>
+
+<h3 id="i-want-agents-to-communicate-across-protocols">"I want agents to communicate across protocols"</h3>
+<p>Bridge MCP, CLI, A2A, and ACP agents seamlessly with ontology-backed translation.</p>
+<p><strong>Reading order:</strong></p>
+<ol>
+<li><a href="./11-protocol-federation.md">Protocol Federation</a></li>
+<li><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></li>
+<li><a href="./13-bidirectional-sync.md">Bidirectional Sync</a></li>
+<li><a href="./17-architecture.md">Architecture</a></li>
+</ol>
+<blockquote>
+<p><strong>Tip:</strong> Protocol federation uses the OWL ontology as a canonical bridge between protocols. Payloads are normalized through semantic concepts, not brittle field mappings.</p>
+</blockquote>
+
+<h3 id="i-want-to-deploy-engram-in-production">"I want to deploy Engram in production"</h3>
+<p>Run Engram at scale with Docker Compose or Kubernetes, full observability, and hardened security.</p>
+<p><strong>Reading order:</strong></p>
+<ol>
+<li><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></li>
+<li><a href="./07-configuration.md">Configuration</a></li>
+<li><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></li>
+<li><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></li>
+<li><a href="./04-updating-uninstalling.md">Updating &amp; Uninstalling</a></li>
+</ol>
+
+<h3 id="i-want-to-integrate-engram-into-my-python-app">"I want to integrate Engram into my Python app"</h3>
+<p>Use the Engram SDK to programmatically register tools, translate payloads, manage tasks, and build agent workflows.</p>
+<p><strong>Reading order:</strong></p>
+<ol>
+<li><a href="./02-installation.md">Installation</a></li>
+<li><a href="./16-sdk-python-library.md">SDK &amp; Python Library</a></li>
+<li><a href="./17-architecture.md">Architecture</a></li>
+<li><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></li>
+</ol>
+
+<h3 id="i-want-to-contribute-to-engram">"I want to contribute to Engram"</h3>
+<p>Set up a development environment, understand the codebase structure, and submit your first PR.</p>
+<p><strong>Reading order:</strong></p>
+<ol>
+<li><a href="./02-installation.md">Installation</a> (manual setup)</li>
+<li><a href="./17-architecture.md">Architecture</a></li>
+<li><a href="./19-contributing.md">Contributing</a></li>
+</ol>
+
+<hr />
+
+<h2 id="key-features-at-a-glance">Key Features at a Glance</h2>
+<table>
+<thead>
+<tr><th>Feature</th><th>What It Does</th><th>Docs Link</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Universal Onboarding</strong></td><td>Register any OpenAPI, GraphQL, CLI tool, or freeform docs as a dual MCP+CLI tool</td><td><a href="./08-universal-onboarding.md">Universal Onboarding</a></td></tr>
+<tr><td><strong>Self-Healing Engine</strong></td><td>OWL ontologies + ML detect and fix schema drift, field mismatches, and output changes in real time</td><td><a href="./09-self-healing-engine.md">Self-Healing Engine</a></td></tr>
+<tr><td><strong>Hybrid MCP+CLI Routing</strong></td><td>Performance-weighted routing chooses the best backend (MCP for structure, CLI for speed) per task</td><td><a href="./10-hybrid-routing.md">Hybrid Routing</a></td></tr>
+<tr><td><strong>Protocol Federation</strong></td><td>Seamless translation and handoff between MCP, CLI, A2A, and ACP with multi-hop support</td><td><a href="./11-protocol-federation.md">Protocol Federation</a></td></tr>
+<tr><td><strong>EAT Identity</strong></td><td>Unified Engram Authorization Token with structured permissions and semantic scopes from the ontology</td><td><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></td></tr>
+<tr><td><strong>Bidirectional Sync</strong></td><td>Event-driven synchronization across connected systems with semantic normalization and conflict resolution</td><td><a href="./13-bidirectional-sync.md">Bidirectional Sync</a></td></tr>
+<tr><td><strong>Observability &amp; Tracing</strong></td><td>Rich semantic traces with routing reasoning, ontology alignment, healing steps, and LLM-generated summaries</td><td><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></td></tr>
+<tr><td><strong>Self-Evolving Tools</strong></td><td>ML continuously improves tool descriptions, parameter schemas, default values, and recovery strategies</td><td><a href="./15-self-evolving-tools.md">Self-Evolving Tools</a></td></tr>
+<tr><td><strong>Swarm Memory</strong></td><td>Persistent, ontology-aware fact store with Prolog reasoning and pyDatalog conflict resolution</td><td><a href="./17-architecture.md">Architecture</a></td></tr>
+<tr><td><strong>Delegation Engine</strong></td><td>Native agent delegation and orchestration with natural-language intent detection and sub-task routing</td><td><a href="./17-architecture.md">Architecture</a></td></tr>
+<tr><td><strong>SDK &amp; Python Library</strong></td><td>Programmatic access to all Engram capabilities: auth, translation, task execution, tool registration</td><td><a href="./16-sdk-python-library.md">SDK &amp; Python Library</a></td></tr>
+<tr><td><strong>Playground</strong></td><td>Web-based sandbox UI for testing translations and exploring the tool catalog without authentication</td><td><a href="./17-architecture.md">Architecture</a></td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="what-to-read-next-learning">What to Read Next</h2>
+<ul>
+<li><strong>Just finished installing?</strong> → Head to the <a href="./01-quickstart.md">Quickstart</a> to register your first tool.</li>
+<li><strong>Completed the Quickstart?</strong> → Read the <a href="./06-cli-reference.md">CLI Reference</a> and <a href="./07-configuration.md">Configuration</a> to customize your setup.</li>
+<li><strong>Comfortable with the basics?</strong> → Explore <a href="./08-universal-onboarding.md">Universal Onboarding</a>, <a href="./09-self-healing-engine.md">Self-Healing Engine</a>, and <a href="./10-hybrid-routing.md">Hybrid Routing</a> to unlock the full power of the bridge.</li>
+<li><strong>Setting up for production?</strong> → Read <a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a> and <a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a>.</li>
+<li><strong>Ready to build?</strong> → Jump into the <a href="./16-sdk-python-library.md">SDK &amp; Python Library</a> and <a href="./17-architecture.md">Architecture</a> to understand the internals.</li>
+<li><strong>Want practical examples?</strong> → Check the <code>examples/</code> directory for tool registration scripts, SDK usage, and adapter patterns.</li>
+</ul>
+<blockquote>
+<p><strong>Tip:</strong> You don't need to read everything. Pick the path that matches your goal, follow the links in order, and you'll be productive quickly. You can always come back to this page to find your next step.</p>
+</blockquote>
             </div>
         </main>
 
@@ -1799,6 +1940,7 @@ python -c "import keyring; keyring.delete_password('engram', 'eat_token')"
                 <a href="#installation" class="toc-link">Installation</a>
                 <a href="#docker-kubernetes-setup" class="toc-link">Docker & K8s Setup</a>
                 <a href="#updating-uninstalling" class="toc-link">Updating & Uninstalling</a>
+                <a href="#learning-path" class="toc-link">Learning Path</a>
             </nav>
         </aside>
     </div>
