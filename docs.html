@@ -2918,6 +2918,917 @@ engram sync add &lt;tool-uuid&gt; --type cli_watch --command &quot;docker ps --f
 </ul>
 
 <hr />
+<hr />
+<h1 id="configuration">Configuration</h1>
+
+<p>Engram's configuration system spans three layers — a YAML config file, environment variables, and a backend settings model — unified by a smart precedence chain that adapts to your runtime environment automatically.</p>
+<hr />
+<h2>Config File Location</h2>
+<pre><code>~/.engram/config.yaml
+</code></pre>
+<p>Created by <code class="code-inline">engram init</code>. This file stores CLI-level preferences that affect how the <code class="code-inline">engram</code> command behaves. It is separate from the backend's <code class="code-inline">app/core/config.py</code> settings, which are configured via environment variables or <code class="code-inline">.env</code> files.</p>
+<hr />
+<h2>Config File Format</h2>
+<pre><code class="language-yaml"># ~/.engram/config.yaml
+api_url: http://127.0.0.1:8000
+backend_preference: mcp
+model_provider: openai
+verbose: false
+</code></pre>
+<h3>CLI Configuration Fields</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">api_url</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">http://127.0.0.1:8000</code></td>
+<td>Base URL for the Engram API. Change this when connecting to a remote gateway.</td>
+</tr>
+<tr>
+<td><code class="code-inline">backend_preference</code></td>
+<td><code class="code-inline">enum</code></td>
+<td><code class="code-inline">mcp</code></td>
+<td>Default backend for tool execution: <code class="code-inline">mcp</code> (structured reliability) or <code class="code-inline">cli</code> (speed).</td>
+</tr>
+<tr>
+<td><code class="code-inline">model_provider</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">openai</code></td>
+<td>Default AI model provider for semantic operations.</td>
+</tr>
+<tr>
+<td><code class="code-inline">verbose</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">false</code></td>
+<td>Enable verbose logging for debugging. Shows keyring warnings and detailed error context.</td>
+</tr>
+</tbody>
+</table>
+<p>Modify via CLI:</p>
+<pre><code class="language-bash">engram config set api_url http://my-server:8000
+engram config set backend_preference cli
+engram config set model_provider anthropic
+engram config show   # Verify changes
+</code></pre>
+<hr />
+<h2>Backend Settings Reference</h2>
+<p>The backend settings are defined in <code class="code-inline">app/core/config.py</code> as a Pydantic <code class="code-inline">BaseSettings</code> model. These are configured via environment variables or a <code class="code-inline">.env</code> file at the project root. The backend also loads <code class="code-inline">~/.engram/config.yaml</code> at startup as a secondary source (environment variables take precedence).</p>
+<h3>Core Runtime</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">PROJECT_NAME</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">Agent Translator Middleware</code></td>
+<td>Application name for logging and metadata</td>
+</tr>
+<tr>
+<td><code class="code-inline">API_V1_STR</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">/api/v1</code></td>
+<td>API version prefix for all routes</td>
+</tr>
+<tr>
+<td><code class="code-inline">ENVIRONMENT</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">development</code></td>
+<td>Runtime environment: <code class="code-inline">development</code>, <code class="code-inline">staging</code>, <code class="code-inline">production</code></td>
+</tr>
+<tr>
+<td><code class="code-inline">LOG_LEVEL</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">INFO</code></td>
+<td>Application log level: <code class="code-inline">DEBUG</code>, <code class="code-inline">INFO</code>, <code class="code-inline">WARNING</code>, <code class="code-inline">ERROR</code>, <code class="code-inline">CRITICAL</code></td>
+</tr>
+<tr>
+<td><code class="code-inline">MODEL_PROVIDER</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">openai</code></td>
+<td>Default LLM provider</td>
+</tr>
+<tr>
+<td><code class="code-inline">BASE_URL</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">http://127.0.0.1:8000</code></td>
+<td>Base URL for self-referencing</td>
+</tr>
+<tr>
+<td><code class="code-inline">DEFAULT_PERSONALITY</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">optimistic</code></td>
+<td>Default personality for agent responses</td>
+</tr>
+</tbody>
+</table>
+<h3>Provider API Keys</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">ANTHROPIC_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Anthropic (Claude) API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">PERPLEXITY_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Perplexity API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">SLACK_API_TOKEN</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Slack OAuth token</td>
+</tr>
+<tr>
+<td><code class="code-inline">X_BEARER_TOKEN</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>X (Twitter) bearer token</td>
+</tr>
+</tbody>
+</table>
+<h3>Routing Configuration</h3>
+<p>The routing engine uses a weighted composite score to choose the best tool and backend for each task. These weights control the relative importance of each factor:</p>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">ROUTING_EMBEDDING_MODEL</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">all-MiniLM-L6-v2</code></td>
+<td>Sentence-transformer model for semantic matching</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_STATS_WINDOW_HOURS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">168</code></td>
+<td>Rolling window for performance stats (7 days)</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_CACHE_TTL_SECONDS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">60</code></td>
+<td>Redis cache TTL for routing decisions</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_SIMILARITY</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.55</code></td>
+<td>Weight for semantic similarity score</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_SUCCESS</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.20</code></td>
+<td>Weight for historical success rate</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_LATENCY</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.15</code></td>
+<td>Weight for latency score</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_TOKEN_COST</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.07</code></td>
+<td>Weight for token efficiency</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_CONTEXT_OVERHEAD</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.03</code></td>
+<td>Weight for context overhead</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_PREFERENCE</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.10</code></td>
+<td>Weight for user's backend preference</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_WEIGHT_PREDICTIVE</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.15</code></td>
+<td>Weight for predictive optimization</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_BUDGET_TOKEN_LIMIT</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">8000</code></td>
+<td>Maximum token budget for routing</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROUTING_PARALLEL_CONFIDENCE_THRESHOLD</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.05</code></td>
+<td>Minimum score gap to avoid parallel execution</td>
+</tr>
+</tbody>
+</table>
+<h4>Tuning Routing Weights</h4>
+<p>The weights should sum to approximately 1.0 (minor deviations are acceptable). Adjust them based on your workload priorities:</p>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Priority</th>
+<th>Recommended Tuning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Accuracy first</strong></td>
+<td>Increase <code class="code-inline">ROUTING_WEIGHT_SIMILARITY</code> to 0.7, decrease <code class="code-inline">ROUTING_WEIGHT_LATENCY</code> to 0.05</td>
+</tr>
+<tr>
+<td><strong>Speed first</strong></td>
+<td>Increase <code class="code-inline">ROUTING_WEIGHT_LATENCY</code> to 0.3, decrease <code class="code-inline">ROUTING_WEIGHT_SIMILARITY</code> to 0.3</td>
+</tr>
+<tr>
+<td><strong>Cost optimization</strong></td>
+<td>Increase <code class="code-inline">ROUTING_WEIGHT_TOKEN_COST</code> to 0.2, decrease <code class="code-inline">ROUTING_WEIGHT_PREDICTIVE</code> to 0.05</td>
+</tr>
+<tr>
+<td><strong>Reliability first</strong></td>
+<td>Increase <code class="code-inline">ROUTING_WEIGHT_SUCCESS</code> to 0.35, decrease others proportionally</td>
+</tr>
+</tbody>
+</table>
+<h3>ML Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">ML_ENABLED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Enable/disable ML-based mapping suggestions</td>
+</tr>
+<tr>
+<td><code class="code-inline">ML_MODEL_PATH</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">app/semantic/models/mapping_model.joblib</code></td>
+<td>Path to the trained mapping model</td>
+</tr>
+<tr>
+<td><code class="code-inline">ML_MIN_TRAIN_SAMPLES</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">20</code></td>
+<td>Minimum samples before training the ML model</td>
+</tr>
+<tr>
+<td><code class="code-inline">ML_AUTO_APPLY_THRESHOLD</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.85</code></td>
+<td>Confidence threshold for auto-applying ML suggestions</td>
+</tr>
+<tr>
+<td><code class="code-inline">ML_AUTO_RETRAIN_THRESHOLD</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">5</code></td>
+<td>Number of manual corrections before auto-retraining</td>
+</tr>
+<tr>
+<td><code class="code-inline">MAPPING_FAILURE_MAX_FIELDS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">50</code></td>
+<td>Maximum fields to analyze on mapping failure</td>
+</tr>
+<tr>
+<td><code class="code-inline">MAPPING_FAILURE_PAYLOAD_MAX_KEYS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">50</code></td>
+<td>Maximum payload keys to include in failure analysis</td>
+</tr>
+</tbody>
+</table>
+<h3>Database Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">DATABASE_URL</code></td>
+<td><code class="code-inline">str</code></td>
+<td>Auto-generated</td>
+<td>Full database connection URL (auto-built from Postgres settings)</td>
+</tr>
+<tr>
+<td><code class="code-inline">POSTGRES_SERVER</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">db</code></td>
+<td>PostgreSQL server hostname</td>
+</tr>
+<tr>
+<td><code class="code-inline">POSTGRES_USER</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">admin</code></td>
+<td>PostgreSQL username</td>
+</tr>
+<tr>
+<td><code class="code-inline">POSTGRES_PASSWORD</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">password</code></td>
+<td>PostgreSQL password</td>
+</tr>
+<tr>
+<td><code class="code-inline">POSTGRES_DB</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">translator_db</code></td>
+<td>Database name</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Important:</strong> The default <code class="code-inline">POSTGRES_SERVER</code> is <code class="code-inline">db</code>, which resolves inside Docker Compose. For local development, the smart fallback automatically switches to SQLite (<code class="code-inline">./engram.db</code>). For production, set <code class="code-inline">DATABASE_URL</code> explicitly to your managed PostgreSQL instance.</p>
+</blockquote>
+<h4>Database URL Processing</h4>
+<p>Engram performs automatic URL processing to ensure compatibility:</p>
+<ol>
+<li><code class="code-inline">postgres://</code> → <code class="code-inline">postgresql+asyncpg://</code> (asyncpg compatibility)</li>
+<li><code class="code-inline">sslmode=require</code> → <code class="code-inline">ssl=true</code> (asyncpg doesn't accept <code class="code-inline">sslmode</code>)</li>
+<li>Strips incompatible parameters: <code class="code-inline">channel_binding</code>, <code class="code-inline">sslrootcert</code>, <code class="code-inline">sslcert</code>, <code class="code-inline">sslkey</code>, <code class="code-inline">sslcrl</code></li>
+</ol>
+<h3>Redis Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">REDIS_ENABLED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Enable/disable Redis integration</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_HOST</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">redis</code></td>
+<td>Redis server hostname</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_PORT</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">6379</code></td>
+<td>Redis port</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_DB</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">0</code></td>
+<td>Redis database number</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_PASSWORD</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Redis password (optional)</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_URL</code></td>
+<td><code class="code-inline">str</code></td>
+<td>Auto-generated</td>
+<td>Full Redis connection URL</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_CONNECT_TIMEOUT_SECONDS</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.2</code></td>
+<td>Connection timeout</td>
+</tr>
+<tr>
+<td><code class="code-inline">REDIS_SOCKET_TIMEOUT_SECONDS</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">0.2</code></td>
+<td>Socket timeout</td>
+</tr>
+<tr>
+<td><code class="code-inline">SEMANTIC_CACHE_TTL_SECONDS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">600</code></td>
+<td>Cache TTL for semantic operations (10 minutes)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note:</strong> Redis is optional for local development. When <code class="code-inline">REDIS_HOST</code> is <code class="code-inline">redis</code> (Docker default) and no Docker environment is detected, Redis is auto-disabled. All Redis-dependent features gracefully degrade.</p>
+</blockquote>
+<h3>Event Stream Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">EVENT_STREAM_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">engram:events</code></td>
+<td>Redis Stream key for events</td>
+</tr>
+<tr>
+<td><code class="code-inline">EVENT_STREAM_GROUP</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">engram-event-workers</code></td>
+<td>Consumer group name</td>
+</tr>
+<tr>
+<td><code class="code-inline">EVENT_STREAM_CONSUMER</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">worker-1</code></td>
+<td>Consumer name within the group</td>
+</tr>
+<tr>
+<td><code class="code-inline">EVENT_STREAM_BLOCK_MS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">2000</code></td>
+<td>Read block timeout in milliseconds</td>
+</tr>
+<tr>
+<td><code class="code-inline">EVENT_STREAM_BATCH</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">25</code></td>
+<td>Number of events to read per batch</td>
+</tr>
+<tr>
+<td><code class="code-inline">EVENT_STREAM_MAXLEN</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">10000</code></td>
+<td>Maximum stream length (older events trimmed)</td>
+</tr>
+<tr>
+<td><code class="code-inline">EVENT_POLL_INTERVAL_SECONDS</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">10.0</code></td>
+<td>Fallback polling interval when Redis Streams unavailable</td>
+</tr>
+</tbody>
+</table>
+<h3>Security Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">AUTH_ISSUER</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">https://auth.example.com/</code></td>
+<td>JWT issuer claim</td>
+</tr>
+<tr>
+<td><code class="code-inline">AUTH_AUDIENCE</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">translator-middleware</code></td>
+<td>JWT audience claim</td>
+</tr>
+<tr>
+<td><code class="code-inline">AUTH_JWT_ALGORITHM</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">HS256</code></td>
+<td>JWT signing algorithm</td>
+</tr>
+<tr>
+<td><code class="code-inline">AUTH_JWT_SECRET</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>JWT signing secret (required for production)</td>
+</tr>
+<tr>
+<td><code class="code-inline">AUTH_JWT_PUBLIC_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>JWT public key (for RS256/ES256)</td>
+</tr>
+<tr>
+<td><code class="code-inline">ACCESS_TOKEN_EXPIRE_MINUTES</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">10080</code></td>
+<td>Session token lifetime (7 days)</td>
+</tr>
+<tr>
+<td><code class="code-inline">EAT_ACCESS_TOKEN_EXPIRE_MINUTES</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">15</code></td>
+<td>EAT access token lifetime (15 minutes)</td>
+</tr>
+<tr>
+<td><code class="code-inline">EAT_REFRESH_TOKEN_EXPIRE_MINUTES</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">10080</code></td>
+<td>EAT refresh token lifetime (7 days)</td>
+</tr>
+<tr>
+<td><code class="code-inline">PROVIDER_CREDENTIALS_ENCRYPTION_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Fernet key for encrypting stored provider credentials</td>
+</tr>
+<tr>
+<td><code class="code-inline">AUTH_FAIL_CLOSED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Deny access when Redis is down (fail-closed security)</td>
+</tr>
+<tr>
+<td><code class="code-inline">SEMANTIC_AUTH_FAIL_CLOSED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Deny access when semantic scope check fails</td>
+</tr>
+<tr>
+<td><code class="code-inline">HTTPS_ONLY</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">false</code></td>
+<td>Force HTTPS redirect in production</td>
+</tr>
+<tr>
+<td><code class="code-inline">CORS_ORIGINS</code></td>
+<td><code class="code-inline">list</code></td>
+<td><code class="code-inline">["*"]</code></td>
+<td>Allowed CORS origins</td>
+</tr>
+<tr>
+<td><code class="code-inline">RATE_LIMIT_DEFAULT</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">100/minute</code></td>
+<td>Default API rate limit</td>
+</tr>
+<tr>
+<td><code class="code-inline">RATE_LIMIT_ENABLED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Enable/disable rate limiting</td>
+</tr>
+<tr>
+<td><code class="code-inline">SANDBOX_ENABLED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Enable sandbox mode for playground</td>
+</tr>
+</tbody>
+</table>
+<h3>Ontology Paths</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">DEFAULT_ONTOLOGY_PATH</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">app/semantic/protocols.owl</code></td>
+<td>Path to the protocol ontology</td>
+</tr>
+<tr>
+<td><code class="code-inline">SEMANTIC_SCOPE_ONTOLOGY_PATH</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">app/semantic/security.owl</code></td>
+<td>Path to the security scope ontology</td>
+</tr>
+</tbody>
+</table>
+<h3>Task Queue Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">TASK_POLL_INTERVAL_SECONDS</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">2.0</code></td>
+<td>How often the task worker checks for new tasks</td>
+</tr>
+<tr>
+<td><code class="code-inline">TASK_LEASE_SECONDS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">60</code></td>
+<td>How long a task is leased to a worker before it's considered stale</td>
+</tr>
+<tr>
+<td><code class="code-inline">TASK_MAX_ATTEMPTS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">5</code></td>
+<td>Maximum retry attempts for a failed task</td>
+</tr>
+<tr>
+<td><code class="code-inline">AGENT_MESSAGE_LEASE_SECONDS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">60</code></td>
+<td>Lease duration for agent messages</td>
+</tr>
+<tr>
+<td><code class="code-inline">AGENT_MESSAGE_MAX_ATTEMPTS</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">5</code></td>
+<td>Maximum retry attempts for agent messages</td>
+</tr>
+</tbody>
+</table>
+<h3>Workflow Scheduler Configuration</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">WORKFLOW_SCHEDULER_POLL_SECONDS</code></td>
+<td><code class="code-inline">float</code></td>
+<td><code class="code-inline">5.0</code></td>
+<td>Polling interval for scheduled workflows</td>
+</tr>
+<tr>
+<td><code class="code-inline">WORKFLOW_SCHEDULER_BATCH_SIZE</code></td>
+<td><code class="code-inline">int</code></td>
+<td><code class="code-inline">20</code></td>
+<td>Number of workflows to process per batch</td>
+</tr>
+</tbody>
+</table>
+<h3>Trading Templates</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">TRADING_TEMPLATES_ENABLED</code></td>
+<td><code class="code-inline">bool</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Enable trading template integrations</td>
+</tr>
+<tr>
+<td><code class="code-inline">BINANCE_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Binance exchange API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">BINANCE_SECRET</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Binance exchange API secret</td>
+</tr>
+<tr>
+<td><code class="code-inline">COINBASE_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Coinbase API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">COINBASE_SECRET</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Coinbase API secret</td>
+</tr>
+<tr>
+<td><code class="code-inline">KALSHI_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Kalshi prediction market API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">KALSHI_SECRET</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Kalshi API secret</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROBINHOOD_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Robinhood API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">ROBINHOOD_SECRET</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Robinhood API secret</td>
+</tr>
+<tr>
+<td><code class="code-inline">STRIPE_SECRET_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Stripe secret key</td>
+</tr>
+<tr>
+<td><code class="code-inline">PAYPAL_CLIENT_ID</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>PayPal client ID</td>
+</tr>
+<tr>
+<td><code class="code-inline">PAYPAL_SECRET</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>PayPal client secret</td>
+</tr>
+<tr>
+<td><code class="code-inline">FRED_API_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Federal Reserve Economic Data API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">REUTERS_APP_KEY</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Reuters data API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">BLOOMBERG_SERVICE_ID</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Bloomberg terminal service ID</td>
+</tr>
+</tbody>
+</table>
+<h3>Local LLM (Ollama)</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">OLLAMA_BASE_URL</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">http://localhost:11434</code></td>
+<td>Ollama server base URL</td>
+</tr>
+<tr>
+<td><code class="code-inline">OLLAMA_MODEL</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">llama3.2</code></td>
+<td>Default Ollama model</td>
+</tr>
+</tbody>
+</table>
+<h3>Miscellaneous</h3>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Variable</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">SENTRY_DSN</code></td>
+<td><code class="code-inline">str</code></td>
+<td>—</td>
+<td>Sentry error tracking DSN</td>
+</tr>
+<tr>
+<td><code class="code-inline">PYTHON_INTERPRETER</code></td>
+<td><code class="code-inline">str</code></td>
+<td><code class="code-inline">python</code></td>
+<td>Python interpreter path for CLI tool execution</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Precedence &amp; Smart Fallback</h2>
+<p>Configuration values are resolved in this order (highest priority first):</p>
+<ol>
+<li><strong>Environment variables</strong> — <code class="code-inline">ANTHROPIC_API_KEY=sk-ant-...</code> in your shell or <code class="code-inline">.env</code> file</li>
+<li><strong><code class="code-inline">~/.engram/config.yaml</code></strong> — Loaded by the <code class="code-inline">@model_validator(mode="before")</code> hook in <code class="code-inline">Settings</code></li>
+<li><strong>Defaults</strong> — Hardcoded defaults in the <code class="code-inline">Settings</code> class</li>
+</ol>
+<h3>Smart Fallback Logic</h3>
+<p>At startup, Engram detects whether it's running inside Docker/Kubernetes or locally:</p>
+<pre><code class="language-python"># From app/core/config.py
+if not os.path.exists(&quot;/.dockerenv&quot;) and not os.environ.get(&quot;KUBERNETES_PORT&quot;):
+    # Not in Docker or K8s — switch to local-friendly defaults
+    if &quot;db:5432&quot; in DATABASE_URL or POSTGRES_SERVER == &quot;db&quot;:
+        DATABASE_URL = &quot;sqlite+aiosqlite:///./engram.db&quot;
+    if REDIS_HOST == &quot;redis&quot;:
+        REDIS_ENABLED = False
+</code></pre>
+<p>This means you never need to install PostgreSQL or Redis for local development. The detection is automatic and zero-configuration.</p>
+<table class="docs-table">
+<thead>
+<tr>
+<th>Detected Environment</th>
+<th>Database</th>
+<th>Redis</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker (<code class="code-inline">/.dockerenv</code> exists)</td>
+<td>PostgreSQL via <code class="code-inline">db:5432</code></td>
+<td>Redis via <code class="code-inline">redis:6379</code></td>
+</tr>
+<tr>
+<td>Kubernetes (<code class="code-inline">KUBERNETES_PORT</code> set)</td>
+<td>PostgreSQL via configured URL</td>
+<td>Redis via configured URL</td>
+</tr>
+<tr>
+<td>Local development (neither)</td>
+<td>SQLite (<code class="code-inline">./engram.db</code>)</td>
+<td>Disabled (in-memory fallback)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>What's Next</h2>
+<ul>
+<li><strong><a href="./06-cli-reference.md">CLI Reference</a></strong> — Every command, flag, and output format</li>
+<li><strong><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></strong> — Deploy with the right environment variables</li>
+<li><strong><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></strong> — Configure authentication and authorization</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Tune monitoring and alerting</li>
+</ul>
+
 <h1 id="learning-path">Learning Path</h1>
 <p>This page helps you find the right documentation based on your experience level and goals. Engram has a lot of surface area — from basic tool registration to ML-driven self-evolving tools — so this guide ensures you don't waste time on sections you don't need yet.</p>
 
@@ -3072,6 +3983,7 @@ engram sync add &lt;tool-uuid&gt; --type cli_watch --command &quot;docker ps --f
                 <a href="#docker-kubernetes-setup" class="toc-link">Docker & K8s Setup</a>
                 <a href="#updating-uninstalling" class="toc-link">Updating & Uninstalling</a>
                 <a href="#cli-reference" class="toc-link">CLI Reference</a>
+                <a href="#configuration" class="toc-link">Configuration</a>
                 <a href="#learning-path" class="toc-link">Learning Path</a>
             </nav>
         </aside>
