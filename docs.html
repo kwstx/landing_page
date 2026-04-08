@@ -1566,6 +1566,225 @@ spec:
 <li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Set up monitoring and alerting</li>
 <li><strong><a href="./04-updating-uninstalling.md">Updating &amp; Uninstalling</a></strong> — Keep your deployment current</li>
 </ul>
+<h1 id="updating-uninstalling">Updating &amp; Uninstalling</h1>
+<p>How to update Engram to the latest version, roll back if something breaks, and cleanly remove everything when you're done.</p>
+
+<hr />
+
+<h2 id="updating">Updating</h2>
+
+<h3 id="standard-update-git-pip">Standard Update (Git + pip)</h3>
+
+<pre><code class="language-bash">cd /path/to/engram_translator
+git pull origin main
+pip install -r requirements.txt
+alembic upgrade head   # Apply any new database migrations
+</code></pre>
+
+<p>If you used the one-line installer, pull the latest code into the installation directory and the self-healing entry point will automatically detect and install new dependencies on the next launch.</p>
+
+<h3 id="what-happens-during-an-update">What Happens During an Update</h3>
+
+<ol>
+<li><strong><code>git pull</code></strong> — Fetches the latest code from the <code>main</code> branch. This includes new features, bug fixes, ontology updates, and ML model improvements.</li>
+<li><strong><code>pip install -r requirements.txt</code></strong> — Picks up new or changed dependencies. Existing packages are skipped if they're already at the correct version.</li>
+<li><strong><code>alembic upgrade head</code></strong> — Applies database schema migrations. This is safe to run even if no migrations are pending — it's a no-op in that case.</li>
+<li><strong>Self-healing entry point</strong> — On the next launch via <code>./engram</code> or <code>.\engram.bat</code>, the entry point re-validates all imports and reinstalls if anything is missing.</li>
+</ol>
+
+<h3 id="post-update-validation">Post-Update Validation</h3>
+
+<pre><code class="language-bash">engram info          # Verify configuration is intact
+engram tools list    # Confirm tool registry is accessible
+engram heal status   # Check for any new drifts after update
+</code></pre>
+
+<p>If <code>engram info</code> shows the correct API URL and authentication status, you're good. If <code>engram heal status</code> shows new drifts, this is expected — the update may have refined the ontology mappings. Review them or run <code>engram heal now</code> to auto-repair.</p>
+
+<hr />
+
+<h2 id="rollback">Rollback</h2>
+
+<pre><code class="language-bash">cd /path/to/engram_translator
+
+# List recent commits
+git log --oneline -10
+
+# Roll back to a specific commit
+git checkout &lt;commit-hash&gt;
+pip install -r requirements.txt
+alembic downgrade -1   # Revert the last migration if needed
+</code></pre>
+
+<blockquote>
+<p><strong>Warning:</strong> Rolling back database migrations can cause data loss if the newer migration added columns that already contain data. Always back up your database before downgrading:</p>
+<pre><code class="language-bash"># PostgreSQL
+pg_dump translator_db &gt; backup.sql
+
+# SQLite
+cp ./engram.db ./engram.db.backup
+</code></pre>
+</blockquote>
+
+<h3 id="rollback-strategies">Rollback Strategies</h3>
+
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Code bug (no schema changes)</td>
+<td><code>git checkout &lt;hash&gt;</code> — no migration needed</td>
+</tr>
+<tr>
+<td>Bad migration</td>
+<td><code>alembic downgrade -1</code> + <code>git checkout &lt;hash&gt;</code></td>
+</tr>
+<tr>
+<td>Full reset</td>
+<td><code>git checkout &lt;hash&gt;</code> + restore database backup</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="updating-docker-deployments">Updating Docker Deployments</h2>
+
+<pre><code class="language-bash">cd /path/to/engram_translator
+git pull origin main
+docker compose build app
+docker compose up -d app   # Zero-downtime rolling restart
+</code></pre>
+
+<p>The <code>up -d</code> command only restarts services that have changed. Since the <code>app</code> image was rebuilt, only the gateway container restarts. Database and Redis continue running.</p>
+
+<h3 id="kubernetes">Kubernetes</h3>
+
+<pre><code class="language-bash"># Update the image tag
+kubectl set image deployment/engram-gateway engram=engram:latest
+
+# Watch the rollout
+kubectl rollout status deployment/engram-gateway
+
+# If something goes wrong, roll back
+kubectl rollout undo deployment/engram-gateway
+</code></pre>
+
+<p>For production, use specific image tags (not <code>latest</code>) and update them in your manifests:</p>
+
+<pre><code class="language-yaml">spec:
+  containers:
+  - name: engram
+    image: engram:v1.2.3  # Pin to specific version
+</code></pre>
+
+<hr />
+
+<h2 id="uninstalling">Uninstalling</h2>
+
+<h3 id="remove-the-cli">Remove the CLI</h3>
+
+<pre><code class="language-bash"># Remove the global command
+rm -f ~/bin/engram
+rm -f ~/.local/bin/engram
+</code></pre>
+
+<h3 id="remove-the-codebase">Remove the Codebase</h3>
+
+<pre><code class="language-bash">rm -rf /path/to/engram_translator
+</code></pre>
+
+<h3 id="remove-configuration-and-data-optional">Remove Configuration and Data (Optional)</h3>
+
+<pre><code class="language-bash">rm -rf ~/.engram
+</code></pre>
+
+<blockquote>
+<p><strong>Note:</strong> Keep <code>~/.engram/</code> if you plan to reinstall later. It contains your <code>config.yaml</code>, EAT tokens, encrypted credentials, and swarm memory database. Removing it is a full reset.</p>
+</blockquote>
+
+<h3 id="remove-the-background-service">Remove the Background Service</h3>
+
+<pre><code class="language-bash"># Linux (systemd)
+sudo systemctl stop engram &amp;&amp; sudo systemctl disable engram
+sudo rm /etc/systemd/system/engram.service
+sudo systemctl daemon-reload
+
+# macOS (launchd)
+launchctl remove com.useengram.daemon
+rm ~/Library/LaunchAgents/com.useengram.daemon.plist
+</code></pre>
+
+<h3 id="remove-docker-resources">Remove Docker Resources</h3>
+
+<pre><code class="language-bash">cd /path/to/engram_translator
+docker compose down -v   # Stop all services and remove volumes
+docker rmi engram:latest # Remove the image
+</code></pre>
+
+<h3 id="remove-the-keyring-entry">Remove the Keyring Entry</h3>
+
+<pre><code class="language-bash"># Python
+python -c "import keyring; keyring.delete_password('engram', 'eat_token')"
+</code></pre>
+
+<h3 id="complete-uninstall-checklist">Complete Uninstall Checklist</h3>
+
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Command</th>
+<th>What it removes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CLI wrapper</td>
+<td><code>rm ~/bin/engram</code></td>
+<td>The <code>engram</code> command</td>
+</tr>
+<tr>
+<td>Codebase</td>
+<td><code>rm -rf /path/to/engram_translator</code></td>
+<td>All source code</td>
+</tr>
+<tr>
+<td>Configuration</td>
+<td><code>rm -rf ~/.engram</code></td>
+<td>Config, tokens, swarm memory</td>
+</tr>
+<tr>
+<td>Background service</td>
+<td><code>systemctl disable engram</code></td>
+<td>Auto-start daemon</td>
+</tr>
+<tr>
+<td>Docker resources</td>
+<td><code>docker compose down -v</code></td>
+<td>Containers, volumes, networks</td>
+</tr>
+<tr>
+<td>Keyring entry</td>
+<td><code>keyring.delete_password(...)</code></td>
+<td>Stored EAT token</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="whats-next-2">What's Next</h2>
+
+<ul>
+<li><strong><a href="./02-installation.md">Installation</a></strong> — Reinstall from scratch</li>
+<li><strong><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></strong> — Deploy with containers</li>
+</ul>
             </div>
         </main>
 
@@ -1579,6 +1798,7 @@ spec:
                 <a href="#3-register-your-first-tool" class="toc-link">Register Your First Tool</a>
                 <a href="#installation" class="toc-link">Installation</a>
                 <a href="#docker-kubernetes-setup" class="toc-link">Docker & K8s Setup</a>
+                <a href="#updating-uninstalling" class="toc-link">Updating & Uninstalling</a>
             </nav>
         </aside>
     </div>
