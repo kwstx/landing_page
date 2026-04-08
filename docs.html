@@ -3968,6 +3968,241 @@ if not os.path.exists(&quot;/.dockerenv&quot;) and not os.environ.get(&quot;KUBE
 <blockquote>
 <p><strong>Tip:</strong> You don't need to read everything. Pick the path that matches your goal, follow the links in order, and you'll be productive quickly. You can always come back to this page to find your next step.</p>
 </blockquote>
+
+<h1 id="universal-onboarding">Universal Onboarding</h1>
+<p>Engram's universal onboarding system turns any API, CLI tool, or freeform documentation into a dual MCP+CLI tool definition — complete with semantic ontology alignment, field mapping, and immediate agent discoverability. This is the primary mechanism for expanding what your agents can do.</p>
+
+<hr />
+
+<h2 id="how-universal-onboarding-works">How Universal Onboarding Works</h2>
+<p>The onboarding pipeline follows a consistent flow regardless of source type:</p>
+
+<pre><code class="language-text">Source Input → Schema Parsing → Ontology Alignment → Dual MCP+CLI Generation → Registry Storage → Agent Discoverability</code></pre>
+
+<ol>
+<li><strong>Source Input</strong> — The user provides a URL, file path, shell command, documentation text, or interactive wizard answers</li>
+<li><strong>Schema Parsing</strong> — The system extracts endpoints, parameters, response types, and metadata from the source</li>
+<li><strong>Ontology Alignment</strong> — Fields are mapped through <code class="code-inline">protocols.owl</code> to establish semantic equivalences across protocols</li>
+<li><strong>Dual MCP+CLI Generation</strong> — Both a structured MCP tool definition and a CLI wrapper are generated from a single source</li>
+<li><strong>Registry Storage</strong> — The tool is stored in the registry via <code class="code-inline">POST /api/v1/registry/ingest/*</code> or <code class="code-inline">POST /api/v1/registry/manual</code></li>
+<li><strong>Agent Discoverability</strong> — The tool is immediately available to all connected agents for routing and execution</li>
+</ol>
+
+<hr />
+
+<h2 id="openapi-spec-ingestion">OpenAPI Spec Ingestion</h2>
+<p>The most common onboarding path. Supports both Swagger 2.0 and OpenAPI 3.0+ specs.</p>
+
+<pre><code class="language-bash"># From URL
+engram register openapi https://petstore.swagger.io/v2/swagger.json
+
+# From local file
+engram register openapi ./specs/my-api.yaml</code></pre>
+
+<h3 id="what-happens">What Happens</h3>
+<ol>
+<li><strong>Validation</strong> — The spec is fetched (URL) or read (file) and validated for structural correctness</li>
+<li><strong>Endpoint Extraction</strong> — Each path/method combination becomes a tool action. Parameters are classified as path, query, header, or body.</li>
+<li><strong>Response Schema Inference</strong> — Response schemas define the tool's output structure, used for downstream field mapping</li>
+<li><strong>Semantic Tag Detection</strong> — The system infers semantic tags from endpoint names, descriptions, and parameter types (e.g., a <code class="code-inline">/messages</code> endpoint gets tagged as "Messaging")</li>
+<li><strong>Dual Schema Generation</strong> — Both MCP and CLI representations are created simultaneously</li>
+</ol>
+
+<h3 id="example-registering-a-weather-api">Example: Registering a Weather API</h3>
+<pre><code class="language-bash">engram register openapi https://api.weather.com/v1/openapi.json</code></pre>
+
+<pre><code class="language-text"> ⠋ Validating remote OpenAPI spec...
+ ⠋ Generating dual MCP/CLI schemas...
+ ⠋ Refining ontology mappings...
+ℹ Info: 3 schema mismatches resolved via ontology alignment
+
+╭──── [*] Registration Summary ──────────────────────╮
+│ Successfully registered: Weather API                │
+│ ID: 8b4c3d2e-...                                   │
+│ Test Command: engram run --tool Weather API --inspect│
+╰────────────────────────────────────────────────────╯</code></pre>
+
+<hr />
+
+<h2 id="partial-documentation-ingestion">Partial Documentation Ingestion</h2>
+<p>When you don't have a formal spec but have documentation text, API descriptions, or even README fragments:</p>
+
+<pre><code class="language-bash">engram register openapi "The weather API has a GET /current endpoint that takes a city parameter as a query string and returns temperature in Celsius" --partial</code></pre>
+
+<p>The <code class="code-inline">--partial</code> flag activates LLM-powered schema extraction:</p>
+<ol>
+<li>The documentation text is sent to <code class="code-inline">POST /api/v1/registry/ingest/docs</code></li>
+<li>The backend uses the configured LLM provider to parse the text into a structured tool definition</li>
+<li>Confidence scores are assigned to each extracted element (endpoint path, parameters, response type)</li>
+<li>Low-confidence extractions are flagged for manual review in the registration summary</li>
+</ol>
+
+<p>This is particularly useful for:</p>
+<ul>
+<li>Internal APIs with informal documentation</li>
+<li>Third-party APIs that don't publish OpenAPI specs</li>
+<li>Rapid prototyping where you want to register a tool from a description</li>
+</ul>
+
+<hr />
+
+<h2 id="cli-command-ingestion">CLI Command Ingestion</h2>
+<p>Register any shell command as a semantically-wrapped tool:</p>
+
+<pre><code class="language-bash">engram register command docker
+engram register command kubectl
+engram register command git
+engram register command ffmpeg</code></pre>
+
+<h3 id="what-happens-cli">What Happens</h3>
+<ol>
+<li><strong>Shell Probing</strong> — The system checks that the command exists and is executable</li>
+<li><strong>Help Text Parsing</strong> — Runs <code class="code-inline">&lt;command&gt; --help</code> and parses the output to discover subcommands, flags, and argument types</li>
+<li><strong>Subcommand Discovery</strong> — For complex CLI tools (e.g., <code class="code-inline">docker</code>, <code class="code-inline">kubectl</code>), recursively discovers subcommands</li>
+<li><strong>Argument Inference</strong> — Maps CLI flags to typed parameters (string, integer, boolean, array)</li>
+<li><strong>Semantic Wrapper Synthesis</strong> — Generates both an MCP tool definition and a CLI execution wrapper</li>
+</ol>
+
+<p>The resulting tool can be executed by agents through either backend:</p>
+<ul>
+<li><strong>MCP backend</strong> — Structured JSON invocation with parameter validation</li>
+<li><strong>CLI backend</strong> — Direct shell execution with argument assembly</li>
+</ul>
+
+<hr />
+
+<h2 id="manual-interactive-registration">Manual Interactive Registration</h2>
+<p>For full control over every field, use the interactive wizard:</p>
+
+<pre><code class="language-bash">engram register tool</code></pre>
+
+<p>The wizard walks you through:</p>
+
+<pre><code class="language-text">Engram Manual Tool Registration
+This interactive session will guide you through registering a tool without an OpenAPI spec.
+
+Tool Name: Weather Checker
+Description: Get current weather for a city
+Base URL (e.g., https://api.weather.com): https://api.weather.com
+Path (e.g., /v1/current): /v1/current
+HTTP Method [GET/POST/PUT/DELETE] (GET): GET
+
+Define Parameters (Press Enter on 'Parameter Name' to finish)
+Parameter Name (leave blank to finish): city
+Parameter Type [string/integer/boolean/number/array/object] (string): string
+Parameter Description (Description for city): The city name to check weather for
+Is required? [yes/no] (yes): yes
+
+Parameter Name (leave blank to finish):
+
+Prepared tool configuration for 'Weather Checker'
+Endpoint: GET https://api.weather.com/v1/current
+Parameters (1): city</code></pre>
+
+<p>After confirmation, the tool is registered via <code class="code-inline">POST /api/v1/registry/manual</code> with a synthetic OpenAPI schema generated from your inputs.</p>
+
+<hr />
+
+<h2 id="dual-mcp-cli-schema-generation">Dual MCP+CLI Schema Generation</h2>
+<p>Every registered tool gets both representations automatically:</p>
+
+<table class="docs-table">
+<thead>
+<tr>
+<th>Aspect</th>
+<th>MCP Schema</th>
+<th>CLI Wrapper</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Invocation</strong></td>
+<td>Structured JSON <code class="code-inline">{"name": "tool", "arguments": {...}}</code></td>
+<td>Shell command with flags</td>
+</tr>
+<tr>
+<td><strong>Validation</strong></td>
+<td>Pydantic model with type checking</td>
+<td>Argument parsing with type coercion</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>JSON response</td>
+<td>Formatted text or JSON</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Structured reliability, type safety</td>
+<td>Speed, token efficiency, scripting</td>
+</tr>
+</tbody>
+</table>
+
+<p>This duality is what enables the routing engine to choose the optimal backend per task. The same tool can be executed via MCP for reliability-critical workflows or via CLI for speed-sensitive tasks.</p>
+
+<hr />
+
+<h2 id="ontology-alignment-during-registration">Ontology Alignment During Registration</h2>
+<p>When a tool is registered, its fields are mapped through the OWL ontology (<code class="code-inline">protocols.owl</code>):</p>
+
+<ol>
+<li><strong>Field Flattening</strong> — Nested JSON structures are flattened to <code class="code-inline">dot.notation</code> paths</li>
+<li><strong>Semantic Equivalence Detection</strong> — The <code class="code-inline">SemanticMapper</code> looks up each field in the ontology to find equivalent concepts across protocols</li>
+<li><strong>Cross-Protocol Normalization</strong> — Fields like <code class="code-inline">city</code>, <code class="code-inline">location</code>, <code class="code-inline">place</code> are recognized as semantically equivalent through ontology concepts</li>
+<li><strong>Initial Healing Baseline</strong> — The established mappings become the baseline for future drift detection</li>
+</ol>
+
+<p>This is why Engram can automatically translate payloads between protocols — the ontology provides a shared vocabulary that bridges different naming conventions.</p>
+
+<hr />
+
+<h2 id="pre-optimized-popular-apps">Pre-Optimized Popular Apps</h2>
+<p>Engram includes a catalog of pre-optimized tool definitions for popular services:</p>
+
+<pre><code class="language-bash">engram tools list --popular</code></pre>
+
+<p>The catalog includes warm-started definitions with:</p>
+<ul>
+<li>Validated schemas tested against live APIs</li>
+<li>Pre-computed semantic tags and ontology mappings</li>
+<li>High-confidence routing data (seeded at 99% success rate)</li>
+<li>Optimized CLI wrappers with efficient argument assembly</li>
+</ul>
+
+<blockquote>
+<p><strong>Note:</strong> Pre-optimized tools appear with a <code class="code-inline">&gt;</code> marker in the tools list, while your custom-registered tools show <code class="code-inline">*</code>. Both are fully functional — pre-optimized tools just have a head start on the learning curve.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="adapter-system">Adapter System</h2>
+<p>For deep integrations beyond simple API wrapping, Engram supports custom adapters:</p>
+
+<pre><code class="language-python"># adapters/base.py pattern
+class BaseAdapter:
+    async def connect(self, credentials: Dict) -&gt; bool: ...
+    async def execute(self, action: str, params: Dict) -&gt; Dict: ...
+    async def health_check(self) -&gt; bool: ...</code></pre>
+
+<p>Built-in adapters include:</p>
+<ul>
+<li><strong>Mirofish</strong> — Multi-agent orchestration connector</li>
+<li><strong>OpenClaw</strong> — AI tool marketplace integration</li>
+<li><strong>Claude/Anthropic</strong> — Direct LLM access</li>
+<li><strong>Perplexity</strong> — Search-augmented generation</li>
+<li><strong>Slack</strong> — Messaging and channel management</li>
+</ul>
+
+<p>To add a new adapter, implement the <code class="code-inline">BaseAdapter</code> interface and register it in the connector registry. See the <a href="./19-contributing.md">Contributing</a> guide for step-by-step instructions.</p>
+
+<hr />
+
+<h2 id="whats-next">What's Next</h2>
+<ul>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> — How registered tools stay working as APIs change</li>
+<li><strong><a href="./10-hybrid-routing.md">Hybrid Routing</a></strong> — How the router chooses between MCP and CLI backends</li>
+<li><strong><a href="./06-cli-reference.md">CLI Reference</a></strong> — Detailed command reference for all registration commands</li>
+</ul>
             </div>
         </main>
 
@@ -3985,6 +4220,7 @@ if not os.path.exists(&quot;/.dockerenv&quot;) and not os.environ.get(&quot;KUBE
                 <a href="#cli-reference" class="toc-link">CLI Reference</a>
                 <a href="#configuration" class="toc-link">Configuration</a>
                 <a href="#learning-path" class="toc-link">Learning Path</a>
+                <a href="#universal-onboarding" class="toc-link">Universal Onboarding</a>
             </nav>
         </aside>
     </div>
