@@ -4683,6 +4683,263 @@ engram route test "list docker containers" --force-cli</code></pre>
 <li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Trace routing decisions</li>
 <li><strong><a href="./07-configuration.md">Configuration</a></strong> — Tune routing weights for your workload</li>
 </ul>
+
+<h1 id="protocol-federation">Protocol Federation</h1>
+<p>Engram bridges four agent communication protocols — MCP, CLI, A2A, and ACP — through a single semantic ontology layer. This enables seamless cross-protocol translation, multi-agent handoffs, and intent-based routing without brittle point-to-point integrations.</p>
+
+<hr />
+
+<h2 id="supported-protocols">Supported Protocols</h2>
+<table class="docs-table">
+<thead>
+<tr><th>Protocol</th><th>Full Name</th><th>Use Case</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>MCP</strong></td><td>Model Context Protocol</td><td>Structured tool invocations with JSON schemas</td></tr>
+<tr><td><strong>CLI</strong></td><td>Command-Line Interface</td><td>Shell command execution and output parsing</td></tr>
+<tr><td><strong>A2A</strong></td><td>Agent-to-Agent</td><td>Inter-agent communication and task delegation</td></tr>
+<tr><td><strong>ACP</strong></td><td>Agent Communication Protocol</td><td>Standardized agent messaging framework</td></tr>
+</tbody>
+</table>
+
+<p>Each protocol has a dedicated connector in the orchestrator that translates to and from the canonical ontology form.</p>
+
+<hr />
+
+<h2 id="translation-architecture">Translation Architecture</h2>
+<p>Every cross-protocol translation follows a three-stage pipeline:</p>
+
+<pre><code class="language-text">Source Protocol → Canonical Bridge (OWL Ontology) → Target Protocol</code></pre>
+
+<ol>
+<li><strong>Source normalization</strong> — The connector for the source protocol extracts semantic meaning from the payload and maps it to ontology concepts</li>
+<li><strong>Canonical representation</strong> — The payload exists as a protocol-neutral, ontology-backed intermediary form</li>
+<li><strong>Target denormalization</strong> — The connector for the target protocol translates from ontology concepts to the target's naming conventions</li>
+</ol>
+
+<h3 id="example-mcp-cli-translation">Example: MCP → CLI Translation</h3>
+
+<pre><code class="language-json">// Source (MCP)
+{"name": "get_weather", "arguments": {"city": "San Francisco", "units": "imperial"}}
+
+// Canonical Bridge (Ontology)
+{"concept": "WeatherQuery", "location": "San Francisco", "measurement_system": "imperial"}
+
+// Target (CLI)
+{"command": "weather", "flags": ["--city", "San Francisco", "--units", "imperial"]}</code></pre>
+
+<h3 id="cli-command">CLI Command</h3>
+
+<pre><code class="language-bash"># Translate with demo payload
+engram protocol translate --from mcp --to cli
+
+# Translate with custom payload
+engram protocol translate --from a2a --to mcp --payload '{"task": "search", "query": "AI news"}'
+
+# Translate from file
+engram protocol translate --from cli --to a2a --payload ./request.json</code></pre>
+
+<hr />
+
+<h2 id="the-orchestrator">The Orchestrator</h2>
+<p>The <code class="code-inline">Orchestrator</code> class (<code class="code-inline">app/services/orchestrator.py</code>) is the central coordinator for protocol operations:</p>
+
+<h3 id="handoff-async"><code class="code-inline">handoff_async()</code></h3>
+<p>The primary method for cross-protocol execution:</p>
+
+<ol>
+<li><strong>Protocol detection</strong> — Determines the source and target protocols from the request</li>
+<li><strong>Connector dispatch</strong> — Routes to the appropriate protocol connector</li>
+<li><strong>Canonical translation</strong> — Normalizes through the ontology bridge</li>
+<li><strong>Execution</strong> — Invokes the target protocol's execution path</li>
+<li><strong>Proof generation</strong> — Creates a verifiable execution proof with trace data</li>
+</ol>
+
+<h3 id="connector-registry">Connector Registry</h3>
+<p>Each protocol has a registered connector that implements:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Method</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">to_canonical(payload)</code></td><td>Convert protocol-specific payload to ontology form</td></tr>
+<tr><td><code class="code-inline">from_canonical(canonical)</code></td><td>Convert ontology form to protocol-specific payload</td></tr>
+<tr><td><code class="code-inline">execute(payload)</code></td><td>Execute the translated payload</td></tr>
+<tr><td><code class="code-inline">health_check()</code></td><td>Verify connector availability</td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="protocol-connectors">Protocol Connectors</h2>
+
+<h3 id="mcp-connector">MCP Connector</h3>
+<p>Translates between MCP tool call format and the canonical ontology form. Handles:</p>
+<ul>
+<li>Tool name resolution</li>
+<li>Argument schema validation</li>
+<li>Response structure mapping</li>
+<li>Error code translation</li>
+</ul>
+
+<h3 id="cli-connector">CLI Connector</h3>
+<p>Translates between shell commands and the canonical ontology form. Handles:</p>
+<ul>
+<li>Command assembly from arguments</li>
+<li>Flag formatting (short <code class="code-inline">-f</code> vs long <code class="code-inline">--flag</code>)</li>
+<li>Output parsing (JSON, table, plain text)</li>
+<li>Exit code interpretation</li>
+</ul>
+
+<h3 id="a2a-connector">A2A Connector</h3>
+<p>Translates between Agent-to-Agent messages and the canonical ontology form. Handles:</p>
+<ul>
+<li>Task delegation format</li>
+<li>Agent capability discovery</li>
+<li>State transfer between agents</li>
+<li>Acknowledgment protocol</li>
+</ul>
+
+<h3 id="mirofish-connector">MiroFish Connector</h3>
+<p>A specialized connector for the MiroFish multi-agent orchestration framework. Handles:</p>
+<ul>
+<li>Swarm-level task distribution</li>
+<li>Multi-agent consensus</li>
+<li>Hierarchical delegation</li>
+</ul>
+
+<hr />
+
+<h2 id="multi-hop-handoffs">Multi-Hop Handoffs</h2>
+<p>When a request traverses more than two protocols (e.g., A2A → MCP → CLI), each hop goes through the ontology bridge:</p>
+
+<pre><code class="language-text">A2A → Canonical → MCP → Canonical → CLI</code></pre>
+
+<p>Intermediate normalization ensures:</p>
+<ul>
+<li>No information loss between hops</li>
+<li>Semantic consistency across all three protocols</li>
+<li>Complete trace lineage for debugging</li>
+</ul>
+
+<hr />
+
+<h2 id="session-handoff-simulation">Session Handoff Simulation</h2>
+<p>Test multi-agent handoffs without committing real resources:</p>
+
+<pre><code class="language-bash">engram protocol handoff simulate --source-agent CLI-Local --target-agent Remote-MCP</code></pre>
+
+<p>The simulation:</p>
+
+<ol>
+<li>Creates a temporary session with a unique session ID</li>
+<li>Evaluates semantic readiness (can the target agent handle this protocol?)</li>
+<li>Lists bridged protocols (what translations are needed)</li>
+<li>Transfers state through Redis-backed persistence</li>
+<li>Reports success/failure with full state dump</li>
+</ol>
+
+<h3 id="output">Output</h3>
+
+<pre><code class="language-text">╭──── [*] Multi-Agent Federation Detail ────────────────────╮
+│ 🤝 Handoff Simulation: CLI-Local -&gt; Remote-MCP            │
+│ ├── Session ID: 9a7b3c1d-...                              │
+│ ├── Semantic Readiness: READY                              │
+│ ├── Bridged Protocols                                      │
+│ │   ├── CLI                                                │
+│ │   └── MCP                                                │
+│ └── Transferred State (Redis-backed)                       │
+│     ├── Context                                            │
+│     │   └── {"task_history": [...], "active_tools": [...]} │
+│     ├── Artifacts                                          │
+│     │   └── {"files": [], "data": {}}                      │
+│     └── Semantic                                           │
+│         └── {"ontology_version": "1.0", "mappings": {...}} │
+╰───────────────────────────────────────────────────────────╯</code></pre>
+
+<hr />
+
+<h2 id="intent-resolution">Intent Resolution</h2>
+<p>The <code class="code-inline">IntentResolver</code> class handles natural-language to structured protocol mapping:</p>
+
+<ol>
+<li><strong>Input</strong> — A free-form natural language request (e.g., "send a notification about the deployment")</li>
+<li><strong>Intent classification</strong> — The LLM classifies the intent category (messaging, deployment, data query, etc.)</li>
+<li><strong>Protocol selection</strong> — Based on the intent, the resolver determines the best target protocol</li>
+<li><strong>Structured translation</strong> — The natural language is translated into a protocol-specific structured payload</li>
+</ol>
+
+<p>This is what enables users to submit tasks in plain English through the TUI command input, and have them automatically routed to the right protocol and tool.</p>
+
+<hr />
+
+<h2 id="execution-proofs">Execution Proofs</h2>
+<p>Every cross-protocol translation generates a verifiable execution proof containing:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Field</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">trace_id</code></td><td>Unique identifier for the translation</td></tr>
+<tr><td><code class="code-inline">source_protocol</code></td><td>Origin protocol</td></tr>
+<tr><td><code class="code-inline">target_protocol</code></td><td>Destination protocol</td></tr>
+<tr><td><code class="code-inline">canonical_form</code></td><td>The intermediate ontology representation</td></tr>
+<tr><td><code class="code-inline">field_mappings</code></td><td>All field translations that occurred</td></tr>
+<tr><td><code class="code-inline">ontology_version</code></td><td>Version of the ontology used</td></tr>
+<tr><td><code class="code-inline">timestamp</code></td><td>When the translation was performed</td></tr>
+<tr><td><code class="code-inline">success</code></td><td>Whether the translation succeeded</td></tr>
+</tbody>
+</table>
+
+<p>These proofs are stored in the trace system and can be queried via <code class="code-inline">engram trace detail</code>.</p>
+
+<hr />
+
+<h2 id="delegation-engine">Delegation Engine</h2>
+<p>The <code class="code-inline">DelegationEngine</code> (<code class="code-inline">delegation/engine.py</code>) orchestrates agent-to-agent task delegation:</p>
+
+<h3 id="how-it-works-delegation">How It Works</h3>
+
+<ol>
+<li><strong>Natural-language intent parsing</strong> — The user's task is analyzed for subtask decomposition</li>
+<li><strong>Agent capability matching</strong> — Available agents are evaluated for their ability to handle each subtask</li>
+<li><strong>Subtask routing</strong> — Each subtask is assigned to the best-fit agent</li>
+<li><strong>Execution coordination</strong> — Agents execute their subtasks with progress reporting to the TUI</li>
+<li><strong>Result aggregation</strong> — Subtask results are combined into a unified response</li>
+</ol>
+
+<h3 id="swarm-memory-integration">Swarm Memory Integration</h3>
+<p>The delegation engine uses Swarm Memory (<code class="code-inline">bridge/memory.py</code>) for:</p>
+
+<ul>
+<li><strong>Fact persistence</strong> — Subtask context is stored as semantic facts</li>
+<li><strong>Conflict resolution</strong> — When multiple agents produce conflicting results, Prolog-based reasoning resolves the conflict</li>
+<li><strong>Ontology-backed normalization</strong> — Cross-agent facts are normalized through the shared ontology</li>
+</ul>
+
+<hr />
+
+<h2 id="cli-commands-protocol">CLI Commands</h2>
+
+<pre><code class="language-bash"># Translate between protocols
+engram protocol translate --from mcp --to cli
+engram protocol translate --from a2a --to mcp --payload '{"task": "search"}'
+
+# Simulate multi-agent handoff
+engram protocol handoff simulate
+engram protocol handoff simulate --source-agent CLI-Local --target-agent Remote-MCP</code></pre>
+
+<hr />
+
+<h2 id="whats-next-protocol">What's Next</h2>
+
+<ul>
+<li><strong><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></strong> — How tokens are scoped for cross-protocol access</li>
+<li><strong><a href="./13-bidirectional-sync.md">Bidirectional Sync</a></strong> — Event-driven sync across protocols</li>
+<li><strong><a href="./17-architecture.md">Architecture</a></strong> — System-level view of the orchestrator</li>
+</ul>
             </div>
         </main>
 
@@ -4703,6 +4960,7 @@ engram route test "list docker containers" --force-cli</code></pre>
                 <a href="#universal-onboarding" class="toc-link">Universal Onboarding</a>
                 <a href="#self-healing-engine" class="toc-link">Self-Healing Engine</a>
                 <a href="#mcp-cli-hybrid-routing" class="toc-link">Hybrid Routing</a>
+                <a href="#protocol-federation" class="toc-link">Protocol Federation</a>
             </nav>
         </aside>
     </div>
