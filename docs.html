@@ -6725,6 +6725,308 @@ engram evolve apply &lt;id&gt; --force</code></pre>
 </ul>
 <p>See <a href="./18-reliability-middleware.md">Reliability Middleware</a> for full details.</p>
 <hr />
+<h2 id="reliability-middleware-details">Reliability Middleware</h2>
+<p>The reliability middleware wraps every routing call with circuit breakers, retry logic, idempotency enforcement, and dynamic schema validation. This ensures that tool executions are robust, recoverable, and exactly-once &mdash; even when downstream APIs are flaky.</p>
+<hr />
+<h3 id="reliability-overview">Overview</h3>
+<p>The <code>ReliabilityMiddleware</code> class (<code>reliability/middleware.py</code>) sits between the routing engine and actual tool execution:</p>
+<pre><code>Routing Decision &rarr; ReliabilityMiddleware &rarr; Tool Execution &rarr; Response Validation &rarr; Trace Recording
+</code></pre>
+<p>Every call through the middleware is:</p>
+<ul>
+<li><strong>Retried</strong> on transient failures with exponential backoff</li>
+<li><strong>Circuit-broken</strong> per destination &mdash; if a tool consistently fails, the circuit opens and prevents further calls until cooldown completes</li>
+<li><strong>Deduplicated</strong> via idempotency keys &mdash; the same request won't execute twice</li>
+<li><strong>Validated</strong> against a dynamically inferred schema &mdash; responses are checked for structural correctness</li>
+</ul>
+<hr />
+<h3 id="reliability-circuit-breaker">Circuit Breaker</h3>
+<h4 id="reliability-circuit-breaker-how-it-works">How It Works</h4>
+<p>Each tool/backend destination has its own circuit breaker state:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CLOSED</strong></td>
+<td>Normal operation &mdash; all requests pass through</td>
+</tr>
+<tr>
+<td><strong>OPEN</strong></td>
+<td>Requests are immediately rejected. No calls to the backend.</td>
+</tr>
+<tr>
+<td><strong>HALF-OPEN</strong></td>
+<td>A single probe request is allowed. If it succeeds, circuit closes. If it fails, circuit reopens.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="reliability-circuit-breaker-configuration">Configuration</h4>
+<p>The circuit breaker is configured per-instance:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Failure threshold</strong></td>
+<td>5</td>
+<td>Number of consecutive failures before opening</td>
+</tr>
+<tr>
+<td><strong>Cooldown period</strong></td>
+<td>30 seconds</td>
+<td>How long the circuit stays open before transitioning to half-open</td>
+</tr>
+<tr>
+<td><strong>Success threshold</strong></td>
+<td>1</td>
+<td>Number of successes in half-open before closing</td>
+</tr>
+</tbody>
+</table>
+<h4 id="reliability-circuit-breaker-state-tracking">State Tracking</h4>
+<pre><code># From reliability/middleware.py
+class CircuitBreaker:
+    async def check_circuit(self, destination: str) -&gt; bool:
+        &quot;&quot;&quot;Returns True if the circuit is closed (requests allowed).&quot;&quot;&quot;
+        state = self._get_state(destination)
+        if state == &quot;OPEN&quot;:
+            if time.time() - state.opened_at &gt; self.cooldown:
+                return True  # Transition to HALF-OPEN
+            return False  # Still in cooldown
+        return True  # CLOSED or HALF-OPEN
+
+    async def record_success(self, destination: str): ...
+    async def record_failure(self, destination: str): ...
+</code></pre>
+<h4 id="reliability-circuit-breaker-tui-integration">TUI Integration</h4>
+<p>When a circuit breaker trips, the event is emitted to the TUI trace panel:</p>
+<pre><code>⚡ Circuit breaker OPENED for destination: Slack-MCP (5 consecutive failures)
+🔄 Circuit breaker HALF-OPEN for destination: Slack-MCP (cooldown expired)
+✅ Circuit breaker CLOSED for destination: Slack-MCP (probe succeeded)
+</code></pre>
+<hr />
+<h3 id="reliability-retry-logic">Retry Logic</h3>
+<p>Retries use <code>tenacity</code> with exponential backoff:</p>
+<pre><code>@retry(
+    wait=wait_exponential(multiplier=1, min=1, max=60),
+    stop=stop_after_attempt(3),
+    retry=retry_if_exception_type((httpx.ConnectError, httpx.TimeoutException)),
+)
+async def execute_with_retry(self, ...):
+    ...
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Max attempts</strong></td>
+<td>3</td>
+<td>Total attempts including the initial try</td>
+</tr>
+<tr>
+<td><strong>Min wait</strong></td>
+<td>1 second</td>
+<td>Minimum backoff duration</td>
+</tr>
+<tr>
+<td><strong>Max wait</strong></td>
+<td>60 seconds</td>
+<td>Maximum backoff duration</td>
+</tr>
+<tr>
+<td><strong>Multiplier</strong></td>
+<td>1</td>
+<td>Exponential multiplier</td>
+</tr>
+<tr>
+<td><strong>Retryable errors</strong></td>
+<td>Connect, Timeout</td>
+<td>Only transient errors are retried</td>
+</tr>
+</tbody>
+</table>
+<p>Non-retryable errors (400 Bad Request, 403 Forbidden, 404 Not Found) fail immediately without retry.</p>
+<hr />
+<h3 id="reliability-idempotency">Idempotency</h3>
+<p>Every request through the middleware is assigned an idempotency key:</p>
+<pre><code># Generate idempotency key from payload
+idempotency_key = hashlib.sha256(
+    json.dumps(payload, sort_keys=True).encode()
+).hexdigest()
+</code></pre>
+<h4 id="reliability-idempotency-how-it-works">How It Works</h4>
+<ol>
+<li>Before execution, the middleware checks if this <code>idempotency_key</code> has been seen before</li>
+<li>If found in Redis (or in-memory cache), the stored result is returned immediately</li>
+<li>If not found, the request proceeds and the result is stored with the key</li>
+<li>Idempotency keys expire after a configurable TTL</li>
+</ol>
+<h4 id="reliability-idempotency-correlation-ids">Correlation IDs</h4>
+<p>Each request also gets a unique <code>correlation_id</code> for trace linkage:</p>
+<pre><code>correlation_id = str(uuid.uuid4())
+</code></pre>
+<p>This ensures that retries of the same logical request can be grouped in traces.</p>
+<hr />
+<h3 id="reliability-dynamic-schema-validation">Dynamic Schema Validation</h3>
+<p>The middleware performs response validation using dynamically inferred schemas:</p>
+<h4 id="reliability-schema-inference">Schema Inference</h4>
+<pre><code>async def _infer_schema(self, response: Dict) -&gt; Any:
+    &quot;&quot;&quot;Dynamically create a Pydantic model from a response payload.&quot;&quot;&quot;
+    fields = {}
+    for key, value in response.items():
+        python_type = type(value)
+        fields[key] = (python_type, ...)
+    return create_model(&quot;DynamicResponse&quot;, **fields)
+</code></pre>
+<h4 id="reliability-schema-validation">Validation</h4>
+<p>After receiving a response from the tool, the middleware:</p>
+<ol>
+<li>Infers a schema from the response structure</li>
+<li>Validates the response against the schema</li>
+<li>If validation fails, logs a warning and triggers drift detection</li>
+<li>Records the validation result in the trace</li>
+</ol>
+<hr />
+<h3 id="reliability-middleware-pipeline">Middleware Pipeline</h3>
+<p>The full middleware pipeline for a single routing call:</p>
+<pre><code>1. Check circuit breaker &rarr; if OPEN, reject immediately
+2. Generate idempotency key &rarr; if duplicate, return cached result
+3. Generate correlation ID
+4. Execute with retry wrapper
+   a. Send request to tool
+   b. On transient failure &rarr; retry with backoff
+   c. On permanent failure &rarr; record failure, break
+5. Validate response schema
+6. Record circuit breaker result (success/failure)
+7. Cache result with idempotency key
+8. Record trace
+9. Return result
+</code></pre>
+<hr />
+<h3 id="reliability-tui-trace-events">TUI Trace Events</h3>
+<p>The middleware emits the following events to the TUI:</p>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>When</th>
+<th>Message</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circuit trip</td>
+<td>Circuit breaker opens</td>
+<td><code>⚡ Circuit breaker OPENED for &lt;dest&gt;</code></td>
+</tr>
+<tr>
+<td>Retry attempt</td>
+<td>Transient failure detected</td>
+<td><code>🔄 Retrying &lt;dest&gt; (attempt 2/3)</code></td>
+</tr>
+<tr>
+<td>Idempotency hit</td>
+<td>Duplicate request detected</td>
+<td><code>📋 Idempotent result returned for &lt;key&gt;</code></td>
+</tr>
+<tr>
+<td>Schema validation</td>
+<td>Response doesn't match schema</td>
+<td><code>⚠️ Schema mismatch in response from &lt;tool&gt;</code></td>
+</tr>
+<tr>
+<td>Recovery success</td>
+<td>Probe succeeds in half-open</td>
+<td><code>✅ Circuit breaker CLOSED for &lt;dest&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="reliability-bridge-router">Bridge Router</h3>
+<p>The <code>bridge/router.py</code> module provides the unified routing entrypoint that the reliability middleware wraps:</p>
+<pre><code>async def routeTo(target_protocol: str, payload: dict, config: dict) -&gt; dict:
+    &quot;&quot;&quot;
+    Unified routing entrypoint.
+    The reliability middleware wraps this function.
+    &quot;&quot;&quot;
+    ...
+</code></pre>
+<p>This function:</p>
+<ol>
+<li>Determines the target connector based on <code>target_protocol</code></li>
+<li>Normalizes the payload through the semantic mapper</li>
+<li>Dispatches to the appropriate connector's <code>execute()</code> method</li>
+<li>Returns the result</li>
+</ol>
+<hr />
+<h3 id="reliability-configuration">Configuration</h3>
+<p>The reliability middleware uses sensible defaults but can be tuned:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Where</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Circuit breaker threshold</td>
+<td><code>reliability/middleware.py</code></td>
+<td>5 failures</td>
+<td>Consecutive failures before opening</td>
+</tr>
+<tr>
+<td>Cooldown period</td>
+<td><code>reliability/middleware.py</code></td>
+<td>30 seconds</td>
+<td>Time before half-open transition</td>
+</tr>
+<tr>
+<td>Retry attempts</td>
+<td><code>reliability/middleware.py</code></td>
+<td>3</td>
+<td>Maximum retry attempts</td>
+</tr>
+<tr>
+<td>Backoff multiplier</td>
+<td><code>reliability/middleware.py</code></td>
+<td>1</td>
+<td>Exponential backoff multiplier</td>
+</tr>
+<tr>
+<td>Idempotency TTL</td>
+<td><code>reliability/middleware.py</code></td>
+<td>300 seconds</td>
+<td>How long idempotency keys are cached</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="reliability-whats-next">What's Next</h3>
+<ul>
+<li><strong><a href="./17-architecture.md">Architecture</a></strong> &mdash; System-level view of where reliability fits</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> &mdash; Monitor reliability events</li>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> &mdash; How schema validation feeds into healing</li>
+</ul>
+<hr />
 <h3 id="architecture-swarm-memory">Swarm Memory</h3>
 <p>The <code>bridge/memory.py</code> module provides persistent semantic fact storage:</p>
 <table>
@@ -6912,6 +7214,353 @@ engram evolve apply &lt;id&gt; --force</code></pre>
 <li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> &mdash; Monitor evolution outcomes</li>
 <li><strong><a href="./07-configuration.md">Configuration</a></strong> &mdash; Configure ML thresholds</li>
 </ul>
+<hr />
+
+<h2 id="contributing">Contributing</h2>
+<p>This guide helps you get set up for contributing to Engram &mdash; from development environment to code standards to submitting your first pull request.</p>
+<hr />
+<h3 id="development-environment-setup">Development Environment Setup</h3>
+<h4 id="1-fork-and-clone">1. Fork and Clone</h4>
+<pre><code class="language-bash">git clone https://github.com/&lt;your-username&gt;/engram_translator.git
+cd engram_translator
+</code></pre>
+<h4 id="2-create-virtual-environment">2. Create Virtual Environment</h4>
+<pre><code class="language-bash">python3 -m venv venv
+source venv/bin/activate   # Linux/macOS
+# or: .\venv\Scripts\activate   # Windows
+</code></pre>
+<h4 id="3-install-dependencies">3. Install Dependencies</h4>
+<pre><code class="language-bash">pip install --upgrade pip
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # Includes test + linting tools
+</code></pre>
+<h4 id="4-set-up-pre-commit-hooks">4. Set Up Pre-Commit Hooks</h4>
+<pre><code class="language-bash">pre-commit install
+</code></pre>
+<h4 id="5-initialize-configuration">5. Initialize Configuration</h4>
+<pre><code class="language-bash">mkdir -p ~/.engram
+python -m app.cli init
+</code></pre>
+<h4 id="6-start-the-backend">6. Start the Backend</h4>
+<pre><code class="language-bash">uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+</code></pre>
+<h4 id="7-verify">7. Verify</h4>
+<pre><code class="language-bash">curl http://localhost:8000/health
+python -m app.cli info
+</code></pre>
+<hr />
+<h3 id="project-structure">Project Structure</h3>
+<pre><code>engram_translator/
+├── app/                          # Core application
+│   ├── api/v1/                   # API routers
+│   │   ├── auth.py              # Authentication endpoints
+│   │   ├── discovery.py         # Agent/tool discovery
+│   │   ├── endpoints.py         # General API endpoints
+│   │   ├── events.py            # Event listeners and sync
+│   │   ├── evolution.py         # Self-evolving tools
+│   │   ├── federation.py        # Protocol translation
+│   │   ├── orchestration.py     # Task orchestration
+│   │   ├── reconciliation.py    # Self-healing
+│   │   ├── registry.py          # Tool registration
+│   │   ├── routing.py           # Routing tests/stats
+│   │   └── tracing.py           # Execution traces
+│   ├── cli.py                   # CLI entrypoint (Typer + Rich)
+│   ├── core/
+│   │   ├── config.py            # Settings model (Pydantic)
+│   │   ├── security.py          # JWT validation, EAT verification
+│   │   └── tui_bridge.py        # TUI event bridge
+│   ├── db/
+│   │   └── session.py           # Database engine and session
+│   ├── main.py                  # FastAPI application
+│   ├── models/                  # SQLModel/Pydantic models
+│   ├── semantic/
+│   │   ├── protocols.owl        # Protocol ontology
+│   │   ├── security.owl         # Security ontology
+│   │   ├── semantic_mapper.py   # Semantic field mapper
+│   │   └── models/              # ML models (joblib)
+│   └── services/
+│       ├── credentials.py       # Credential encryption
+│       ├── eat_identity.py      # EAT token lifecycle
+│       ├── orchestrator.py      # Protocol orchestration
+│       └── tool_routing.py      # Routing engine
+├── bridge/
+│   ├── memory.py                # Swarm Memory (SQLite + Prolog)
+│   └── router.py                # Unified routing entrypoint
+├── delegation/
+│   └── engine.py                # Agent delegation engine
+├── engram_sdk/
+│   ├── auth.py                  # SDK authentication
+│   ├── client.py                # SDK client
+│   └── transport.py             # HTTP transport layer
+├── reliability/
+│   └── middleware.py            # Circuit breaker, retry, idempotency
+├── tui/
+│   ├── app.py                   # Textual TUI application
+│   └── vault_service.py         # TUI credential vault
+├── trading-templates/           # Trading integration templates
+├── monitoring/
+│   ├── grafana/                 # Grafana dashboards
+│   ├── k8s/                     # Kubernetes manifests
+│   └── prometheus.yml           # Prometheus config
+├── docs/                        # Documentation (you are here)
+├── tests/                       # Test suite
+├── alembic/                     # Database migrations
+├── docker-compose.yml           # Dev Docker Compose
+├── docker-compose.staging.yml   # Staging Docker Compose
+├── requirements.txt             # Python dependencies
+├── setup.sh                     # Unix installer
+├── engram                       # Unix self-healing entrypoint
+└── engram.bat                   # Windows self-healing entrypoint
+</code></pre>
+<hr />
+<h3 id="code-style">Code Style</h3>
+<h4 id="python">Python</h4>
+<ul>
+<li><strong>Formatter</strong> &mdash; Black (line length: 120)</li>
+<li><strong>Linter</strong> &mdash; Ruff (replaces flake8 + isort)</li>
+<li><strong>Type checking</strong> &mdash; Pyright (strict mode)</li>
+<li><strong>Import order</strong> &mdash; stdlib &rarr; third-party &rarr; local</li>
+</ul>
+<h4 id="key-conventions">Key Conventions</h4>
+<table>
+<thead>
+<tr>
+<th>Convention</th>
+<th>Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Naming</strong></td>
+<td><code>snake_case</code> for functions/variables, <code>PascalCase</code> for classes</td>
+</tr>
+<tr>
+<td><strong>Type hints</strong></td>
+<td>Required on all function signatures</td>
+</tr>
+<tr>
+<td><strong>Docstrings</strong></td>
+<td>Google style for all public functions/classes</td>
+</tr>
+<tr>
+<td><strong>Error handling</strong></td>
+<td>Typed exceptions, never bare <code>except:</code></td>
+</tr>
+<tr>
+<td><strong>Async</strong></td>
+<td>Use <code>async def</code> for all I/O operations</td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td>SQLModel for models, async sessions for queries</td>
+</tr>
+<tr>
+<td><strong>CLI</strong></td>
+<td>Typer for commands, Rich for output formatting</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="testing">Testing</h3>
+<h4 id="run-tests">Run Tests</h4>
+<pre><code class="language-bash"># All tests
+pytest
+
+# With coverage
+pytest --cov=app --cov-report=html
+
+# Specific module
+pytest tests/test_routing.py
+
+# Verbose with output
+pytest -v -s
+</code></pre>
+<h4 id="test-structure">Test Structure</h4>
+<pre><code>tests/
+├── test_auth.py          # Authentication flows
+├── test_registry.py      # Tool registration
+├── test_routing.py       # Routing engine
+├── test_healing.py       # Self-healing
+├── test_federation.py    # Protocol translation
+├── test_reliability.py   # Circuit breaker, retry
+├── test_sdk.py           # SDK client
+└── conftest.py           # Shared fixtures
+</code></pre>
+<h4 id="writing-tests">Writing Tests</h4>
+<pre><code class="language-python">import pytest
+from httpx import AsyncClient
+from app.main import app
+
+@pytest.mark.asyncio
+async def test_tool_registration():
+    async with AsyncClient(app=app, base_url="http://test") as client:
+        response = await client.post(
+            "/api/v1/registry/manual",
+            json={
+                "name": "Test Tool",
+                "description": "A test tool",
+                "base_url": "https://api.test.com",
+                "path": "/v1/test",
+                "method": "GET",
+                "parameters": []
+            },
+            headers={"Authorization": "Bearer test-token"}
+        )
+        assert response.status_code == 200
+        assert response.json()["name"] == "Test Tool"
+</code></pre>
+<hr />
+<h3 id="branching-strategy">Branching Strategy</h3>
+<table>
+<thead>
+<tr>
+<th>Branch</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main</code></td>
+<td>Stable release branch</td>
+</tr>
+<tr>
+<td><code>develop</code></td>
+<td>Integration branch for features</td>
+</tr>
+<tr>
+<td><code>feature/&lt;name&gt;</code></td>
+<td>New features</td>
+</tr>
+<tr>
+<td><code>fix/&lt;name&gt;</code></td>
+<td>Bug fixes</td>
+</tr>
+<tr>
+<td><code>docs/&lt;name&gt;</code></td>
+<td>Documentation updates</td>
+</tr>
+</tbody>
+</table>
+<h4 id="workflow">Workflow</h4>
+<ol>
+<li>Create a feature branch from <code>develop</code></li>
+<li>Make your changes</li>
+<li>Write/update tests</li>
+<li>Run the full test suite</li>
+<li>Open a PR against <code>develop</code></li>
+<li>Address review feedback</li>
+<li>Squash and merge</li>
+</ol>
+<hr />
+<h3 id="pull-request-guidelines">Pull Request Guidelines</h3>
+<h4 id="pr-title">PR Title</h4>
+<p>Use conventional commit format:</p>
+<pre><code>feat(routing): add predictive optimization
+fix(auth): handle expired refresh tokens
+docs(quickstart): update installation steps
+refactor(semantic): extract BidirectionalNormalizer
+</code></pre>
+<h4 id="pr-description">PR Description</h4>
+<p>Include:</p>
+<ul>
+<li><strong>What</strong> &mdash; Brief description of the change</li>
+<li><strong>Why</strong> &mdash; Motivation and context</li>
+<li><strong>How</strong> &mdash; Technical approach</li>
+<li><strong>Testing</strong> &mdash; How you verified the change</li>
+<li><strong>Breaking changes</strong> &mdash; If any</li>
+</ul>
+<h4 id="review-checklist">Review Checklist</h4>
+<ul>
+<li>[ ] Tests pass (<code>pytest</code>)</li>
+<li>[ ] Linting passes (<code>ruff check .</code>)</li>
+<li>[ ] Type checking passes (<code>pyright</code>)</li>
+<li>[ ] Documentation updated (if user-facing)</li>
+<li>[ ] Database migrations included (if schema changed)</li>
+<li>[ ] No secrets or credentials in code</li>
+</ul>
+<hr />
+<h3 id="adding-new-features">Adding New Features</h3>
+<h4 id="adding-a-new-api-router">Adding a New API Router</h4>
+<ol>
+<li>Create <code>app/api/v1/my_feature.py</code></li>
+<li>Define endpoints with <code>APIRouter(prefix="/api/v1/my-feature")</code></li>
+<li>Register in <code>app/main.py</code></li>
+<li>Add tests in <code>tests/test_my_feature.py</code></li>
+<li>Update documentation</li>
+</ol>
+<h4 id="adding-a-new-cli-command">Adding a New CLI Command</h4>
+<ol>
+<li>Add command group in <code>app/cli.py</code> using <code>typer.Typer()</code></li>
+<li>Implement the command function</li>
+<li>Add Rich formatting for output</li>
+<li>Support <code>--json</code> output mode</li>
+<li>Add to the REPL help table</li>
+<li>Update CLI Reference documentation</li>
+</ol>
+<h4 id="adding-a-new-protocol-connector">Adding a New Protocol Connector</h4>
+<ol>
+<li>Implement the connector interface (see existing connectors)</li>
+<li>Register in the orchestrator's connector registry</li>
+<li>Add ontology concepts for the new protocol's fields</li>
+<li>Write federation tests</li>
+<li>Update Protocol Federation documentation</li>
+</ol>
+<h4 id="adding-a-new-provider">Adding a New Provider</h4>
+<ol>
+<li>Add API key setting in <code>app/core/config.py</code></li>
+<li>Create a TUI connection screen in <code>tui/app.py</code></li>
+<li>Add credential type in <code>app/services/credentials.py</code></li>
+<li>Register the provider in the backend provider list</li>
+<li>Write integration tests</li>
+</ol>
+<hr />
+<h3 id="ontology-contributions">Ontology Contributions</h3>
+<p>To extend the semantic layer:</p>
+<h4 id="adding-concepts-to-protocols-owl">Adding Concepts to <code>protocols.owl</code></h4>
+<pre><code class="language-xml">&lt;owl:Class rdf:about="#MyNewConcept"&gt;
+  &lt;rdfs:subClassOf rdf:resource="#ParentConcept"/&gt;
+  &lt;rdfs:label&gt;My New Concept&lt;/rdfs:label&gt;
+&lt;/owl:Class&gt;
+</code></pre>
+<h4 id="adding-equivalences">Adding Equivalences</h4>
+<pre><code class="language-xml">&lt;owl:AnnotationProperty rdf:about="#semanticEquivalent"/&gt;
+&lt;owl:NamedIndividual rdf:about="#field_name_a"&gt;
+  &lt;semanticEquivalent rdf:resource="#field_name_b"/&gt;
+&lt;/owl:NamedIndividual&gt;
+</code></pre>
+<h4 id="testing-ontology-changes">Testing Ontology Changes</h4>
+<ol>
+<li>Load the modified ontology with <code>rdflib</code></li>
+<li>Query for the new concepts</li>
+<li>Verify equivalence resolution</li>
+<li>Run the full healing test suite</li>
+</ol>
+<hr />
+<h3 id="release-process">Release Process</h3>
+<ol>
+<li>Update version in <code>pyproject.toml</code></li>
+<li>Update <code>CHANGELOG.md</code></li>
+<li>Create a release branch from <code>develop</code></li>
+<li>Open PR to <code>main</code></li>
+<li>After merge, tag the release: <code>git tag v1.x.x</code></li>
+<li>Build and push Docker image</li>
+<li>Deploy to staging, then production</li>
+</ol>
+<hr />
+<h3 id="getting-help">Getting Help</h3>
+<ul>
+<li><strong>Issues</strong> &mdash; Open a GitHub issue for bugs or feature requests</li>
+<li><strong>Discussions</strong> &mdash; Use GitHub Discussions for questions</li>
+<li><strong>Documentation</strong> &mdash; Check the <a href="./">docs/</a> directory</li>
+<li><strong>Code</strong> &mdash; Read the source &mdash; it's well-documented with docstrings and type hints</li>
+</ul>
+<hr />
+<h3 id="whats-next-contributing">What's Next</h3>
+<ul>
+<li><strong><a href="./17-architecture.md">Architecture</a></strong> &mdash; Understand the codebase structure</li>
+<li><strong><a href="./02-installation.md">Installation</a></strong> &mdash; Set up your development environment</li>
+<li><strong><a href="./06-cli-reference.md">CLI Reference</a></strong> &mdash; Learn the command structure</li>
+</ul>
             </div>
         </main>
 
@@ -6937,6 +7586,7 @@ engram evolve apply &lt;id&gt; --force</code></pre>
                 <a href="#bidirectional-sync-events" class="toc-link">Bidirectional Sync &amp; Events</a>
                 <a href="#observability-tracing" class="toc-link">Observability &amp; Tracing</a>
                 <a href="#self-evolving-tools" class="toc-link">Self-Evolving Tools</a>
+                <a href="#contributing" class="toc-link">Contributing</a>
             </nav>
         </aside>
     </div>
