@@ -1787,6 +1787,1137 @@ python -c "import keyring; keyring.delete_password('engram', 'eat_token')"
 </ul>
 
 <hr />
+<h1 id="cli-reference">CLI Reference</h1>
+<p>Engram's CLI is a full terminal interface — not a web UI. It features an interactive REPL with all subcommands available inline, Rich-powered output with tables, panels, trees, and progress spinners, an animated banner, <code>--json</code> machine-readable output mode, and a visual TUI debugging dashboard. Built for people who live in the terminal.</p>
+<hr />
+<h2>Running the CLI</h2>
+<pre><code class="language-bash"># Start the gateway + interactive REPL (default)
+engram run
+
+# Start with the visual TUI debugging dashboard
+engram run --debug
+
+# Bind to a custom host/port
+engram run --host 0.0.0.0 --port 9000
+</code></pre>
+<p>When you run <code>engram run</code>, the CLI:</p>
+<ol>
+<li>Suppresses all startup noise (import logs, uvicorn output)</li>
+<li>Starts the FastAPI backend in a background daemon thread</li>
+<li>Waits for the server to be ready (up to 60 seconds)</li>
+<li>Clears the screen and plays the animated ENGRAM banner</li>
+<li>Prints the gateway URL and API docs link</li>
+<li>Drops into the interactive REPL</li>
+</ol>
+<p>The REPL prompt is:</p>
+<pre><code>$ engram
+</code></pre>
+<p>From here, type any Engram subcommand without the <code>engram</code> prefix:</p>
+<pre><code>$ engram tools list
+$ engram route test &quot;send a message&quot;
+$ engram heal status
+$ engram auth whoami
+</code></pre>
+<h3>REPL Built-in Commands</h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>help</code></td>
+<td>Display all available commands in a formatted table</td>
+</tr>
+<tr>
+<td><code>clear</code></td>
+<td>Clear the screen and reprint the ENGRAM banner</td>
+</tr>
+<tr>
+<td><code>exit</code> / <code>quit</code> / <code>q</code></td>
+<td>Shut down the gateway and exit</td>
+</tr>
+<tr>
+<td>Any other input</td>
+<td>Delegated to the Typer CLI via subprocess</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Tip:</strong> The REPL uses Rich's <code>Console.input()</code> for styled prompts. On terminals that support it, you get full color and Unicode rendering.</p>
+</blockquote>
+<h3>Debug TUI Mode</h3>
+<pre><code class="language-bash">engram run --debug
+</code></pre>
+<p>This launches the full Textual-based TUI dashboard (<code>tui/app.py</code>) instead of the REPL. The TUI provides:</p>
+<table>
+<thead>
+<tr>
+<th>Panel</th>
+<th>Location</th>
+<th>What it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Connections</strong></td>
+<td>Top-left</td>
+<td>Live connection events to external services</td>
+</tr>
+<tr>
+<td><strong>Agent Execution</strong></td>
+<td>Top-right</td>
+<td>Agent step events during orchestration</td>
+</tr>
+<tr>
+<td><strong>Tool Usage</strong></td>
+<td>Middle-left</td>
+<td>Tool invocation events with payloads</td>
+</tr>
+<tr>
+<td><strong>Responses</strong></td>
+<td>Middle-right</td>
+<td>Response events from tools and agents</td>
+</tr>
+<tr>
+<td><strong>Translation</strong></td>
+<td>Center</td>
+<td>Three-panel view: Engram Task → Tool Request → Tool Response</td>
+</tr>
+<tr>
+<td><strong>System Status</strong></td>
+<td>Right sidebar</td>
+<td>FastAPI engine, discovery service, task worker status</td>
+</tr>
+<tr>
+<td><strong>Task Tracker</strong></td>
+<td>Right sidebar</td>
+<td>Current task, progress with per-step agent tracking</td>
+</tr>
+<tr>
+<td><strong>Connected Services</strong></td>
+<td>Right sidebar</td>
+<td>Status of each provider (Claude, Slack, etc.)</td>
+</tr>
+<tr>
+<td><strong>Log View</strong></td>
+<td>Bottom</td>
+<td>Timestamped log stream of all events</td>
+</tr>
+<tr>
+<td><strong>Command Input</strong></td>
+<td>Bottom bar</td>
+<td>Input field for tasks and <code>/commands</code></td>
+</tr>
+</tbody>
+</table>
+<p>The TUI requires authentication — it shows an inline login form on first launch. Credentials are encrypted with Fernet and stored in <code>~/.engram/config.enc</code>.</p>
+<hr />
+<h2>Global Options</h2>
+<p>These flags apply to every <code>engram</code> command:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--json</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Output in machine-readable JSON format</td>
+</tr>
+<tr>
+<td><code>--config</code></td>
+<td><code>Path</code></td>
+<td><code>~/.engram/config.yaml</code></td>
+<td>Path to a custom config file</td>
+</tr>
+<tr>
+<td><code>--help</code></td>
+<td>—</td>
+<td>—</td>
+<td>Show help text for any command</td>
+</tr>
+</tbody>
+</table>
+<h3>JSON Output Mode</h3>
+<p>When you pass <code>--json</code>, all Rich-formatted output (tables, panels, trees) is replaced with structured JSON. This makes every command scriptable and pipeable:</p>
+<pre><code class="language-bash"># Human-readable (default)
+engram tools list
+
+# Machine-readable
+engram --json tools list | jq '.[] | select(.backend == &quot;MCP&quot;)'
+
+# Use in scripts
+TOOL_COUNT=$(engram --json tools list | jq 'length')
+</code></pre>
+<p>Exit codes follow standard conventions:
+- <code>0</code> — Success
+- <code>1</code> — Error (authentication failure, API error, invalid input)</p>
+<hr />
+<h2>Core Commands</h2>
+<h3><code>engram init</code></h3>
+<p>Initialize the Engram configuration and directory structure.</p>
+<pre><code class="language-bash">engram init
+</code></pre>
+<p>Creates <code>~/.engram/</code> and writes the default <code>config.yaml</code>. Safe to run multiple times — it overwrites with defaults.</p>
+<p><strong>Output:</strong></p>
+<pre><code>╭──── Initialization Success ──────────────────────╮
+│ Initialized Engram directory at ~/.engram         │
+│ Config saved to ~/.engram/config.yaml             │
+╰──────────────────────────────────────────────────╯
+</code></pre>
+<h3><code>engram info</code></h3>
+<p>Display current CLI configuration and system status.</p>
+<pre><code class="language-bash">engram info
+</code></pre>
+<p>Shows the config file path, API URL, backend preference, authentication status, and a masked EAT token preview.</p>
+<p><strong>Output:</strong></p>
+<pre><code>        System Information
+┏━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Key         ┃ Value                         ┃
+┡━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ Config Path │ ~/.engram/config.yaml         │
+│ API URL     │ http://127.0.0.1:8000         │
+│ Backend     │ mcp                           │
+│ Auth Status │ Authenticated                 │
+│ EAT Token   │ ****abc1                      │
+└─────────────┴───────────────────────────────┘
+</code></pre>
+<h3><code>engram run</code></h3>
+<p>Start the Engram Protocol Bridge — interactive CLI mode.</p>
+<pre><code class="language-bash">engram run [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--host</code></td>
+<td><code>str</code></td>
+<td><code>127.0.0.1</code></td>
+<td>Host to bind the backend</td>
+</tr>
+<tr>
+<td><code>--port</code></td>
+<td><code>int</code></td>
+<td><code>8000</code></td>
+<td>Port to run the backend</td>
+</tr>
+<tr>
+<td><code>--debug</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Start TUI dashboard instead of REPL</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Auth Subgroup</h2>
+<p>Manage authentication and EAT (Engram Authorization Tokens).</p>
+<h3><code>engram auth login</code></h3>
+<p>Authenticate with the Engram backend to retrieve an EAT.</p>
+<pre><code class="language-bash">engram auth login [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--token</code>, <code>-t</code></td>
+<td><code>str</code></td>
+<td>—</td>
+<td>Directly input an EAT token (skips browser flow)</td>
+</tr>
+<tr>
+<td><code>--browser / --no-browser</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+<td>Open login page in browser</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Behavior:</strong>
+1. If <code>--token</code> is provided, saves it directly to the keyring
+2. Otherwise, opens the login URL in your browser
+3. Prompts you to paste your EAT token (hidden input)
+4. Saves the token and displays your identity via <code>auth whoami</code></p>
+<pre><code class="language-bash"># Interactive login (opens browser)
+engram auth login
+
+# Direct token input
+engram auth login --token eyJhbGciOiJIUzI1NiJ9...
+
+# No browser (manual URL copy)
+engram auth login --no-browser
+</code></pre>
+<h3><code>engram auth whoami</code></h3>
+<p>Display current identity and a semantic permission summary.</p>
+<pre><code class="language-bash">engram auth whoami
+</code></pre>
+<p>Decodes the EAT JWT (without verifying the signature, since the CLI is a trusted client) and renders a Rich tree showing:</p>
+<pre><code>╭──── Current Session Identity ────────────────────╮
+│ 👤 Identity: user@company.com                     │
+│ ├── 🔐 Permissions (EAT Structured)              │
+│ │   ├── slack                                     │
+│ │   │   ├── send_message                          │
+│ │   │   └── list_channels                         │
+│ │   └── docker                                    │
+│ │       ├── run                                   │
+│ │       └── ps                                    │
+│ ├── 🔬 Semantic Scopes (Ontology-based)           │
+│ │   ├── execute:tool-invocation                   │
+│ │   │   └── Can invoke cross-protocol translations│
+│ │   └── read:ontology-metadata                    │
+│ │       └── Can query tool catalogs               │
+╰──────────────────────────────────────────────────╯
+</code></pre>
+<h3><code>engram auth scope</code></h3>
+<p>Explore and visualize the semantic scopes assigned to your EAT.</p>
+<pre><code class="language-bash">engram auth scope
+</code></pre>
+<p>Renders a table mapping each semantic scope to its ontology context and capability:</p>
+<pre><code>          Semantic Access Scopes
+╔═══════════════════════════╦══════════════╦═══════════════════════╗
+║ Scope Identifier          ║ Ontology Ctx ║ Capability            ║
+╠═══════════════════════════╬══════════════╬═══════════════════════╣
+║ execute:tool-invocation   ║ Global       ║ Translation Execution ║
+║ read:ontology-metadata    ║ Global       ║ Metadata Query        ║
+╚═══════════════════════════╩══════════════╩═══════════════════════╝
+</code></pre>
+<h3><code>engram auth status</code></h3>
+<p>Check current authentication status with expiration details.</p>
+<pre><code class="language-bash">engram auth status
+</code></pre>
+<h3><code>engram auth token-set</code></h3>
+<p>Manually set the Engram Authorization Token.</p>
+<pre><code class="language-bash">engram auth token-set &lt;token&gt;
+</code></pre>
+<hr />
+<h2>Config Subgroup</h2>
+<p>View and modify CLI configuration.</p>
+<h3><code>engram config show</code></h3>
+<p>Display the current configuration as a key-value table.</p>
+<pre><code class="language-bash">engram config show
+</code></pre>
+<h3><code>engram config set</code></h3>
+<p>Set a configuration value.</p>
+<pre><code class="language-bash">engram config set &lt;key&gt; &lt;value&gt;
+</code></pre>
+<p>Supported keys match the <code>EngramConfig</code> model fields:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>api_url</code></td>
+<td><code>str</code></td>
+<td><code>http://127.0.0.1:8000</code></td>
+<td>Base URL for the Engram API</td>
+</tr>
+<tr>
+<td><code>backend_preference</code></td>
+<td><code>enum</code></td>
+<td><code>mcp</code></td>
+<td>Default backend: <code>mcp</code> or <code>cli</code></td>
+</tr>
+<tr>
+<td><code>model_provider</code></td>
+<td><code>str</code></td>
+<td><code>openai</code></td>
+<td>AI model provider name</td>
+</tr>
+<tr>
+<td><code>verbose</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Enable verbose logging</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Examples
+engram config set api_url http://my-server:8000
+engram config set backend_preference cli
+engram config set model_provider anthropic
+engram config set verbose true
+</code></pre>
+<p>The config is saved to <code>~/.engram/config.yaml</code> in YAML format. Values are type-coerced automatically (booleans from <code>"true"</code>/<code>"false"</code>, integers from numeric strings).</p>
+<hr />
+<h2>Tools Subgroup</h2>
+<p>Discover and manage tools (MCP &amp; CLI).</p>
+<h3><code>engram tools list</code></h3>
+<p>List all registered tools with backend type, semantic tags, and performance stats.</p>
+<pre><code class="language-bash">engram tools list [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--popular</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Include pre-optimized wrappers for popular apps</td>
+</tr>
+<tr>
+<td><code>--filter</code>, <code>-f</code></td>
+<td><code>str</code></td>
+<td>—</td>
+<td>Quick fuzzy filter for tool names or descriptions</td>
+</tr>
+</tbody>
+</table>
+<p>The fuzzy filter uses <code>difflib.SequenceMatcher</code> and scores matches across tool name, description, and tags. Results are sorted by match score descending.</p>
+<pre><code class="language-bash"># List custom tools only
+engram tools list
+
+# Include popular pre-optimized apps
+engram tools list --popular
+
+# Fuzzy search
+engram tools list --filter &quot;weather&quot;
+engram tools list -f docker
+</code></pre>
+<h3><code>engram tools search</code></h3>
+<p>Search for tools using fuzzy matching. Shortcut for <code>tools list --filter</code>.</p>
+<pre><code class="language-bash">engram tools search &lt;query&gt; [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--popular / --no-popular</code></td>
+<td><code>bool</code></td>
+<td><code>true</code></td>
+<td>Include popular app catalog in search</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">engram tools search slack
+engram tools search &quot;file management&quot; --no-popular
+</code></pre>
+<hr />
+<h2>Register Subgroup</h2>
+<p>Onboard and register new APIs, CLI manifests, or direct shell commands.</p>
+<h3><code>engram register openapi</code></h3>
+<p>Universal onboarding for APIs via OpenAPI specs or partial documentation.</p>
+<pre><code class="language-bash">engram register openapi &lt;source&gt; [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Argument/Option</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>source</code></td>
+<td><code>str</code></td>
+<td>URL, local file path, or documentation text</td>
+</tr>
+<tr>
+<td><code>--agent-id</code></td>
+<td><code>str</code></td>
+<td>Agent UUID to link the tool to (auto-detected if omitted)</td>
+</tr>
+<tr>
+<td><code>--partial</code></td>
+<td><code>bool</code></td>
+<td>Treat source as partial documentation text</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># From URL
+engram register openapi https://api.example.com/openapi.json
+
+# From local file
+engram register openapi ./specs/weather-api.yaml
+
+# From partial documentation
+engram register openapi &quot;The weather API has a GET /current endpoint that takes a city parameter&quot; --partial
+</code></pre>
+<p>The registration pipeline:</p>
+<ol>
+<li><strong>Source validation</strong> — URL fetch, local file read, or partial text detection</li>
+<li><strong>Schema parsing</strong> — OpenAPI spec validation and endpoint extraction</li>
+<li><strong>Dual schema generation</strong> — Creates both MCP tool definition and CLI wrapper</li>
+<li><strong>Ontology alignment</strong> — Maps fields through <code>protocols.owl</code>, resolves 3+ schema mismatches</li>
+<li><strong>Registry storage</strong> — Tool is immediately discoverable by agents</li>
+</ol>
+<h3><code>engram register command</code></h3>
+<p>Onboard a local CLI tool by parsing its help text and generating a semantic wrapper.</p>
+<pre><code class="language-bash">engram register command &lt;command&gt; [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Argument/Option</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>command</code></td>
+<td><code>str</code></td>
+<td>The shell command to register (e.g., <code>docker</code>, <code>kubectl</code>, <code>git</code>)</td>
+</tr>
+<tr>
+<td><code>--agent-id</code></td>
+<td><code>str</code></td>
+<td>Agent UUID to link the tool to</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash">engram register command docker
+engram register command kubectl
+engram register command ffmpeg
+</code></pre>
+<p>The system probes the shell for the command, parses its <code>--help</code> output, discovers subcommands, infers argument types, and synthesizes a semantic wrapper with both MCP and CLI schemas.</p>
+<h3><code>engram register tool</code></h3>
+<p>Start an interactive session to manually register a new tool.</p>
+<pre><code class="language-bash">engram register tool
+</code></pre>
+<p>The wizard prompts for:</p>
+<ol>
+<li><strong>Tool Name</strong> — Human-readable name</li>
+<li><strong>Description</strong> — What the tool does</li>
+<li><strong>Base URL</strong> — The API's base URL (e.g., <code>https://api.weather.com</code>)</li>
+<li><strong>Path</strong> — The endpoint path (e.g., <code>/v1/current</code>)</li>
+<li><strong>HTTP Method</strong> — GET, POST, PUT, or DELETE</li>
+<li><strong>Parameters</strong> — Name, type, description, and required flag for each parameter (repeat until done)</li>
+</ol>
+<p>After confirming, the tool is registered via <code>POST /api/v1/registry/manual</code> with a synthetic OpenAPI schema.</p>
+<hr />
+<h2>Route Subgroup</h2>
+<p>Test and visualize performance-weighted routing decisions.</p>
+<h3><code>engram route test</code></h3>
+<p>Simulate routing for a task description and display choice reasoning.</p>
+<pre><code class="language-bash">engram route test &lt;description&gt; [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Argument/Option</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>description</code></td>
+<td><code>str</code></td>
+<td>Natural language description of the task</td>
+</tr>
+<tr>
+<td><code>--force-mcp</code></td>
+<td><code>bool</code></td>
+<td>Force routing to MCP backend</td>
+</tr>
+<tr>
+<td><code>--force-cli</code></td>
+<td><code>bool</code></td>
+<td>Force routing to CLI backend</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Natural routing
+engram route test &quot;deploy the application to staging&quot;
+
+# Force a specific backend
+engram route test &quot;list all docker containers&quot; --force-cli
+engram route test &quot;send a notification&quot; --force-mcp
+</code></pre>
+<p><strong>Output includes:</strong></p>
+<ol>
+<li><strong>Optimal Routing Decision</strong> panel — Chosen tool, backend, confidence, predicted latency, estimated cost, and reasoning</li>
+<li><strong>Alternative Backends Comparison</strong> table — All candidates with composite score, similarity, latency, and success rate</li>
+</ol>
+<h3><code>engram route list</code></h3>
+<p>Display a sorted table of tools with historical performance statistics.</p>
+<pre><code class="language-bash">engram route list
+</code></pre>
+<p>Shows tool name, backend, average latency, success rate, average token cost, and sample count for all tools with routing history.</p>
+<hr />
+<h2>Heal Subgroup</h2>
+<p>Inspect and trigger semantic self-healing for tool drifts.</p>
+<h3><code>engram heal status</code></h3>
+<p>Query the reconciliation engine for detected semantic drifts and pending repairs.</p>
+<pre><code class="language-bash">engram heal status [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--verbose</code>, <code>-v</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Show full logs and detailed drift analysis</td>
+</tr>
+<tr>
+<td><code>--fix</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Trigger immediate repair loops if drifts are found</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output includes two tables:</strong></p>
+<ol>
+<li><strong>Semantic Drift Analysis</strong> — Source protocol, field drift, ontology match, confidence, and status (AUTO-REPAIR or PENDING-REVIEW)</li>
+<li><strong>Persistent Semantic Mappings</strong> — Active mappings between protocols with version numbers</li>
+</ol>
+<pre><code class="language-bash"># Basic status
+engram heal status
+
+# Detailed with payload excerpts
+engram heal status --verbose
+
+# Check and fix in one command
+engram heal status --fix
+</code></pre>
+<p>When <code>--verbose</code> is used, each pending drift includes a full JSON panel showing the payload excerpt and failure type.</p>
+<h3><code>engram heal now</code></h3>
+<p>Trigger immediate semantic repair loops for all detected drifts.</p>
+<pre><code class="language-bash">engram heal now
+</code></pre>
+<p>Calls <code>POST /api/v1/reconciliation/heal</code> and displays progress with Rich spinners. The engine queries the drift database, re-aligns with the semantic ontology, and synchronizes mapping tables.</p>
+<hr />
+<h2>Trace Subgroup</h2>
+<p>Observability and semantic execution tracing.</p>
+<h3><code>engram trace list</code></h3>
+<p>Renders a filterable Rich table of recent semantic execution traces.</p>
+<pre><code class="language-bash">engram trace list [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--limit</code></td>
+<td><code>int</code></td>
+<td><code>20</code></td>
+<td>Number of traces to show</td>
+</tr>
+<tr>
+<td><code>--tool</code></td>
+<td><code>str</code></td>
+<td>—</td>
+<td>Filter by tool name</td>
+</tr>
+<tr>
+<td><code>--export</code></td>
+<td><code>bool</code></td>
+<td><code>false</code></td>
+<td>Export as JSON for piping</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Recent traces
+engram trace list
+
+# Filter by tool
+engram trace list --tool slack
+
+# Export for analysis
+engram trace list --export | jq '.[] | select(.success == false)'
+</code></pre>
+<h3><code>engram trace detail</code></h3>
+<p>Detailed inspection including semantic path, routing reasoning, and healing steps.</p>
+<pre><code class="language-bash">engram trace detail &lt;trace_id&gt;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>trace_id</code></td>
+<td><code>str</code></td>
+<td>Trace ID to inspect. Use <code>.</code> for the latest trace.</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Inspect a specific trace
+engram trace detail 7a3f2b1c
+
+# Shortcut: inspect the latest trace
+engram trace detail .
+
+# Export full trace as JSON
+engram trace detail . --export
+</code></pre>
+<p><strong>Output includes:</strong></p>
+<ol>
+<li><strong>AI-generated Summary</strong> — Natural-language reasoning about the routing and healing decisions (generated by the backend LLM via <code>POST /api/v1/traces/query</code>)</li>
+<li><strong>Semantic Trace Tree</strong> — Rich tree visualization:</li>
+<li><strong>Execution Path</strong> — Tool selection, routing choice, backend, latency, success/failure</li>
+<li><strong>Performance Weights</strong> — Semantic similarity, composite score, token efficiency</li>
+<li><strong>Self-Healing Steps</strong> — Any reconciliation steps taken during execution</li>
+<li><strong>Ontological Alignment</strong> — Context interpretation and synthesized field mappings</li>
+</ol>
+<hr />
+<h2>Evolve Subgroup</h2>
+<p>Manage self-evolving tools and ML-driven improvements.</p>
+<h3><code>engram evolve status</code></h3>
+<p>Display ML improvement progress in a dashboard-like Rich layout.</p>
+<pre><code class="language-bash">engram evolve status
+</code></pre>
+<p>Shows:
+- Pipeline status (active/idle)
+- Pending proposal count
+- Total historical evolutions
+- Last ML update timestamp
+- Table of pending refinements with tool name, version change, refinement type, proposed changes, confidence score, and proposal ID</p>
+<p>Refinement types include:
+- <strong>Description Path Refinement</strong> — Improved tool descriptions based on execution history
+- <strong>Parameter Schema Optimization</strong> — Tightened action schemas based on failure analysis
+- <strong>New Recovery Strategy</strong> — Pattern-based automated fallback mapping</p>
+<h3><code>engram evolve apply</code></h3>
+<p>Trigger updates with confirmation prompts and show before/after diffs.</p>
+<pre><code class="language-bash">engram evolve apply &lt;evolution_id&gt; [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Argument/Option</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>evolution_id</code></td>
+<td><code>str</code></td>
+<td>ID (or prefix) of the evolution proposal to apply</td>
+</tr>
+<tr>
+<td><code>--force</code>, <code>-f</code></td>
+<td><code>bool</code></td>
+<td>Apply without confirmation prompt</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Interactive apply with diff preview
+engram evolve apply 7a3f2b1c
+
+# Skip confirmation
+engram evolve apply 7a3f2b1c --force
+</code></pre>
+<p>The command shows a preview of changes (before/after diffs) and asks for confirmation before applying. Once applied, the tool registry is hot-redeployed with the new version.</p>
+<hr />
+<h2>Protocol Subgroup</h2>
+<p>Federated protocol management and translation.</p>
+<h3><code>engram protocol translate</code></h3>
+<p>Perform real-time translation between protocols using the system ontology as a bridge.</p>
+<pre><code class="language-bash">engram protocol translate [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--from</code></td>
+<td><code>str</code></td>
+<td>Source protocol: <code>mcp</code>, <code>cli</code>, <code>a2a</code>, <code>acp</code></td>
+</tr>
+<tr>
+<td><code>--to</code></td>
+<td><code>str</code></td>
+<td>Target protocol: <code>mcp</code>, <code>cli</code>, <code>a2a</code>, <code>acp</code></td>
+</tr>
+<tr>
+<td><code>--payload</code>, <code>-p</code></td>
+<td><code>str</code></td>
+<td>JSON payload or path to JSON file (optional — uses demo payload if omitted)</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Translate MCP to CLI (demo payload)
+engram protocol translate --from mcp --to cli
+
+# Translate with custom payload
+engram protocol translate --from a2a --to mcp --payload '{&quot;task&quot;: &quot;search&quot;, &quot;query&quot;: &quot;AI news&quot;}'
+
+# Translate from file
+engram protocol translate --from cli --to a2a --payload ./request.json
+</code></pre>
+<p><strong>Output:</strong> Three side-by-side panels showing Source → Canonical Bridge (Ontology) → Target.</p>
+<h3><code>engram protocol handoff simulate</code></h3>
+<p>Simulate a seamless multi-agent task handoff, demonstrating semantic state transfer.</p>
+<pre><code class="language-bash">engram protocol handoff simulate [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--source-agent</code></td>
+<td><code>str</code></td>
+<td><code>CLI-Local</code></td>
+<td>Name of the source agent</td>
+</tr>
+<tr>
+<td><code>--target-agent</code></td>
+<td><code>str</code></td>
+<td><code>Remote-MCP</code></td>
+<td>Name of the target agent</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Output:</strong> A Rich tree showing session ID, semantic readiness, bridged protocols, and transferred state (Redis-backed) with full JSON payloads for each state category.</p>
+<hr />
+<h2>Sync Subgroup</h2>
+<p>Manage bidirectional synchronization and event monitoring.</p>
+<h3><code>engram sync list</code></h3>
+<p>List active event listeners, pollers, and CLI watchers.</p>
+<pre><code class="language-bash">engram sync list
+</code></pre>
+<h3><code>engram sync add</code></h3>
+<p>Add a new bidirectional sync or event listener to a tool.</p>
+<pre><code class="language-bash">engram sync add &lt;tool_id&gt; [OPTIONS]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--direction</code></td>
+<td><code>str</code></td>
+<td><code>both</code></td>
+<td>Sync direction: <code>both</code>, <code>to_mcp</code>, <code>from_mcp</code></td>
+</tr>
+<tr>
+<td><code>--type</code></td>
+<td><code>str</code></td>
+<td><code>polling</code></td>
+<td>Source type: <code>polling</code> or <code>cli_watch</code></td>
+</tr>
+<tr>
+<td><code>--url</code></td>
+<td><code>str</code></td>
+<td>—</td>
+<td>URL for polling (required for <code>polling</code> type)</td>
+</tr>
+<tr>
+<td><code>--command</code></td>
+<td><code>str</code></td>
+<td>—</td>
+<td>Command for CLI watch (required for <code>cli_watch</code> type)</td>
+</tr>
+<tr>
+<td><code>--interval</code></td>
+<td><code>int</code></td>
+<td><code>60</code></td>
+<td>Polling interval in seconds</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-bash"># Add polling sync
+engram sync add &lt;tool-uuid&gt; --type polling --url https://api.example.com/changes --interval 30
+
+# Add CLI watch sync
+engram sync add &lt;tool-uuid&gt; --type cli_watch --command &quot;docker ps --format json&quot;
+</code></pre>
+<h3><code>engram sync status</code></h3>
+<p>Show live monitoring of recent events and semantic conflict resolutions.</p>
+<pre><code class="language-bash">engram sync status
+</code></pre>
+<p>Uses Rich's <code>Live</code> display with auto-refresh (2 frames/second) to show a real-time event stream. Press <code>Ctrl+C</code> to stop monitoring.</p>
+<hr />
+<h2>Interactive REPL Reference</h2>
+<p>When running inside <code>engram run</code>, all subcommands are available without the <code>engram</code> prefix. The REPL delegates to the Typer CLI via subprocess, so every feature works identically.</p>
+<h3>Full Command Map</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                     Available Commands                          │
+├───────────────────────────────┬─────────────────────────────────┤
+│ Command                      │ Description                     │
+├───────────────────────────────┼─────────────────────────────────┤
+│ tools list                   │ List all registered tools        │
+│ tools search &lt;query&gt;         │ Search tools by name or tag      │
+│ register openapi &lt;url&gt;       │ Register from OpenAPI spec       │
+│ register command &lt;cmd&gt;       │ Register a shell command         │
+│ register tool                │ Interactive manual registration  │
+│ route test &lt;tool&gt;            │ Test routing decision            │
+│ route list                   │ Show tools with routing stats    │
+│ trace list                   │ List recent execution traces     │
+│ trace detail &lt;id&gt;            │ Inspect a specific trace         │
+│ heal status                  │ Self-healing status              │
+│ heal now                     │ Trigger immediate repair loop    │
+│ evolve status                │ ML improvement dashboard         │
+│ evolve apply &lt;id&gt;            │ Apply a proposed refinement      │
+│ protocol translate           │ Translate between protocols      │
+│ protocol handoff simulate    │ Simulate multi-agent handoff     │
+│ sync list                    │ List sync connections            │
+│ auth whoami                  │ Show identity &amp; scopes           │
+│ clear                        │ Clear the screen                 │
+│ exit                         │ Shut down the gateway            │
+└───────────────────────────────┴─────────────────────────────────┘
+</code></pre>
+<hr />
+<h2>TUI Dashboard Reference</h2>
+<p>The TUI dashboard (<code>engram run --debug</code>) is a full Textual application with multiple screens, interactive forms, and real-time event routing.</p>
+<h3>Screens</h3>
+<table>
+<thead>
+<tr>
+<th>Screen</th>
+<th>Trigger</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Welcome</strong></td>
+<td>On startup (if authenticated)</td>
+<td>Animated logo and system status</td>
+</tr>
+<tr>
+<td><strong>Auth</strong></td>
+<td>On startup (if not authenticated)</td>
+<td>Login/Signup form with base URL, email, password</td>
+</tr>
+<tr>
+<td><strong>Debug</strong></td>
+<td><code>--debug</code> flag</td>
+<td>Live trace panels and event monitors</td>
+</tr>
+<tr>
+<td><strong>Provider Selection</strong></td>
+<td>Service setup (<code>S</code> key)</td>
+<td>Choose an AI provider to connect</td>
+</tr>
+<tr>
+<td><strong>Service Connect</strong></td>
+<td>Provider button click</td>
+<td>Enter API key for a specific provider</td>
+</tr>
+</tbody>
+</table>
+<h3>Provider Connection Screens</h3>
+<p>Each provider has a dedicated connection screen with branding and instructions:</p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Screen Class</th>
+<th>Auth Type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>OpenAIConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Claude (Anthropic)</td>
+<td><code>AnthropicConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Gemini (Google)</td>
+<td><code>GoogleConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Llama</td>
+<td><code>LlamaConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Mistral</td>
+<td><code>MistralConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Grok</td>
+<td><code>GrokConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Perplexity</td>
+<td><code>PerplexityConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>DeepSeek</td>
+<td><code>DeepseekConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+<tr>
+<td>Other</td>
+<td><code>GenericServiceConnectScreen</code></td>
+<td>API Key</td>
+</tr>
+</tbody>
+</table>
+<h3>Event Routing</h3>
+<p>The TUI routes events from the backend to specific trace panels based on event type prefix:</p>
+<table>
+<thead>
+<tr>
+<th>Event Type Prefix</th>
+<th>Panel</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>connection.*</code></td>
+<td>Connections</td>
+<td>Connection established, connection lost</td>
+</tr>
+<tr>
+<td><code>agent.*</code></td>
+<td>Agent Execution</td>
+<td>Agent step started, agent step completed</td>
+</tr>
+<tr>
+<td><code>tool.*</code></td>
+<td>Tool Usage</td>
+<td>Tool invoked, tool response received</td>
+</tr>
+<tr>
+<td><code>response.*</code></td>
+<td>Responses</td>
+<td>Final response generated</td>
+</tr>
+<tr>
+<td><code>translation.*</code></td>
+<td>Translation panels</td>
+<td>Engram task, tool request, tool response</td>
+</tr>
+</tbody>
+</table>
+<h3>Task Tracking</h3>
+<p>The TUI automatically parses orchestration events to build a live task tracker:</p>
+<ul>
+<li><strong>Orchestration Plan</strong> detected → Sets total step count</li>
+<li><strong>Handing off to [Agent]</strong> → Marks step as RUNNING</li>
+<li><strong>Step N OK</strong> → Marks step as COMPLETED</li>
+</ul>
+<p>The tracker shows current task text, status (IDLE → SUBMITTING → PLANNED → RUNNING → COMPLETED), per-step progress with agent names, and active connector list.</p>
+<h3>TUI Bridge</h3>
+<p>The <code>app/core/tui_bridge.py</code> module provides the event pipeline between the FastAPI backend and the TUI:</p>
+<ul>
+<li><code>emit_tui_event(event)</code> — Thread-safe event push to the shared async queue</li>
+<li><code>tui_logger_processor</code> — Structlog processor that translates technical log events into plain-English TUI messages with emojis:</li>
+<li><code>"Translating message"</code> → <code>🔄 Translating message from MCP to CLI...</code></li>
+<li><code>"Applied version delta"</code> → <code>✨ MCP message upgraded: v1.0 ➡️ v1.1</code></li>
+<li><code>"Translation failed"</code> → <code>❌ Translation failed: &lt;error&gt;</code></li>
+<li><code>"No translation rule found"</code> → <code>⚠️ Missing map: No path found for MCP to ACP</code></li>
+<li><code>"Version mismatch detected"</code> → <code>⚖️ Version mismatch in MCP: Found v1.0, expected v1.1</code></li>
+</ul>
+<h3>Credential Storage (TUI)</h3>
+<p>The TUI stores credentials differently from the CLI:</p>
+<table>
+<thead>
+<tr>
+<th>CLI</th>
+<th>TUI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System keyring (<code>keyring</code> library)</td>
+<td>Fernet-encrypted file (<code>~/.engram/config.enc</code>)</td>
+</tr>
+<tr>
+<td><code>config.yaml</code> fallback</td>
+<td>Encryption key in <code>~/.engram/key</code> (chmod 600)</td>
+</tr>
+<tr>
+<td>Plain text config</td>
+<td>Encrypted JSON with base URL, tokens, email</td>
+</tr>
+</tbody>
+</table>
+<p>Both paths are valid. The TUI's encrypted storage is designed for environments where the system keyring isn't available (headless servers, containers).</p>
+<hr />
+<h2>What's Next</h2>
+<ul>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Customize every setting, routing weight, and ontology path</li>
+<li><strong><a href="./08-universal-onboarding.md">Universal Onboarding</a></strong> — Deep dive into tool registration</li>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> — Understand the reconciliation engine</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Set up monitoring and alerting</li>
+</ul>
+
+<hr />
 <h1 id="learning-path">Learning Path</h1>
 <p>This page helps you find the right documentation based on your experience level and goals. Engram has a lot of surface area — from basic tool registration to ML-driven self-evolving tools — so this guide ensures you don't waste time on sections you don't need yet.</p>
 
@@ -1940,6 +3071,7 @@ python -c "import keyring; keyring.delete_password('engram', 'eat_token')"
                 <a href="#installation" class="toc-link">Installation</a>
                 <a href="#docker-kubernetes-setup" class="toc-link">Docker & K8s Setup</a>
                 <a href="#updating-uninstalling" class="toc-link">Updating & Uninstalling</a>
+                <a href="#cli-reference" class="toc-link">CLI Reference</a>
                 <a href="#learning-path" class="toc-link">Learning Path</a>
             </nav>
         </aside>
