@@ -4940,6 +4940,525 @@ engram protocol handoff simulate --source-agent CLI-Local --target-agent Remote-
 <li><strong><a href="./13-bidirectional-sync.md">Bidirectional Sync</a></strong> — Event-driven sync across protocols</li>
 <li><strong><a href="./17-architecture.md">Architecture</a></strong> — System-level view of the orchestrator</li>
 </ul>
+
+<hr />
+
+<h1 id="eat-identity-security">EAT Identity &amp; Security</h1>
+
+<p>Engram uses a unified token system called <strong>EAT</strong> (Engram Authorization Token) that carries both structured permissions per tool and semantic scopes derived from the OWL ontology. This page covers authentication, authorization, token lifecycle, credential storage, and the security middleware stack.</p>
+
+<hr />
+
+<h2 id="what-is-eat">What is EAT?</h2>
+
+<p>An EAT is a JWT-based token that carries three types of authorization data:</p>
+
+<ol>
+<li><strong>Identity</strong> (<code class="code-inline">sub</code> claim) — Who you are (email or user ID)</li>
+<li><strong>Structured Permissions</strong> (<code class="code-inline">scopes</code> claim) — Per-tool permissions as a nested object</li>
+<li><strong>Semantic Scopes</strong> (<code class="code-inline">semantic_scopes</code> claim) — Ontology-derived capabilities from <code class="code-inline">security.owl</code></li>
+</ol>
+
+<h3 id="token-structure">Token Structure</h3>
+
+<pre><code class="language-json">{
+  "sub": "user@company.com",
+  "jti": "unique-token-id",
+  "exp": 1712345678,
+  "scopes": {
+    "slack": ["send_message", "list_channels"],
+    "docker": ["run", "ps", "images"]
+  },
+  "semantic_scopes": [
+    "execute:tool-invocation",
+    "read:ontology-metadata"
+  ]
+}</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Claim</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">sub</code></td>
+<td><code class="code-inline">str</code></td>
+<td>User identity (email or UUID)</td>
+</tr>
+<tr>
+<td><code class="code-inline">jti</code></td>
+<td><code class="code-inline">str</code></td>
+<td>Unique token ID for revocation tracking</td>
+</tr>
+<tr>
+<td><code class="code-inline">exp</code></td>
+<td><code class="code-inline">int</code></td>
+<td>Expiration timestamp (Unix epoch)</td>
+</tr>
+<tr>
+<td><code class="code-inline">scopes</code></td>
+<td><code class="code-inline">dict</code></td>
+<td>Per-tool permissions: <code class="code-inline">{"tool_name": ["action1", "action2"]}</code></td>
+</tr>
+<tr>
+<td><code class="code-inline">semantic_scopes</code></td>
+<td><code class="code-inline">list</code></td>
+<td>Ontology-based capabilities: <code class="code-inline">["execute:tool-invocation"]</code></td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="authentication-flow">Authentication Flow</h2>
+
+<h3 id="step-1-sign-up-or-log-in">Step 1: Sign Up or Log In</h3>
+
+<pre><code class="language-bash"># Via CLI
+engram auth login
+
+# Via TUI
+engram run --debug   # Uses inline login form</code></pre>
+
+<p>The flow:</p>
+<ol>
+<li><strong>Signup</strong> — <code class="code-inline">POST /auth/signup</code> with email and password → Creates user record</li>
+<li><strong>Login</strong> — <code class="code-inline">POST /auth/login</code> with email and password → Returns a session <code class="code-inline">access_token</code></li>
+<li><strong>EAT Generation</strong> — <code class="code-inline">POST /auth/tokens/generate-eat</code> with the session token → Returns the EAT</li>
+</ol>
+
+<h3 id="step-2-token-storage">Step 2: Token Storage</h3>
+
+<p>EAT tokens are stored securely using a priority chain:</p>
+
+<table>
+<thead>
+<tr>
+<th>Priority</th>
+<th>Method</th>
+<th>Where</th>
+<th>Security</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>System keyring</td>
+<td>OS credential store</td>
+<td>Highest (OS-managed encryption)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Config fallback</td>
+<td><code class="code-inline">~/.engram/config.yaml</code></td>
+<td>Medium (file permissions)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>TUI encrypted</td>
+<td><code class="code-inline">~/.engram/config.enc</code></td>
+<td>High (Fernet symmetric encryption)</td>
+</tr>
+</tbody>
+</table>
+
+<p>The CLI uses the <code class="code-inline">keyring</code> library to store tokens in:</p>
+<ul>
+<li><strong>macOS</strong> — Keychain</li>
+<li><strong>Windows</strong> — Credential Locker</li>
+<li><strong>Linux</strong> — Secret Service (GNOME Keyring / KWallet)</li>
+</ul>
+
+<p>If the system keyring is unavailable, tokens fall back to the <code class="code-inline">config.yaml</code> file.</p>
+
+<hr />
+
+<h2 id="token-lifecycle">Token Lifecycle</h2>
+
+<h3 id="eatidentityservice">EATIdentityService</h3>
+
+<p>The <code class="code-inline">EATIdentityService</code> (<code class="code-inline">app/services/eat_identity.py</code>) manages the full token lifecycle:</p>
+
+<h3 id="issue">Issue</h3>
+
+<pre><code class="language-python">result = EATIdentityService.issue_token(
+    db=session,
+    user_id="user-uuid",
+    permissions={"slack": ["send_message"]},
+    semantic_scopes=["execute:tool-invocation"],
+)
+# Returns: EATIssueResult(token=..., refresh_token=..., expires_at=..., jti=...)</code></pre>
+
+<h3 id="refresh">Refresh</h3>
+
+<pre><code class="language-python">result = EATIdentityService.refresh_token(
+    db=session,
+    refresh_token="refresh-uuid",
+    permissions={"slack": ["send_message"]},
+)</code></pre>
+
+<p>Refresh tokens are:</p>
+<ul>
+<li>Stored in Redis with the hash of the token as the key</li>
+<li>Single-use (consumed on refresh, a new refresh token is issued)</li>
+<li>Expire in <code class="code-inline">EAT_REFRESH_TOKEN_EXPIRE_MINUTES</code> (default: 7 days)</li>
+</ul>
+
+<h3 id="revoke">Revoke</h3>
+
+<pre><code class="language-python">EATIdentityService.revoke_eat(
+    db=session,
+    user_id="user-uuid",
+    token="eat-jwt",
+    jti="token-jti",
+    expires_in=900,
+    refresh_token="refresh-uuid",
+)</code></pre>
+
+<p>Revocation:</p>
+<ol>
+<li>Adds the JTI to the Redis deny list (checked on every request)</li>
+<li>Deletes the refresh token from Redis</li>
+<li>Creates an audit log entry with event type <code class="code-inline">REVOKED</code></li>
+</ol>
+
+<h3 id="token-expiration">Token Expiration</h3>
+
+<table>
+<thead>
+<tr>
+<th>Token Type</th>
+<th>Default Lifetime</th>
+<th>Configuration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Session token</strong></td>
+<td>7 days</td>
+<td><code class="code-inline">ACCESS_TOKEN_EXPIRE_MINUTES</code></td>
+</tr>
+<tr>
+<td><strong>EAT access token</strong></td>
+<td>15 minutes</td>
+<td><code class="code-inline">EAT_ACCESS_TOKEN_EXPIRE_MINUTES</code></td>
+</tr>
+<tr>
+<td><strong>EAT refresh token</strong></td>
+<td>7 days</td>
+<td><code class="code-inline">EAT_REFRESH_TOKEN_EXPIRE_MINUTES</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>The EAT access token is intentionally short-lived (15 minutes by default) because it carries permissions. The refresh token allows silent renewal without re-authentication.</p>
+
+<hr />
+
+<h2 id="semantic-scopes">Semantic Scopes</h2>
+
+<p>Semantic scopes are derived from <code class="code-inline">security.owl</code> and provide ontology-backed access control:</p>
+
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Ontology Context</th>
+<th>Capability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">execute:tool-invocation</code></td>
+<td>Global</td>
+<td>Can invoke cross-protocol tool translations</td>
+</tr>
+<tr>
+<td><code class="code-inline">read:ontology-metadata</code></td>
+<td>Global</td>
+<td>Can query ontology metadata and tool catalogs</td>
+</tr>
+<tr>
+<td><code class="code-inline">write:tool-registry</code></td>
+<td>Global</td>
+<td>Can register and modify tools</td>
+</tr>
+<tr>
+<td><code class="code-inline">admin:system</code></td>
+<td>Global</td>
+<td>Full administrative access</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="fail-closed-semantics">Fail-Closed Semantics</h3>
+
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">AUTH_FAIL_CLOSED</code></td>
+<td><code class="code-inline">true</code></td>
+<td>When Redis is down and the JTI deny list can't be checked, <strong>deny access</strong></td>
+</tr>
+<tr>
+<td><code class="code-inline">SEMANTIC_AUTH_FAIL_CLOSED</code></td>
+<td><code class="code-inline">true</code></td>
+<td>When semantic scope verification fails, <strong>deny access</strong></td>
+</tr>
+</tbody>
+</table>
+
+<p>This fail-closed design ensures that security checks never silently pass due to infrastructure failures.</p>
+
+<h3 id="viewing-scopes">Viewing Scopes</h3>
+
+<pre><code class="language-bash"># Full identity tree with scopes
+engram auth whoami
+
+# Tabular scope view with ontology context
+engram auth scope</code></pre>
+
+<hr />
+
+<h2 id="token-audit-trail">Token Audit Trail</h2>
+
+<p>Every token event is logged in the <code class="code-inline">TokenAuditLog</code> database table:</p>
+
+<table>
+<thead>
+<tr>
+<th>Event Type</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">ISSUED</code></td>
+<td>New EAT is generated</td>
+</tr>
+<tr>
+<td><code class="code-inline">REFRESHED</code></td>
+<td>EAT is renewed via refresh token</td>
+</tr>
+<tr>
+<td><code class="code-inline">REVOKED</code></td>
+<td>EAT is explicitly revoked</td>
+</tr>
+</tbody>
+</table>
+
+<p>Each audit record captures:</p>
+<ul>
+<li>User ID, token type, JTI</li>
+<li>Token hash (SHA-256, not the actual token)</li>
+<li>Issued and expiration timestamps</li>
+<li>Current scopes and semantic scopes</li>
+<li>Additional metadata</li>
+</ul>
+
+<hr />
+
+<h2 id="credential-storage">Credential Storage</h2>
+
+<p>Provider credentials (API keys for Claude, Slack, Perplexity, etc.) are stored separately from EAT tokens:</p>
+
+<h3 id="credentialservice">CredentialService</h3>
+
+<p>The <code class="code-inline">CredentialService</code> (<code class="code-inline">app/services/credentials.py</code>) encrypts and manages provider credentials:</p>
+
+<pre><code class="language-python">await CredentialService.save_credential(
+    db=session,
+    user_id=user_uuid,
+    provider_name="claude",
+    token="sk-ant-...",
+    credential_type=CredentialType.API_KEY,
+)</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Encryption</strong></td>
+<td>Fernet symmetric encryption via <code class="code-inline">CryptoService</code></td>
+</tr>
+<tr>
+<td><strong>Encryption key</strong></td>
+<td><code class="code-inline">PROVIDER_CREDENTIALS_ENCRYPTION_KEY</code> environment variable</td>
+</tr>
+<tr>
+<td><strong>Auto-refresh</strong></td>
+<td>OAuth tokens are automatically refreshed on expiration</td>
+</tr>
+<tr>
+<td><strong>Per-user isolation</strong></td>
+<td>Each user has their own credential set</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="supported-auth-types">Supported Auth Types</h3>
+
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Examples</th>
+<th>Storage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">api_key</code></td>
+<td>Anthropic, OpenAI, Perplexity</td>
+<td>Encrypted API key</td>
+</tr>
+<tr>
+<td><code class="code-inline">oauth</code></td>
+<td>Slack, Google</td>
+<td>Encrypted access + refresh tokens</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="tui-vault-service">TUI Vault Service</h3>
+
+<p>The TUI uses a separate vault (<code class="code-inline">tui/vault_service.py</code>) for credential storage, backed by Fernet-encrypted files at <code class="code-inline">~/.engram/config.enc</code>. This is designed for environments where the system keyring isn't available.</p>
+
+<hr />
+
+<h2 id="security-headers">Security Headers</h2>
+
+<p>The following security headers are injected on every response:</p>
+
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Value</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">X-Content-Type-Options</code></td>
+<td><code class="code-inline">nosniff</code></td>
+<td>Prevent MIME type sniffing</td>
+</tr>
+<tr>
+<td><code class="code-inline">X-Frame-Options</code></td>
+<td><code class="code-inline">DENY</code></td>
+<td>Prevent clickjacking</td>
+</tr>
+<tr>
+<td><code class="code-inline">X-XSS-Protection</code></td>
+<td><code class="code-inline">1; mode=block</code></td>
+<td>Enable browser XSS filter</td>
+</tr>
+<tr>
+<td><code class="code-inline">Strict-Transport-Security</code></td>
+<td><code class="code-inline">max-age=31536000</code></td>
+<td>Force HTTPS (when <code class="code-inline">HTTPS_ONLY=true</code>)</td>
+</tr>
+<tr>
+<td><code class="code-inline">Content-Security-Policy</code></td>
+<td><code class="code-inline">default-src 'self'</code></td>
+<td>Restrict resource loading</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="rate-limiting">Rate Limiting</h2>
+
+<p>API rate limiting is powered by <code class="code-inline">slowapi</code>:</p>
+
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">RATE_LIMIT_DEFAULT</code></td>
+<td><code class="code-inline">100/minute</code></td>
+<td>Default limit per IP</td>
+</tr>
+<tr>
+<td><code class="code-inline">RATE_LIMIT_ENABLED</code></td>
+<td><code class="code-inline">true</code></td>
+<td>Toggle rate limiting</td>
+</tr>
+</tbody>
+</table>
+
+<p>Rate limit headers are returned in every response:</p>
+<ul>
+<li><code class="code-inline">X-RateLimit-Limit</code> — Maximum requests per window</li>
+<li><code class="code-inline">X-RateLimit-Remaining</code> — Remaining requests in current window</li>
+<li><code class="code-inline">X-RateLimit-Reset</code> — Window reset timestamp</li>
+</ul>
+
+<hr />
+
+<h2 id="security-middleware-stack">Security Middleware Stack</h2>
+
+<p>The FastAPI middleware pipeline processes requests in this order:</p>
+
+<ol>
+<li><strong>CORS</strong> — Cross-origin request handling (<code class="code-inline">CORS_ORIGINS</code>)</li>
+<li><strong>HTTPS Redirect</strong> — Forces HTTPS when <code class="code-inline">HTTPS_ONLY=true</code></li>
+<li><strong>Security Headers</strong> — Injects all security headers</li>
+<li><strong>Rate Limiting</strong> — Enforces per-IP rate limits</li>
+<li><strong>JWT Validation</strong> — Verifies EAT token signature and claims</li>
+<li><strong>Semantic Scope Check</strong> — Validates semantic scopes against the requested operation</li>
+<li><strong>Prometheus Instrumentation</strong> — Records request metrics</li>
+</ol>
+
+<hr />
+
+<h2 id="cli-commands-security">CLI Commands</h2>
+
+<pre><code class="language-bash"># Authenticate
+engram auth login
+engram auth login --token &lt;eat-token&gt;
+
+# View identity and permissions
+engram auth whoami
+engram auth scope
+engram auth status
+
+# Manually set token
+engram auth token-set &lt;token&gt;</code></pre>
+
+<hr />
+
+<h2 id="whats-next-security">What's Next</h2>
+
+<ul>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Configure security settings</li>
+<li><strong><a href="./17-architecture.md">Architecture</a></strong> — System-level security architecture</li>
+<li><strong><a href="./16-sdk-python-library.md">SDK &amp; Python Library</a></strong> — Programmatic authentication</li>
+</ul>
             </div>
         </main>
 
@@ -4961,6 +5480,7 @@ engram protocol handoff simulate --source-agent CLI-Local --target-agent Remote-
                 <a href="#self-healing-engine" class="toc-link">Self-Healing Engine</a>
                 <a href="#mcp-cli-hybrid-routing" class="toc-link">Hybrid Routing</a>
                 <a href="#protocol-federation" class="toc-link">Protocol Federation</a>
+                <a href="#eat-identity-security" class="toc-link">EAT Identity & Security</a>
             </nav>
         </aside>
     </div>
