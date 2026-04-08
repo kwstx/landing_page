@@ -1,41 +1,367 @@
-# Quickstart
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Engram Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #ffffff;
+            --bg-sidebar: #fafafa;
+            --border-color: #eaeaea;
+            --text-main: #222222;
+            --text-muted: #666666;
+            --accent: #f5c518;
+            --accent-bg: #fffbf0;
+            --code-bg: #f5f5f5;
+            --hl-active-bg: #fff;
+        }
 
-This guide walks you through installing Engram, registering your first tool, and testing intelligent routing. By the end, you'll know the key features and how to explore further.
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
----
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
 
-## 1. Install Engram
+        .layout-container {
+            display: flex;
+            width: 100%;
+            margin: 0 auto;
+        }
 
-Run the one-line installer:
+        /* Left Sidebar */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            border-right: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 32px 0;
+            flex-shrink: 0;
+        }
 
-```bash
-# Linux / macOS / WSL2
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item {
+            padding: 10px 24px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background-color: #efefef;
+        }
+
+        .nav-item.active {
+            font-weight: 600;
+            background-color: var(--hl-active-bg);
+            border-left: 3px solid var(--accent);
+            color: var(--accent);
+            text-shadow: 0 0 1px rgba(245, 197, 24, 0.5);
+        }
+
+        .nav-item-icon::after {
+            content: "›";
+            font-size: 18px;
+            color: #999;
+        }
+
+        /* Sub nav items */
+        .sub-nav {
+            padding-left: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+        .sub-nav .nav-item {
+            font-size: 13px;
+            padding: 8px 24px 8px 36px;
+            color: #555;
+            font-weight: 400;
+            border-left: none;
+        }
+        .sub-nav .nav-item.active {
+            color: var(--accent);
+            font-weight: 500;
+            background: transparent;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 48px 80px;
+            max-width: 900px;
+        }
+
+        .breadcrumbs {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breadcrumbs span.active {
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -1.5px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        h1 code {
+            background-color: #f0f0f0;
+            padding: 2px 16px;
+            border-radius: 8px;
+            font-size: 38px;
+            font-family: 'Space Mono', monospace;
+            color: #111;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+            margin-top: 56px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 16px;
+        }
+
+        h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-top: 32px;
+            margin-bottom: 16px;
+        }
+
+        p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+
+        ul, ol {
+            margin-bottom: 24px;
+            padding-left: 24px;
+            color: #333;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        code {
+            font-family: 'Space Mono', monospace;
+            background-color: var(--code-bg);
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: #d13a82; 
+        }
+
+        pre {
+            background-color: #f8f9fa;
+            color: #2e2e2e;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            overflow-x: auto;
+            margin: 24px 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            border-radius: 0;
+            color: inherit;
+        }
+
+        blockquote {
+            border-left: 4px solid var(--text-muted);
+            background-color: var(--bg-sidebar);
+            padding: 16px 24px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+            color: #555;
+        }
+
+        blockquote p {
+            margin-bottom: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-sidebar);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* Right Sidebar (TOC) */
+        .toc-sidebar {
+            width: 280px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            padding: 48px 32px;
+            overflow-y: auto;
+            border-left: 1px solid var(--border-color);
+            flex-shrink: 0;
+            background: #ffffff;
+        }
+
+        .toc-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .toc-nav {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc-link {
+            display: block;
+            text-decoration: none;
+            color: #555;
+            font-size: 13px;
+            margin-bottom: 12px;
+            transition: color 0.2s;
+            line-height: 1.4;
+        }
+
+        .toc-link:hover {
+            color: var(--text-main);
+        }
+
+        .toc-link.active {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .toc-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                padding: 32px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout-container">
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <div style="padding: 0 24px 32px 24px;">
+                <a href="#" style="text-decoration: none; color: #111; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="#f5c518" stroke-width="4"/>
+                        <path d="M8 12L12 8L16 12L12 16L8 12Z" fill="#111"/>
+                    </svg>
+                    Engram Docs
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item">Getting Started <span class="nav-item-icon"></span></a>
+                <a href="#" class="nav-item active">Using Engram <span class="nav-item-icon"></span></a>
+                <div class="sub-nav">
+                    <a href="#quickstart" class="nav-item">Quickstart</a>
+                    <a href="#installation" class="nav-item">Installation</a>
+                    <a href="#docker-kubernetes-setup" class="nav-item">Docker & Kubernetes</a>
+                </div>
+                <a href="#" class="nav-item">Features <span class="nav-item-icon"></span></a>
+                <a href="#" class="nav-item">Messaging Platforms <span class="nav-item-icon"></span></a>
+                <a href="#" class="nav-item">Integrations <span class="nav-item-icon"></span></a>
+                <a href="#" class="nav-item">Guides & Tutorials <span class="nav-item-icon"></span></a>
+                <a href="#" class="nav-item">Developer Guide <span class="nav-item-icon"></span></a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="breadcrumbs">
+                ⌂ &rsaquo; Using Engram &rsaquo; <span class="active">Documentation</span>
+            </div>
+
+            <div class="docs-body-content">
+                <h1 id="quickstart">Quickstart</h1>
+<p>This guide walks you through installing Engram, registering your first tool, and testing intelligent routing. By the end, you'll know the key features and how to explore further.</p>
+<hr />
+<h2 id="1-install-engram">1. Install Engram</h2>
+<p>Run the one-line installer:</p>
+<pre><code class="language-bash"># Linux / macOS / WSL2
 curl -fsSL https://get.engram.dev/install | bash
-```
-
-> **Windows Users**
-> Install WSL2 first, then run the command above inside your WSL2 terminal. Native Windows is supported via the `engram.bat` wrapper for local development, but production deployments should use WSL2, Docker, or a Linux server.
-
-After it finishes, reload your shell:
-
-```bash
-source ~/.bashrc   # or source ~/.zshrc
-```
-
----
-
-## 2. Start the Gateway
-
-Engram runs a lightweight backend API that powers the CLI, SDK, and all tool integrations. Start it with a single command:
-
-```bash
-engram run
-```
-
-You'll see the animated ENGRAM banner, the gateway URL, and an interactive REPL prompt. The backend starts automatically in the background — no separate server process to manage.
-
-```
-  ███████╗███╗   ██╗ ██████╗ ██████╗  █████╗ ███╗   ███╗
+</code></pre>
+<blockquote>
+<p><strong>Windows Users</strong>
+Install WSL2 first, then run the command above inside your WSL2 terminal. Native Windows is supported via the <code>engram.bat</code> wrapper for local development, but production deployments should use WSL2, Docker, or a Linux server.</p>
+</blockquote>
+<p>After it finishes, reload your shell:</p>
+<pre><code class="language-bash">source ~/.bashrc   # or source ~/.zshrc
+</code></pre>
+<hr />
+<h2 id="2-start-the-gateway">2. Start the Gateway</h2>
+<p>Engram runs a lightweight backend API that powers the CLI, SDK, and all tool integrations. Start it with a single command:</p>
+<pre><code class="language-bash">engram run
+</code></pre>
+<p>You'll see the animated ENGRAM banner, the gateway URL, and an interactive REPL prompt. The backend starts automatically in the background — no separate server process to manage.</p>
+<pre><code>  ███████╗███╗   ██╗ ██████╗ ██████╗  █████╗ ███╗   ███╗
   ██╔════╝████╗  ██║██╔════╝ ██╔══██╗██╔══██╗████╗ ████║
   █████╗  ██╔██╗ ██║██║  ███╗██████╔╝███████║██╔████╔██║
   ██╔══╝  ██║╚██╗██║██║   ██║██╔══██╗██╔══██║██║╚██╔╝██║
@@ -49,94 +375,94 @@ You'll see the animated ENGRAM banner, the gateway URL, and an interactive REPL 
   API docs: http://127.0.0.1:8000/docs
 
 $ engram
-```
-
-The banner animates on launch — a white-to-blue sweep followed by blue-to-white — and settles into the REPL. From here, every Engram subcommand is available without re-typing `engram` as a prefix. Type `help` to see all available commands, or `exit` to shut the gateway down.
-
-> **Tip:** If you prefer a visual debugging dashboard instead of the REPL, start with `engram run --debug` to launch the Textual-based TUI with live trace panels, event monitors, task tracking, and routing visualizations. This is particularly useful for watching multi-agent orchestration in real time.
-
----
-
-## 3. Register Your First Tool
-
-Engram connects agents to any API, CLI tool, or service. The quickest way to register a tool is by pointing at an OpenAPI spec:
-
-```bash
-engram register openapi https://petstore.swagger.io/v2/swagger.json
-```
-
-The system:
+</code></pre>
+<p>The banner animates on launch — a white-to-blue sweep followed by blue-to-white — and settles into the REPL. From here, every Engram subcommand is available without re-typing <code>engram</code> as a prefix. Type <code>help</code> to see all available commands, or <code>exit</code> to shut the gateway down.</p>
+<blockquote>
+<p><strong>Tip:</strong> If you prefer a visual debugging dashboard instead of the REPL, start with <code>engram run --debug</code> to launch the Textual-based TUI with live trace panels, event monitors, task tracking, and routing visualizations. This is particularly useful for watching multi-agent orchestration in real time.</p>
+</blockquote>
+<hr />
+<h2 id="3-register-your-first-tool">3. Register Your First Tool</h2>
+<p>Engram connects agents to any API, CLI tool, or service. The quickest way to register a tool is by pointing at an OpenAPI spec:</p>
+<pre><code class="language-bash">engram register openapi https://petstore.swagger.io/v2/swagger.json
+</code></pre>
+<p>The system:
 1. Fetches and validates the OpenAPI specification
 2. Extracts endpoints, parameters, and response schemas
 3. Auto-generates dual MCP and CLI representations
-4. Aligns fields through the semantic ontology (`protocols.owl`)
-5. Stores the tool in the registry for immediate agent discoverability
-
-You'll see schema mismatch resolution happening in real time, followed by a registration summary:
-
-```
-ℹ Info: 3 schema mismatches resolved via ontology alignment
+4. Aligns fields through the semantic ontology (<code>protocols.owl</code>)
+5. Stores the tool in the registry for immediate agent discoverability</p>
+<p>You'll see schema mismatch resolution happening in real time, followed by a registration summary:</p>
+<pre><code>ℹ Info: 3 schema mismatches resolved via ontology alignment
 
 ╭──── [*] Registration Summary ─────────────────────────────╮
 │ Successfully registered: Petstore API                      │
 │ ID: 7a3f2b1c-...                                          │
 │ Test Command: engram run --tool Petstore API --inspect     │
 ╰────────────────────────────────────────────────────────────╯
-```
-
-You're not limited to OpenAPI specs. Engram's universal onboarding accepts multiple source formats:
-
-| Source Type | Command | What it does |
-|---|---|---|
-| OpenAPI / Swagger URL | `engram register openapi <url>` | Fetches spec, generates dual MCP+CLI schemas |
-| Local OpenAPI file | `engram register openapi ./spec.yaml` | Same as above, from a local file |
-| Partial documentation | `engram register openapi "<text>" --partial` | Extracts tool structure from freeform docs |
-| Shell command | `engram register command docker` | Parses `--help` text, synthesizes semantic wrapper |
-| Interactive wizard | `engram register tool` | Step-by-step manual registration with prompts |
-
-The interactive wizard (`engram register tool`) walks you through each field: name, description, base URL, path, HTTP method, and parameters. It's the best option when you don't have a spec and want full control over the tool definition.
-
----
-
-## 4. Verify Your Tools
-
-List everything that's been registered:
-
-```bash
-engram tools list
-```
-
-The output is a Rich table showing each tool's name, backend (MCP, CLI, or Dual), semantic type, success rate, and description:
-
-```
-                   Engram Tool Catalog
+</code></pre>
+<p>You're not limited to OpenAPI specs. Engram's universal onboarding accepts multiple source formats:</p>
+<table>
+<thead>
+<tr>
+<th>Source Type</th>
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAPI / Swagger URL</td>
+<td><code>engram register openapi &lt;url&gt;</code></td>
+<td>Fetches spec, generates dual MCP+CLI schemas</td>
+</tr>
+<tr>
+<td>Local OpenAPI file</td>
+<td><code>engram register openapi ./spec.yaml</code></td>
+<td>Same as above, from a local file</td>
+</tr>
+<tr>
+<td>Partial documentation</td>
+<td><code>engram register openapi "&lt;text&gt;" --partial</code></td>
+<td>Extracts tool structure from freeform docs</td>
+</tr>
+<tr>
+<td>Shell command</td>
+<td><code>engram register command docker</code></td>
+<td>Parses <code>--help</code> text, synthesizes semantic wrapper</td>
+</tr>
+<tr>
+<td>Interactive wizard</td>
+<td><code>engram register tool</code></td>
+<td>Step-by-step manual registration with prompts</td>
+</tr>
+</tbody>
+</table>
+<p>The interactive wizard (<code>engram register tool</code>) walks you through each field: name, description, base URL, path, HTTP method, and parameters. It's the best option when you don't have a spec and want full control over the tool definition.</p>
+<hr />
+<h2 id="4-verify-your-tools">4. Verify Your Tools</h2>
+<p>List everything that's been registered:</p>
+<pre><code class="language-bash">engram tools list
+</code></pre>
+<p>The output is a Rich table showing each tool's name, backend (MCP, CLI, or Dual), semantic type, success rate, and description:</p>
+<pre><code>                   Engram Tool Catalog
 ┏━━━┳━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ S ┃ Tool / Extension   ┃ Backend  ┃ Semantic Type┃ Success ┃ Description                  ┃
 ┡━━━╇━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┩
 │ * │ Petstore API       │ MCP      │ Universal    │  100.0% │ Swagger's sample pet store…  │
 │ * │ docker             │ CLI      │ Container    │   98.5% │ Docker container management… │
-│ > │ Slack              │ Dual     │ Messaging    │   99.0% │ Pre-optimized Slack integ…   │
+│ &gt; │ Slack              │ Dual     │ Messaging    │   99.0% │ Pre-optimized Slack integ…   │
 └───┴────────────────────┴──────────┴──────────────┴─────────┴──────────────────────────────┘
 
 Showing 3 active tools. Use --popular to see pre-optimized integrations.
-```
-
-The `*` marker indicates your custom-registered tools (hero tools). The `>` marker indicates pre-optimized tools from the built-in catalog. Add `--popular` to include pre-optimized wrappers for common apps like Slack, GitHub, and Stripe. Use `--filter <query>` for fuzzy search by name, description, or tag.
-
----
-
-## 5. Test Intelligent Routing
-
-Ask Engram to route a natural-language task to the best tool and backend:
-
-```bash
-engram route test "send an email to the team"
-```
-
-The router evaluates all registered tools, scores them on five dimensions, then selects the optimal backend:
-
-```
-╭──── ▶ Optimal Routing Decision ──────────────────╮
+</code></pre>
+<p>The <code>*</code> marker indicates your custom-registered tools (hero tools). The <code>&gt;</code> marker indicates pre-optimized tools from the built-in catalog. Add <code>--popular</code> to include pre-optimized wrappers for common apps like Slack, GitHub, and Stripe. Use <code>--filter &lt;query&gt;</code> for fuzzy search by name, description, or tag.</p>
+<hr />
+<h2 id="5-test-intelligent-routing">5. Test Intelligent Routing</h2>
+<p>Ask Engram to route a natural-language task to the best tool and backend:</p>
+<pre><code class="language-bash">engram route test &quot;send an email to the team&quot;
+</code></pre>
+<p>The router evaluates all registered tools, scores them on five dimensions, then selects the optimal backend:</p>
+<pre><code>╭──── ▶ Optimal Routing Decision ──────────────────╮
 │ Chosen Tool: Slack                                │
 │ Backend: MCP                                      │
 │ Confidence: 87.3%                                 │
@@ -155,375 +481,420 @@ The router evaluates all registered tools, scores them on five dimensions, then 
 │ * MCP     │  0.87 │ 0.82 │   245ms │   99.0% │
 │   CLI     │  0.71 │ 0.78 │   120ms │   95.2% │
 └───────────┴───────┴──────┴─────────┴─────────┘
-```
-
-The scoring algorithm weights five factors:
-
-- **Semantic Similarity** (55%) — sentence-embedding match between your task description and tool descriptions
-- **Success Rate** (20%) — historical success rate for this tool/backend combination
-- **Latency** (15%) — average execution time from past runs
-- **Token Cost** (7%) — efficiency of the backend in token consumption
-- **Context Overhead** (3%) — how much prompt engineering the backend requires
-
-> **Tip:** Force a specific backend for debugging with `--force-mcp` or `--force-cli`. This is useful when testing how the same task performs across different execution paths.
-
----
-
-## 6. Try Key Features
-
-Now that you have tools registered and routing working, explore these capabilities:
-
-### Check self-healing status
-
-```bash
-engram heal status
-```
-
-The reconciliation engine continuously monitors for schema drifts and field mismatches between your registered tools and the actual APIs they connect to. This command shows any detected drifts, their confidence scores, and whether they've been auto-repaired or need manual review.
-
-```
-   Semantic Drift Analysis
+</code></pre>
+<p>The scoring algorithm weights five factors:</p>
+<ul>
+<li><strong>Semantic Similarity</strong> (55%) — sentence-embedding match between your task description and tool descriptions</li>
+<li><strong>Success Rate</strong> (20%) — historical success rate for this tool/backend combination</li>
+<li><strong>Latency</strong> (15%) — average execution time from past runs</li>
+<li><strong>Token Cost</strong> (7%) — efficiency of the backend in token consumption</li>
+<li><strong>Context Overhead</strong> (3%) — how much prompt engineering the backend requires</li>
+</ul>
+<blockquote>
+<p><strong>Tip:</strong> Force a specific backend for debugging with <code>--force-mcp</code> or <code>--force-cli</code>. This is useful when testing how the same task performs across different execution paths.</p>
+</blockquote>
+<hr />
+<h2 id="6-try-key-features">6. Try Key Features</h2>
+<p>Now that you have tools registered and routing working, explore these capabilities:</p>
+<h3 id="check-self-healing-status">Check self-healing status</h3>
+<pre><code class="language-bash">engram heal status
+</code></pre>
+<p>The reconciliation engine continuously monitors for schema drifts and field mismatches between your registered tools and the actual APIs they connect to. This command shows any detected drifts, their confidence scores, and whether they've been auto-repaired or need manual review.</p>
+<pre><code>   Semantic Drift Analysis
 ╭──────────────────┬──────────────┬──────────────┬───────┬─────────────╮
 │ Source Protocol   │ Field Drift  │ Ontology Match│ Conf. │ Status     │
 ├──────────────────┼──────────────┼──────────────┼───────┼─────────────┤
 │ N/A              │ No active    │ -            │ -     │ HEALTHY    │
 │                  │ drifts       │              │       │            │
 ╰──────────────────┴──────────────┴──────────────┴───────┴─────────────╯
-```
-
-When drifts are detected, the engine evaluates each one and either auto-repairs (confidence ≥ 70%) or flags it for manual review. Use `heal status --verbose` for full telemetry excerpts, or `heal now` to trigger an immediate repair loop.
-
-### Inspect execution traces
-
-```bash
-engram trace list
-```
-
-Every tool execution is traced with semantic detail — routing reasoning, ontology alignment, healing steps, and performance metrics. The trace table shows timestamp, trace ID, tool, backend, success/failure, and token cost.
-
-Use `engram trace detail .` (dot for "latest") to drill into the most recent execution with a full semantic inspection tree:
-
-```bash
-engram trace detail .
-```
-
-This shows:
-- An **AI-generated natural-language summary** of the routing and healing decisions
-- The **execution path** with tool selection, routing choice, latency, and backend used
-- **Performance weights** with semantic similarity, composite score, and token efficiency
-- **Self-healing steps** (if any drift was detected and repaired)
-- **Ontological alignment** details with synthesized field mappings
-
-### View your identity
-
-```bash
-engram auth whoami
-```
-
-Displays your EAT (Engram Authorization Token) identity, structured permissions per tool, and semantic scopes derived from the `security.owl` ontology. The output is a Rich tree showing:
-
-- Your identity (the `sub` claim from the JWT)
-- Structured permissions per tool (what you can do with each registered tool)
-- Semantic scopes with ontology context (e.g., `execute:tool-invocation` → "Can invoke cross-protocol tool translations")
-
-### Translate between protocols
-
-```bash
-engram protocol translate --from mcp --to cli
-```
-
-Performs real-time translation between MCP, CLI, A2A, and ACP protocols using the semantic ontology as a canonical bridge. Without a `--payload` flag, it uses a demonstration payload. The output shows three panels side by side:
-
-1. **Source panel** — the original payload in the source protocol format
-2. **Canonical Bridge panel** — the intermediate ontology-normalized representation
-3. **Target panel** — the translated payload in the target protocol format
-
-This is invaluable for debugging cross-protocol integrations and understanding how Engram normalizes data between agent frameworks.
-
----
-
-## Quick Reference
-
-| Command | Description |
-|---|---|
-| `engram run` | Start the gateway and interactive REPL |
-| `engram run --debug` | Start with the TUI debugging dashboard |
-| `engram register openapi <url>` | Register a tool from an OpenAPI spec |
-| `engram register command <cmd>` | Register a shell command as a tool |
-| `engram register tool` | Interactive manual tool registration |
-| `engram tools list` | List all registered tools |
-| `engram tools list --popular` | Include pre-optimized integrations |
-| `engram tools search <query>` | Fuzzy search across all tools |
-| `engram route test "<desc>"` | Test intelligent routing for a task |
-| `engram route list` | Show all tools with routing stats |
-| `engram heal status` | Check self-healing reconciliation status |
-| `engram heal now` | Trigger immediate repair loop |
-| `engram trace list` | List recent semantic execution traces |
-| `engram trace detail .` | Inspect the latest trace in detail |
-| `engram evolve status` | View ML tool improvement dashboard |
-| `engram evolve apply <id>` | Apply a proposed tool refinement |
-| `engram protocol translate` | Translate between agent protocols |
-| `engram protocol handoff simulate` | Simulate multi-agent handoff |
-| `engram sync list` | List active sync connections |
-| `engram sync status` | Live event stream monitoring |
-| `engram auth login` | Authenticate and retrieve an EAT |
-| `engram auth whoami` | Show current identity and scopes |
-| `engram config show` | Display current configuration |
-| `engram config set <key> <value>` | Update a configuration value |
-| `engram info` | Show system information and status |
-
----
-
-## Next Steps
-
-- **[Installation](./02-installation.md)** — Detailed installation guide with prerequisites, manual setup, and troubleshooting
-- **[CLI Reference](./06-cli-reference.md)** — Master every command, subcommand, and flag
-- **[Configuration](./07-configuration.md)** — Customize routing weights, ontology paths, and provider settings
-- **[Universal Onboarding](./08-universal-onboarding.md)** — Deep dive into connecting any API or CLI tool
-- **[Self-Healing Engine](./09-self-healing-engine.md)** — Understand how OWL ontologies and ML keep your tools aligned
-- **[SDK & Python Library](./16-sdk-python-library.md)** — Integrate Engram programmatically into your applications
-
-# Installation
-
-This page covers every way to install Engram — from the one-line installer to a full manual setup. Pick the path that matches your environment and comfort level.
-
----
-
-## Quick Install
-
-### Linux / macOS / WSL2
-
-```bash
-curl -fsSL https://get.engram.dev/install | bash
-```
-
-This single command handles everything: directory creation, dependency installation, CLI setup, and PATH configuration. Within 60–90 seconds, the `engram` command is available globally.
-
-### Windows
-
-Native Windows is supported for local development via the `engram.bat` self-healing entry point. For production deployments, use WSL2, Docker, or a Linux server.
-
-**Option A — WSL2 (Recommended)**
-
-If you have WSL2 installed, open your WSL2 terminal and run the Linux installer above. This gives you the full Unix experience with no compatibility caveats.
-
-**Option B — Native Windows**
-
-```powershell
-git clone https://github.com/kwstx/engram_translator.git
+</code></pre>
+<p>When drifts are detected, the engine evaluates each one and either auto-repairs (confidence ≥ 70%) or flags it for manual review. Use <code>heal status --verbose</code> for full telemetry excerpts, or <code>heal now</code> to trigger an immediate repair loop.</p>
+<h3 id="inspect-execution-traces">Inspect execution traces</h3>
+<pre><code class="language-bash">engram trace list
+</code></pre>
+<p>Every tool execution is traced with semantic detail — routing reasoning, ontology alignment, healing steps, and performance metrics. The trace table shows timestamp, trace ID, tool, backend, success/failure, and token cost.</p>
+<p>Use <code>engram trace detail .</code> (dot for "latest") to drill into the most recent execution with a full semantic inspection tree:</p>
+<pre><code class="language-bash">engram trace detail .
+</code></pre>
+<p>This shows:
+- An <strong>AI-generated natural-language summary</strong> of the routing and healing decisions
+- The <strong>execution path</strong> with tool selection, routing choice, latency, and backend used
+- <strong>Performance weights</strong> with semantic similarity, composite score, and token efficiency
+- <strong>Self-healing steps</strong> (if any drift was detected and repaired)
+- <strong>Ontological alignment</strong> details with synthesized field mappings</p>
+<h3 id="view-your-identity">View your identity</h3>
+<pre><code class="language-bash">engram auth whoami
+</code></pre>
+<p>Displays your EAT (Engram Authorization Token) identity, structured permissions per tool, and semantic scopes derived from the <code>security.owl</code> ontology. The output is a Rich tree showing:</p>
+<ul>
+<li>Your identity (the <code>sub</code> claim from the JWT)</li>
+<li>Structured permissions per tool (what you can do with each registered tool)</li>
+<li>Semantic scopes with ontology context (e.g., <code>execute:tool-invocation</code> → "Can invoke cross-protocol tool translations")</li>
+</ul>
+<h3 id="translate-between-protocols">Translate between protocols</h3>
+<pre><code class="language-bash">engram protocol translate --from mcp --to cli
+</code></pre>
+<p>Performs real-time translation between MCP, CLI, A2A, and ACP protocols using the semantic ontology as a canonical bridge. Without a <code>--payload</code> flag, it uses a demonstration payload. The output shows three panels side by side:</p>
+<ol>
+<li><strong>Source panel</strong> — the original payload in the source protocol format</li>
+<li><strong>Canonical Bridge panel</strong> — the intermediate ontology-normalized representation</li>
+<li><strong>Target panel</strong> — the translated payload in the target protocol format</li>
+</ol>
+<p>This is invaluable for debugging cross-protocol integrations and understanding how Engram normalizes data between agent frameworks.</p>
+<hr />
+<h2 id="quick-reference">Quick Reference</h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engram run</code></td>
+<td>Start the gateway and interactive REPL</td>
+</tr>
+<tr>
+<td><code>engram run --debug</code></td>
+<td>Start with the TUI debugging dashboard</td>
+</tr>
+<tr>
+<td><code>engram register openapi &lt;url&gt;</code></td>
+<td>Register a tool from an OpenAPI spec</td>
+</tr>
+<tr>
+<td><code>engram register command &lt;cmd&gt;</code></td>
+<td>Register a shell command as a tool</td>
+</tr>
+<tr>
+<td><code>engram register tool</code></td>
+<td>Interactive manual tool registration</td>
+</tr>
+<tr>
+<td><code>engram tools list</code></td>
+<td>List all registered tools</td>
+</tr>
+<tr>
+<td><code>engram tools list --popular</code></td>
+<td>Include pre-optimized integrations</td>
+</tr>
+<tr>
+<td><code>engram tools search &lt;query&gt;</code></td>
+<td>Fuzzy search across all tools</td>
+</tr>
+<tr>
+<td><code>engram route test "&lt;desc&gt;"</code></td>
+<td>Test intelligent routing for a task</td>
+</tr>
+<tr>
+<td><code>engram route list</code></td>
+<td>Show all tools with routing stats</td>
+</tr>
+<tr>
+<td><code>engram heal status</code></td>
+<td>Check self-healing reconciliation status</td>
+</tr>
+<tr>
+<td><code>engram heal now</code></td>
+<td>Trigger immediate repair loop</td>
+</tr>
+<tr>
+<td><code>engram trace list</code></td>
+<td>List recent semantic execution traces</td>
+</tr>
+<tr>
+<td><code>engram trace detail .</code></td>
+<td>Inspect the latest trace in detail</td>
+</tr>
+<tr>
+<td><code>engram evolve status</code></td>
+<td>View ML tool improvement dashboard</td>
+</tr>
+<tr>
+<td><code>engram evolve apply &lt;id&gt;</code></td>
+<td>Apply a proposed tool refinement</td>
+</tr>
+<tr>
+<td><code>engram protocol translate</code></td>
+<td>Translate between agent protocols</td>
+</tr>
+<tr>
+<td><code>engram protocol handoff simulate</code></td>
+<td>Simulate multi-agent handoff</td>
+</tr>
+<tr>
+<td><code>engram sync list</code></td>
+<td>List active sync connections</td>
+</tr>
+<tr>
+<td><code>engram sync status</code></td>
+<td>Live event stream monitoring</td>
+</tr>
+<tr>
+<td><code>engram auth login</code></td>
+<td>Authenticate and retrieve an EAT</td>
+</tr>
+<tr>
+<td><code>engram auth whoami</code></td>
+<td>Show current identity and scopes</td>
+</tr>
+<tr>
+<td><code>engram config show</code></td>
+<td>Display current configuration</td>
+</tr>
+<tr>
+<td><code>engram config set &lt;key&gt; &lt;value&gt;</code></td>
+<td>Update a configuration value</td>
+</tr>
+<tr>
+<td><code>engram info</code></td>
+<td>Show system information and status</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="next-steps">Next Steps</h2>
+<ul>
+<li><strong><a href="./02-installation.md">Installation</a></strong> — Detailed installation guide with prerequisites, manual setup, and troubleshooting</li>
+<li><strong><a href="./06-cli-reference.md">CLI Reference</a></strong> — Master every command, subcommand, and flag</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Customize routing weights, ontology paths, and provider settings</li>
+<li><strong><a href="./08-universal-onboarding.md">Universal Onboarding</a></strong> — Deep dive into connecting any API or CLI tool</li>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> — Understand how OWL ontologies and ML keep your tools aligned</li>
+<li><strong><a href="./16-sdk-python-library.md">SDK &amp; Python Library</a></strong> — Integrate Engram programmatically into your applications</li>
+</ul>
+<h1 id="installation">Installation</h1>
+<p>This page covers every way to install Engram — from the one-line installer to a full manual setup. Pick the path that matches your environment and comfort level.</p>
+<hr />
+<h2 id="quick-install">Quick Install</h2>
+<h3 id="linux-macos-wsl2">Linux / macOS / WSL2</h3>
+<pre><code class="language-bash">curl -fsSL https://get.engram.dev/install | bash
+</code></pre>
+<p>This single command handles everything: directory creation, dependency installation, CLI setup, and PATH configuration. Within 60–90 seconds, the <code>engram</code> command is available globally.</p>
+<h3 id="windows">Windows</h3>
+<p>Native Windows is supported for local development via the <code>engram.bat</code> self-healing entry point. For production deployments, use WSL2, Docker, or a Linux server.</p>
+<p><strong>Option A — WSL2 (Recommended)</strong></p>
+<p>If you have WSL2 installed, open your WSL2 terminal and run the Linux installer above. This gives you the full Unix experience with no compatibility caveats.</p>
+<p><strong>Option B — Native Windows</strong></p>
+<pre><code class="language-powershell">git clone https://github.com/kwstx/engram_translator.git
 cd engram_translator
 .\engram.bat
-```
-
-The `.bat` entry point auto-creates a Python virtual environment, installs all dependencies from `requirements.txt`, validates imports, and launches the CLI. It's functionally identical to the Unix `./engram` script.
-
-> **Note:** The native Windows path works for development and testing. Some optional features (systemd services, Unix signal handling) are not available on Windows. Use WSL2 or Docker for production workloads.
-
----
-
-## What the Installer Does
-
-The one-line installer performs these steps automatically:
-
-1. **Creates `~/.engram/`** — The configuration directory where `config.yaml`, encrypted credentials, and the swarm memory database live
-2. **Clones the repository** — Pulls the latest code from `main` into the installation directory
-3. **Creates a Python virtual environment** — Isolates Engram's dependencies from your system Python
-4. **Installs dependencies** — Runs `pip install -r requirements.txt` to install all core and optional packages
-5. **Initializes configuration** — Writes a default `config.yaml` with sensible defaults
-6. **Creates CLI wrapper** — Installs an `engram` shell script to `~/bin/` or `~/.local/bin/`
-7. **Updates PATH** — Adds the bin directory to your shell profile (`.bashrc`, `~/.zshrc`, or `.profile`)
-8. **Optionally starts the background service** — On Linux, creates a systemd user service; on macOS, creates a launchd plist
-
-By the end, you can run `engram run` from any directory to start the gateway and interactive REPL.
-
----
-
-## After Installation
-
-Reload your shell and start the gateway:
-
-```bash
-source ~/.bashrc   # or: source ~/.zshrc
+</code></pre>
+<p>The <code>.bat</code> entry point auto-creates a Python virtual environment, installs all dependencies from <code>requirements.txt</code>, validates imports, and launches the CLI. It's functionally identical to the Unix <code>./engram</code> script.</p>
+<blockquote>
+<p><strong>Note:</strong> The native Windows path works for development and testing. Some optional features (systemd services, Unix signal handling) are not available on Windows. Use WSL2 or Docker for production workloads.</p>
+</blockquote>
+<hr />
+<h2 id="what-the-installer-does">What the Installer Does</h2>
+<p>The one-line installer performs these steps automatically:</p>
+<ol>
+<li><strong>Creates <code>~/.engram/</code></strong> — The configuration directory where <code>config.yaml</code>, encrypted credentials, and the swarm memory database live</li>
+<li><strong>Clones the repository</strong> — Pulls the latest code from <code>main</code> into the installation directory</li>
+<li><strong>Creates a Python virtual environment</strong> — Isolates Engram's dependencies from your system Python</li>
+<li><strong>Installs dependencies</strong> — Runs <code>pip install -r requirements.txt</code> to install all core and optional packages</li>
+<li><strong>Initializes configuration</strong> — Writes a default <code>config.yaml</code> with sensible defaults</li>
+<li><strong>Creates CLI wrapper</strong> — Installs an <code>engram</code> shell script to <code>~/bin/</code> or <code>~/.local/bin/</code></li>
+<li><strong>Updates PATH</strong> — Adds the bin directory to your shell profile (<code>.bashrc</code>, <code>~/.zshrc</code>, or <code>.profile</code>)</li>
+<li><strong>Optionally starts the background service</strong> — On Linux, creates a systemd user service; on macOS, creates a launchd plist</li>
+</ol>
+<p>By the end, you can run <code>engram run</code> from any directory to start the gateway and interactive REPL.</p>
+<hr />
+<h2 id="after-installation">After Installation</h2>
+<p>Reload your shell and start the gateway:</p>
+<pre><code class="language-bash">source ~/.bashrc   # or: source ~/.zshrc
 engram run         # Start the gateway and interactive REPL
-```
-
-The gateway binds to `http://127.0.0.1:8000` by default. The REPL drops you into an interactive session where every Engram subcommand is available without typing `engram` as a prefix.
-
-To configure individual settings later, use the dedicated commands:
-
-```bash
-engram config set backend_preference mcp   # Set default routing backend
+</code></pre>
+<p>The gateway binds to <code>http://127.0.0.1:8000</code> by default. The REPL drops you into an interactive session where every Engram subcommand is available without typing <code>engram</code> as a prefix.</p>
+<p>To configure individual settings later, use the dedicated commands:</p>
+<pre><code class="language-bash">engram config set backend_preference mcp   # Set default routing backend
 engram config set model_provider openai     # Set AI model provider
 engram auth login                          # Authenticate and get an EAT
 engram info                                # Check system status
-```
-
-> **Tip:** Run `engram info` after installation to verify that the config path, API URL, backend preference, and authentication status are all correct.
-
----
-
-## Prerequisites
-
-The only prerequisites are **Git** and **Python 3.11+**. The installer and self-healing entry points handle everything else.
-
-| Requirement | Purpose | Notes |
-|---|---|---|
-| **Python 3.11+** | Gateway, CLI, SDK, and all core services | Required |
-| **Git** | Cloning the repository and version management | Required |
-| **pip** | Python package management | Installed automatically if missing |
-| **Node.js 18+** | Playground frontend and browser automation | Optional |
-| **PostgreSQL 15+** | Production database | Optional — SQLite used by default for local dev |
-| **Redis 7+** | Event streams, semantic caching, rate limiting | Optional — auto-disabled when not available |
-| **Docker** | Containerized deployment | Optional — for production/staging setups |
-
-> **Important:** You do **not** need to install PostgreSQL or Redis for local development. Engram automatically detects the runtime environment and falls back to SQLite and in-memory alternatives when Docker infrastructure isn't available. The smart fallback logic in `app/core/config.py` checks for the presence of `/.dockerenv` and `KUBERNETES_PORT` to decide which backend to use.
-
-Just make sure `git` and `python3` (or `python` on Windows) are on your PATH:
-
-```bash
-git --version    # Should print git version 2.x+
+</code></pre>
+<blockquote>
+<p><strong>Tip:</strong> Run <code>engram info</code> after installation to verify that the config path, API URL, backend preference, and authentication status are all correct.</p>
+</blockquote>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p>The only prerequisites are <strong>Git</strong> and <strong>Python 3.11+</strong>. The installer and self-healing entry points handle everything else.</p>
+<table>
+<thead>
+<tr>
+<th>Requirement</th>
+<th>Purpose</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python 3.11+</strong></td>
+<td>Gateway, CLI, SDK, and all core services</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>Cloning the repository and version management</td>
+<td>Required</td>
+</tr>
+<tr>
+<td><strong>pip</strong></td>
+<td>Python package management</td>
+<td>Installed automatically if missing</td>
+</tr>
+<tr>
+<td><strong>Node.js 18+</strong></td>
+<td>Playground frontend and browser automation</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td><strong>PostgreSQL 15+</strong></td>
+<td>Production database</td>
+<td>Optional — SQLite used by default for local dev</td>
+</tr>
+<tr>
+<td><strong>Redis 7+</strong></td>
+<td>Event streams, semantic caching, rate limiting</td>
+<td>Optional — auto-disabled when not available</td>
+</tr>
+<tr>
+<td><strong>Docker</strong></td>
+<td>Containerized deployment</td>
+<td>Optional — for production/staging setups</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Important:</strong> You do <strong>not</strong> need to install PostgreSQL or Redis for local development. Engram automatically detects the runtime environment and falls back to SQLite and in-memory alternatives when Docker infrastructure isn't available. The smart fallback logic in <code>app/core/config.py</code> checks for the presence of <code>/.dockerenv</code> and <code>KUBERNETES_PORT</code> to decide which backend to use.</p>
+</blockquote>
+<p>Just make sure <code>git</code> and <code>python3</code> (or <code>python</code> on Windows) are on your PATH:</p>
+<pre><code class="language-bash">git --version    # Should print git version 2.x+
 python3 --version # Should print Python 3.11+
-```
-
----
-
-## Manual Installation
-
-If you prefer full control over the installation process — or you're setting up a development environment — follow these steps.
-
-### Step 1: Clone the Repository
-
-```bash
-git clone https://github.com/kwstx/engram_translator.git
+</code></pre>
+<hr />
+<h2 id="manual-installation">Manual Installation</h2>
+<p>If you prefer full control over the installation process — or you're setting up a development environment — follow these steps.</p>
+<h3 id="step-1-clone-the-repository">Step 1: Clone the Repository</h3>
+<pre><code class="language-bash">git clone https://github.com/kwstx/engram_translator.git
 cd engram_translator
-```
-
-### Step 2: Create Virtual Environment
-
-```bash
-python3 -m venv venv
+</code></pre>
+<h3 id="step-2-create-virtual-environment">Step 2: Create Virtual Environment</h3>
+<pre><code class="language-bash">python3 -m venv venv
 source venv/bin/activate   # Linux/macOS
 # or: .\venv\Scripts\activate   # Windows PowerShell
-```
-
-### Step 3: Install Python Dependencies
-
-```bash
-pip install --upgrade pip
+</code></pre>
+<h3 id="step-3-install-python-dependencies">Step 3: Install Python Dependencies</h3>
+<pre><code class="language-bash">pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-The `requirements.txt` includes all core and optional dependencies:
-
-| Category | Key Packages |
-|---|---|
-| **Web framework** | `fastapi`, `uvicorn[standard]`, `httpx` |
-| **Database** | `sqlalchemy[asyncio]`, `sqlmodel`, `asyncpg`, `aiosqlite`, `alembic` |
-| **Semantic layer** | `rdflib`, `owlready2`, `pyswip`, `pyDatalog` |
-| **ML / Embeddings** | `scikit-learn`, `sentence-transformers`, `torch`, `joblib` |
-| **CLI / TUI** | `typer[all]`, `rich`, `textual` |
-| **Auth / Security** | `python-jose[cryptography]`, `passlib[bcrypt]`, `keyring`, `cryptography` |
-| **MCP** | `mcp` (Model Context Protocol SDK) |
-| **Monitoring** | `prometheus-fastapi-instrumentator`, `sentry-sdk`, `structlog` |
-| **Task queue** | `celery` (for evolution pipeline) |
-| **Config** | `pydantic-settings`, `pyyaml` |
-
-> **Tip:** For a minimal installation without ML features (`sentence-transformers`, `torch`, `celery`), install only the core dependencies listed in `pyproject.toml`. This reduces the installation footprint from ~2GB to ~200MB, suitable for constrained environments or CI pipelines.
-
-### Step 4: Initialize Configuration
-
-```bash
-mkdir -p ~/.engram
+</code></pre>
+<p>The <code>requirements.txt</code> includes all core and optional dependencies:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Key Packages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Web framework</strong></td>
+<td><code>fastapi</code>, <code>uvicorn[standard]</code>, <code>httpx</code></td>
+</tr>
+<tr>
+<td><strong>Database</strong></td>
+<td><code>sqlalchemy[asyncio]</code>, <code>sqlmodel</code>, <code>asyncpg</code>, <code>aiosqlite</code>, <code>alembic</code></td>
+</tr>
+<tr>
+<td><strong>Semantic layer</strong></td>
+<td><code>rdflib</code>, <code>owlready2</code>, <code>pyswip</code>, <code>pyDatalog</code></td>
+</tr>
+<tr>
+<td><strong>ML / Embeddings</strong></td>
+<td><code>scikit-learn</code>, <code>sentence-transformers</code>, <code>torch</code>, <code>joblib</code></td>
+</tr>
+<tr>
+<td><strong>CLI / TUI</strong></td>
+<td><code>typer[all]</code>, <code>rich</code>, <code>textual</code></td>
+</tr>
+<tr>
+<td><strong>Auth / Security</strong></td>
+<td><code>python-jose[cryptography]</code>, <code>passlib[bcrypt]</code>, <code>keyring</code>, <code>cryptography</code></td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td><code>mcp</code> (Model Context Protocol SDK)</td>
+</tr>
+<tr>
+<td><strong>Monitoring</strong></td>
+<td><code>prometheus-fastapi-instrumentator</code>, <code>sentry-sdk</code>, <code>structlog</code></td>
+</tr>
+<tr>
+<td><strong>Task queue</strong></td>
+<td><code>celery</code> (for evolution pipeline)</td>
+</tr>
+<tr>
+<td><strong>Config</strong></td>
+<td><code>pydantic-settings</code>, <code>pyyaml</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Tip:</strong> For a minimal installation without ML features (<code>sentence-transformers</code>, <code>torch</code>, <code>celery</code>), install only the core dependencies listed in <code>pyproject.toml</code>. This reduces the installation footprint from ~2GB to ~200MB, suitable for constrained environments or CI pipelines.</p>
+</blockquote>
+<h3 id="step-4-initialize-configuration">Step 4: Initialize Configuration</h3>
+<pre><code class="language-bash">mkdir -p ~/.engram
 engram init   # Or: python -m app.cli init
-```
-
-This creates the configuration directory at `~/.engram/` and writes the default `config.yaml`:
-
-```yaml
-# ~/.engram/config.yaml
+</code></pre>
+<p>This creates the configuration directory at <code>~/.engram/</code> and writes the default <code>config.yaml</code>:</p>
+<pre><code class="language-yaml"># ~/.engram/config.yaml
 api_url: http://127.0.0.1:8000
 backend_preference: mcp
 model_provider: openai
 verbose: false
-```
-
-Each field is explained in the [Configuration](./07-configuration.md) guide. You can also set values via the CLI:
-
-```bash
-engram config set api_url http://my-server:8000
+</code></pre>
+<p>Each field is explained in the <a href="./07-configuration.md">Configuration</a> guide. You can also set values via the CLI:</p>
+<pre><code class="language-bash">engram config set api_url http://my-server:8000
 engram config set backend_preference cli
-```
-
-### Step 5: Add API Keys
-
-Provider credentials can be configured in three ways:
-
-**Option A — Environment variables (`.env` file)**
-
-Create a `.env` file at the project root:
-
-```bash
-# .env
+</code></pre>
+<h3 id="step-5-add-api-keys">Step 5: Add API Keys</h3>
+<p>Provider credentials can be configured in three ways:</p>
+<p><strong>Option A — Environment variables (<code>.env</code> file)</strong></p>
+<p>Create a <code>.env</code> file at the project root:</p>
+<pre><code class="language-bash"># .env
 ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 SLACK_API_TOKEN=xoxb-...
-```
-
-This is the simplest approach for local development and Docker deployments.
-
-**Option B — System keyring**
-
-```bash
-engram auth login --token <your-eat-token>
-```
-
-EAT tokens are stored in the system keyring (macOS Keychain, Windows Credential Locker, or Linux Secret Service) for maximum security. Falls back to `config.yaml` if the keyring is unavailable.
-
-**Option C — TUI service connection**
-
-Launch the TUI dashboard (`engram run --debug`) and use the service connection screens to input API keys for each provider. Credentials are encrypted with Fernet symmetric encryption and stored in `~/.engram/config.enc`.
-
-### Step 6: Start the Gateway
-
-```bash
-engram run
-```
-
-Or start the backend directly with uvicorn for more control:
-
-```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-The `--reload` flag enables hot-reloading during development. The FastAPI application initializes the orchestration services, database connections, API routers, and background workers automatically via the lifespan handler.
-
-### Step 7: Verify the Installation
-
-```bash
-engram info      # Check CLI configuration and connection status
+</code></pre>
+<p>This is the simplest approach for local development and Docker deployments.</p>
+<p><strong>Option B — System keyring</strong></p>
+<pre><code class="language-bash">engram auth login --token &lt;your-eat-token&gt;
+</code></pre>
+<p>EAT tokens are stored in the system keyring (macOS Keychain, Windows Credential Locker, or Linux Secret Service) for maximum security. Falls back to <code>config.yaml</code> if the keyring is unavailable.</p>
+<p><strong>Option C — TUI service connection</strong></p>
+<p>Launch the TUI dashboard (<code>engram run --debug</code>) and use the service connection screens to input API keys for each provider. Credentials are encrypted with Fernet symmetric encryption and stored in <code>~/.engram/config.enc</code>.</p>
+<h3 id="step-6-start-the-gateway">Step 6: Start the Gateway</h3>
+<pre><code class="language-bash">engram run
+</code></pre>
+<p>Or start the backend directly with uvicorn for more control:</p>
+<pre><code class="language-bash">uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+</code></pre>
+<p>The <code>--reload</code> flag enables hot-reloading during development. The FastAPI application initializes the orchestration services, database connections, API routers, and background workers automatically via the lifespan handler.</p>
+<h3 id="step-7-verify-the-installation">Step 7: Verify the Installation</h3>
+<pre><code class="language-bash">engram info      # Check CLI configuration and connection status
 engram tools list   # Verify tool registry is accessible
-```
-
-Successful output from `engram info` shows:
-
-```
-╭──── System Information ──────────────────╮
+</code></pre>
+<p>Successful output from <code>engram info</code> shows:</p>
+<pre><code>╭──── System Information ──────────────────╮
 │ Config Path   ~/.engram/config.yaml      │
 │ API URL       http://127.0.0.1:8000      │
 │ Backend       mcp                        │
 │ Auth Status   Authenticated              │
 │ EAT Token     ****abc1                   │
 ╰──────────────────────────────────────────╯
-```
-
----
-
-## Quick-Reference: Manual Install (Condensed)
-
-For those who just want the commands:
-
-```bash
-# Clone & enter
+</code></pre>
+<hr />
+<h2 id="quick-reference-manual-install-condensed">Quick-Reference: Manual Install (Condensed)</h2>
+<p>For those who just want the commands:</p>
+<pre><code class="language-bash"># Clone &amp; enter
 git clone https://github.com/kwstx/engram_translator.git
 cd engram_translator
 
@@ -542,77 +913,674 @@ engram config set model_provider openai
 
 # Start
 engram run
-```
-
----
-
-## Self-Healing Entry Points
-
-Engram ships with self-healing bootstrap scripts that automatically manage the virtual environment and dependencies on every launch:
-
-| Platform | Entry Point | What it does |
-|---|---|---|
-| Linux / macOS | `./engram` | Checks venv, validates imports, installs missing deps, then launches CLI |
-| Windows | `.\engram.bat` | Same as above for Windows Command Prompt and PowerShell |
-
-These scripts eliminate "it worked on my machine" problems. The startup sequence is:
-
-1. **Check for virtual environment** — Creates one if missing
-2. **Fast import test** — Attempts to import critical modules (`fastapi`, `rich`, `typer`, `rdflib`)
-3. **Auto-repair** — If any import fails, runs `pip install -r requirements.txt` automatically
-4. **Launch** — Passes all arguments to the Engram CLI
-
-If a dependency breaks after an update — say a new version of `rdflib` introduces an incompatibility — the entry point detects the failure via the import test and automatically re-synchronizes the environment before launching. No manual `pip install` required.
-
----
-
-## Runtime Environment Detection
-
-Engram's configuration layer includes smart fallback logic that adapts to your runtime environment automatically:
-
-```python
-# Simplified logic from app/core/config.py
-if not os.path.exists("/.dockerenv") and not os.environ.get("KUBERNETES_PORT"):
+</code></pre>
+<hr />
+<h2 id="self-healing-entry-points">Self-Healing Entry Points</h2>
+<p>Engram ships with self-healing bootstrap scripts that automatically manage the virtual environment and dependencies on every launch:</p>
+<table>
+<thead>
+<tr>
+<th>Platform</th>
+<th>Entry Point</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux / macOS</td>
+<td><code>./engram</code></td>
+<td>Checks venv, validates imports, installs missing deps, then launches CLI</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td><code>.\engram.bat</code></td>
+<td>Same as above for Windows Command Prompt and PowerShell</td>
+</tr>
+</tbody>
+</table>
+<p>These scripts eliminate "it worked on my machine" problems. The startup sequence is:</p>
+<ol>
+<li><strong>Check for virtual environment</strong> — Creates one if missing</li>
+<li><strong>Fast import test</strong> — Attempts to import critical modules (<code>fastapi</code>, <code>rich</code>, <code>typer</code>, <code>rdflib</code>)</li>
+<li><strong>Auto-repair</strong> — If any import fails, runs <code>pip install -r requirements.txt</code> automatically</li>
+<li><strong>Launch</strong> — Passes all arguments to the Engram CLI</li>
+</ol>
+<p>If a dependency breaks after an update — say a new version of <code>rdflib</code> introduces an incompatibility — the entry point detects the failure via the import test and automatically re-synchronizes the environment before launching. No manual <code>pip install</code> required.</p>
+<hr />
+<h2 id="runtime-environment-detection">Runtime Environment Detection</h2>
+<p>Engram's configuration layer includes smart fallback logic that adapts to your runtime environment automatically:</p>
+<pre><code class="language-python"># Simplified logic from app/core/config.py
+if not os.path.exists(&quot;/.dockerenv&quot;) and not os.environ.get(&quot;KUBERNETES_PORT&quot;):
     # Running locally — use SQLite instead of PostgreSQL
-    if "db:5432" in DATABASE_URL or POSTGRES_SERVER == "db":
-        DATABASE_URL = "sqlite+aiosqlite:///./engram.db"
+    if &quot;db:5432&quot; in DATABASE_URL or POSTGRES_SERVER == &quot;db&quot;:
+        DATABASE_URL = &quot;sqlite+aiosqlite:///./engram.db&quot;
     # Disable Redis if the default Docker hostname is configured
-    if REDIS_HOST == "redis":
+    if REDIS_HOST == &quot;redis&quot;:
         REDIS_ENABLED = False
-```
+</code></pre>
+<p>This means:</p>
+<table>
+<thead>
+<tr>
+<th>Environment</th>
+<th>Database</th>
+<th>Redis</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker Compose</strong></td>
+<td>PostgreSQL (via <code>db:5432</code>)</td>
+<td>Redis (via <code>redis:6379</code>)</td>
+<td>Full production stack</td>
+</tr>
+<tr>
+<td><strong>Kubernetes</strong></td>
+<td>PostgreSQL (managed RDS)</td>
+<td>Redis (managed ElastiCache)</td>
+<td>Full production stack</td>
+</tr>
+<tr>
+<td><strong>Local development</strong></td>
+<td>SQLite (<code>./engram.db</code>)</td>
+<td>Disabled (in-memory fallback)</td>
+<td>Zero-dependency startup</td>
+</tr>
+</tbody>
+</table>
+<p>You never need to install PostgreSQL or Redis for local development. The smart fallback makes <code>engram run</code> work immediately after cloning.</p>
+<hr />
+<h2 id="troubleshooting">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engram: command not found</code></td>
+<td>Reload your shell (<code>source ~/.bashrc</code>) or add <code>~/bin</code> to your PATH. On Windows, restart your terminal.</td>
+</tr>
+<tr>
+<td><code>Connection Error: Could not connect</code></td>
+<td>Start the backend first: <code>engram run</code> or <code>uvicorn app.main:app</code>. The gateway must be running for CLI commands to work.</td>
+</tr>
+<tr>
+<td>API key errors</td>
+<td>Run <code>engram auth login</code> to authenticate, or check <code>engram config show</code> for the current API URL.</td>
+</tr>
+<tr>
+<td>Import errors on launch</td>
+<td>The self-healing entry point should fix this automatically. If not, run <code>pip install -r requirements.txt</code> manually in the venv.</td>
+</tr>
+<tr>
+<td>Database migration errors</td>
+<td>Run <code>alembic upgrade head</code> to apply pending migrations. This is needed after updates that change the database schema.</td>
+</tr>
+<tr>
+<td>Redis connection refused</td>
+<td>Redis is optional for local dev. Engram auto-disables it when unavailable. No action needed.</td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'app'</code></td>
+<td>Make sure you're running from the project root directory (<code>translator_middleware/</code>), not a subdirectory.</td>
+</tr>
+<tr>
+<td>Port 8000 already in use</td>
+<td>Another service is using that port. Either stop it, or start Engram on a different port: <code>engram run --port 8001</code>.</td>
+</tr>
+<tr>
+<td><code>jwt.exceptions.DecodeError</code></td>
+<td>Your EAT token is malformed. Run <code>engram auth login</code> to get a fresh token.</td>
+</tr>
+<tr>
+<td>Slow first startup</td>
+<td>The initial launch downloads ML models (~400MB for sentence-transformers) and initializes the database. Subsequent starts are fast.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="whats-next">What's Next</h2>
+<ul>
+<li><strong><a href="./01-quickstart.md">Quickstart</a></strong> — Register your first tool and test routing (5 minutes)</li>
+<li><strong><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></strong> — Deploy with containers for production</li>
+<li><strong><a href="./06-cli-reference.md">CLI Reference</a></strong> — Master every command and flag</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Customize every setting</li>
+</ul>
+<h1 id="docker-kubernetes-setup">Docker &amp; Kubernetes Setup</h1>
+<p>Engram ships with production-ready Docker Compose and Kubernetes configurations. Docker Compose is ideal for single-server deployments and development environments. Kubernetes (via the included manifests) is designed for multi-node production workloads with horizontal scaling.</p>
+<hr />
+<h2 id="deployment-options">Deployment Options</h2>
+<table>
+<thead>
+<tr>
+<th>Deployment</th>
+<th>Who it's for</th>
+<th>What you get</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Docker Compose</strong></td>
+<td>Single-server, dev, staging</td>
+<td>Full stack with one command — app, Postgres, Redis, Prometheus, Grafana</td>
+</tr>
+<tr>
+<td><strong>Docker Compose (Staging)</strong></td>
+<td>Pre-production validation</td>
+<td>Stripped-down stack with production-like settings</td>
+</tr>
+<tr>
+<td><strong>Kubernetes</strong></td>
+<td>Production at scale</td>
+<td>Declarative manifests with autoscaling, health checks, and observability</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="docker-compose-quick-start">Docker Compose Quick Start</h2>
+<pre><code class="language-bash"># Clone the repo
+git clone https://github.com/kwstx/engram_translator.git
+cd engram_translator
 
-This means:
+# Copy environment template
+cp .env.example .env
+# Edit .env with your API keys and secrets
 
-| Environment | Database | Redis | Behavior |
-|---|---|---|---|
-| **Docker Compose** | PostgreSQL (via `db:5432`) | Redis (via `redis:6379`) | Full production stack |
-| **Kubernetes** | PostgreSQL (managed RDS) | Redis (managed ElastiCache) | Full production stack |
-| **Local development** | SQLite (`./engram.db`) | Disabled (in-memory fallback) | Zero-dependency startup |
+# Start the full stack
+docker compose up -d
+</code></pre>
+<p>This starts six services:</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Port</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app</code></td>
+<td>8000</td>
+<td>Engram gateway API (FastAPI + Uvicorn)</td>
+</tr>
+<tr>
+<td><code>frontend</code></td>
+<td>3000</td>
+<td>Playground UI (Vite + React)</td>
+</tr>
+<tr>
+<td><code>db</code></td>
+<td>5432</td>
+<td>PostgreSQL 16 (persistent data)</td>
+</tr>
+<tr>
+<td><code>redis</code></td>
+<td>6379</td>
+<td>Event streams, semantic caching, rate limiting</td>
+</tr>
+<tr>
+<td><code>prometheus</code></td>
+<td>9090</td>
+<td>Metrics collection</td>
+</tr>
+<tr>
+<td><code>grafana</code></td>
+<td>3001</td>
+<td>Dashboards and alerting</td>
+</tr>
+</tbody>
+</table>
+<p>The app service hot-reloads on code changes (source volumes are mounted in development mode). For production, remove the volume mount and use the pre-built image.</p>
+<h3 id="verify-the-stack">Verify the Stack</h3>
+<pre><code class="language-bash"># Check all services are running
+docker compose ps
 
-You never need to install PostgreSQL or Redis for local development. The smart fallback makes `engram run` work immediately after cloning.
+# Test the gateway
+curl http://localhost:8000/health
 
----
+# View application logs
+docker compose logs -f app
 
-## Troubleshooting
+# Access the API docs
+open http://localhost:8000/docs    # or xdg-open on Linux
+</code></pre>
+<hr />
+<h2 id="environment-variables">Environment Variables</h2>
+<p>The <code>.env</code> file at the project root is loaded by both Docker Compose and the application. Key variables:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POSTGRES_USER</code></td>
+<td><code>admin</code></td>
+<td>PostgreSQL username</td>
+</tr>
+<tr>
+<td><code>POSTGRES_PASSWORD</code></td>
+<td><code>password</code></td>
+<td>PostgreSQL password (<strong>change in production!</strong>)</td>
+</tr>
+<tr>
+<td><code>POSTGRES_DB</code></td>
+<td><code>translator_db</code></td>
+<td>Database name</td>
+</tr>
+<tr>
+<td><code>REDIS_HOST</code></td>
+<td><code>redis</code></td>
+<td>Redis hostname (use <code>redis</code> for Docker, <code>localhost</code> for local dev)</td>
+</tr>
+<tr>
+<td><code>REDIS_PORT</code></td>
+<td><code>6379</code></td>
+<td>Redis port</td>
+</tr>
+<tr>
+<td><code>REDIS_PASSWORD</code></td>
+<td>—</td>
+<td>Redis password (optional, recommended for production)</td>
+</tr>
+<tr>
+<td><code>MODEL_PROVIDER</code></td>
+<td><code>openai</code></td>
+<td>Default LLM provider for semantic operations</td>
+</tr>
+<tr>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>—</td>
+<td>API key for Claude-powered semantic reasoning</td>
+</tr>
+<tr>
+<td><code>PERPLEXITY_API_KEY</code></td>
+<td>—</td>
+<td>API key for Perplexity search agent</td>
+</tr>
+<tr>
+<td><code>SLACK_API_TOKEN</code></td>
+<td>—</td>
+<td>Slack OAuth token for messaging integration</td>
+</tr>
+<tr>
+<td><code>SENTRY_DSN</code></td>
+<td>—</td>
+<td>Optional Sentry error tracking endpoint</td>
+</tr>
+<tr>
+<td><code>HTTPS_ONLY</code></td>
+<td><code>false</code></td>
+<td>Force HTTPS redirect (set <code>true</code> in production)</td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_DEFAULT</code></td>
+<td><code>100/minute</code></td>
+<td>Default API rate limit</td>
+</tr>
+<tr>
+<td><code>RATE_LIMIT_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Enable/disable rate limiting</td>
+</tr>
+<tr>
+<td><code>AUTH_JWT_SECRET</code></td>
+<td>—</td>
+<td>JWT signing secret (auto-generated if not set)</td>
+</tr>
+<tr>
+<td><code>PROVIDER_CREDENTIALS_ENCRYPTION_KEY</code></td>
+<td>—</td>
+<td>Fernet key for encrypting stored credentials</td>
+</tr>
+<tr>
+<td><code>LOG_LEVEL</code></td>
+<td><code>INFO</code></td>
+<td>Application log level</td>
+</tr>
+<tr>
+<td><code>ENVIRONMENT</code></td>
+<td><code>development</code></td>
+<td>Environment name (<code>development</code>, <code>staging</code>, <code>production</code>)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Warning:</strong> Never commit <code>.env</code> to version control. The <code>.gitignore</code> excludes it by default. For Kubernetes deployments, use Secrets objects instead.</p>
+</blockquote>
+<h3 id="example-env-for-production">Example <code>.env</code> for Production</h3>
+<pre><code class="language-bash"># .env (production)
+ENVIRONMENT=production
+HTTPS_ONLY=true
+POSTGRES_USER=engram_prod
+POSTGRES_PASSWORD=&lt;strong-random-password&gt;
+POSTGRES_DB=engram_production
+REDIS_HOST=redis
+REDIS_PASSWORD=&lt;redis-password&gt;
+AUTH_JWT_SECRET=&lt;64-char-random-string&gt;
+PROVIDER_CREDENTIALS_ENCRYPTION_KEY=&lt;fernet-key&gt;
+ANTHROPIC_API_KEY=sk-ant-...
+SENTRY_DSN=https://...@sentry.io/...
+RATE_LIMIT_DEFAULT=50/minute
+LOG_LEVEL=WARNING
+</code></pre>
+<hr />
+<h2 id="staging-configuration">Staging Configuration</h2>
+<pre><code class="language-bash">docker compose -f docker-compose.staging.yml up -d
+</code></pre>
+<p>The staging compose file is a stripped-down variant optimized for pre-production validation. Compared to the full development stack:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Development</th>
+<th>Staging</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Source volume mounts</td>
+<td>✅ (hot-reload)</td>
+<td>❌ (pre-built image)</td>
+</tr>
+<tr>
+<td>Grafana</td>
+<td>✅</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>Prometheus</td>
+<td>✅</td>
+<td>✅ (minimal retention)</td>
+</tr>
+<tr>
+<td>Resource limits</td>
+<td>None</td>
+<td>CPU/memory constrained</td>
+</tr>
+<tr>
+<td>Environment</td>
+<td><code>development</code></td>
+<td><code>staging</code></td>
+</tr>
+<tr>
+<td>Log level</td>
+<td><code>INFO</code></td>
+<td><code>WARNING</code></td>
+</tr>
+</tbody>
+</table>
+<p>This is useful for validating deployment procedures, testing database migrations, and catching issues that only appear in container environments.</p>
+<hr />
+<h2 id="kubernetes-deployment">Kubernetes Deployment</h2>
+<p>Kubernetes manifests live in <code>monitoring/k8s/</code>. They include Deployments, Services, ConfigMaps, Secrets, and optional HorizontalPodAutoscalers for the gateway, worker, and scheduler components.</p>
+<h3 id="apply-all-manifests">Apply All Manifests</h3>
+<pre><code class="language-bash"># Apply all manifests
+kubectl apply -f monitoring/k8s/
 
-| Problem | Solution |
-|---|---|
-| `engram: command not found` | Reload your shell (`source ~/.bashrc`) or add `~/bin` to your PATH. On Windows, restart your terminal. |
-| `Connection Error: Could not connect` | Start the backend first: `engram run` or `uvicorn app.main:app`. The gateway must be running for CLI commands to work. |
-| API key errors | Run `engram auth login` to authenticate, or check `engram config show` for the current API URL. |
-| Import errors on launch | The self-healing entry point should fix this automatically. If not, run `pip install -r requirements.txt` manually in the venv. |
-| Database migration errors | Run `alembic upgrade head` to apply pending migrations. This is needed after updates that change the database schema. |
-| Redis connection refused | Redis is optional for local dev. Engram auto-disables it when unavailable. No action needed. |
-| `ModuleNotFoundError: No module named 'app'` | Make sure you're running from the project root directory (`translator_middleware/`), not a subdirectory. |
-| Port 8000 already in use | Another service is using that port. Either stop it, or start Engram on a different port: `engram run --port 8001`. |
-| `jwt.exceptions.DecodeError` | Your EAT token is malformed. Run `engram auth login` to get a fresh token. |
-| Slow first startup | The initial launch downloads ML models (~400MB for sentence-transformers) and initializes the database. Subsequent starts are fast. |
+# Check status
+kubectl get pods -l app=engram
+kubectl logs -f deployment/engram-gateway
+</code></pre>
+<h3 id="architecture">Architecture</h3>
+<p>The Kubernetes deployment separates concerns into distinct workloads:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Replicas</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>engram-gateway</code></td>
+<td>2+ (HPA)</td>
+<td>FastAPI API server — handles all HTTP traffic</td>
+</tr>
+<tr>
+<td><code>engram-worker</code></td>
+<td>1+</td>
+<td>Background task worker — processes queued tasks</td>
+</tr>
+<tr>
+<td><code>engram-scheduler</code></td>
+<td>1</td>
+<td>Workflow scheduler — triggers scheduled workflows</td>
+</tr>
+<tr>
+<td><code>engram-listener</code></td>
+<td>1</td>
+<td>Event listener — processes Redis Stream events</td>
+</tr>
+</tbody>
+</table>
+<p>PostgreSQL and Redis should be provisioned as managed services (RDS, ElastiCache, Cloud SQL, Memorystore) in production rather than running as pods. The manifests include environment variable references to external service endpoints.</p>
+<h3 id="secrets">Secrets</h3>
+<pre><code class="language-bash"># Create secrets from .env file
+kubectl create secret generic engram-secrets \
+  --from-literal=POSTGRES_PASSWORD=&lt;password&gt; \
+  --from-literal=AUTH_JWT_SECRET=&lt;secret&gt; \
+  --from-literal=ANTHROPIC_API_KEY=&lt;key&gt; \
+  --from-literal=PROVIDER_CREDENTIALS_ENCRYPTION_KEY=&lt;fernet-key&gt;
+</code></pre>
+<h3 id="health-checks">Health Checks</h3>
+<p>The gateway exposes health check endpoints that Kubernetes uses for liveness and readiness probes:</p>
+<pre><code class="language-yaml">livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 10
+  periodSeconds: 30
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+</code></pre>
+<h3 id="horizontal-pod-autoscaler">Horizontal Pod Autoscaler</h3>
+<pre><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: engram-gateway-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: engram-gateway
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+</code></pre>
+<hr />
+<h2 id="monitoring-stack">Monitoring Stack</h2>
+<p>Engram exposes Prometheus metrics at <code>/metrics</code> via <code>prometheus-fastapi-instrumentator</code>. The included <code>prometheus.yml</code> and Grafana provisioning files give you dashboards for:</p>
+<ul>
+<li><strong>Request metrics</strong> — Rate, latency (p50/p95/p99), and error rate per endpoint</li>
+<li><strong>Tool routing</strong> — Backend selection distribution, routing confidence scores, cache hit rates</li>
+<li><strong>Self-healing</strong> — Drift detection frequency, auto-repair success rate, manual review queue depth</li>
+<li><strong>Circuit breaker</strong> — Trip count, cooldown events, per-destination failure tracking</li>
+<li><strong>Task queue</strong> — Queue depth, processing latency, lease expiration, retry count</li>
+<li><strong>Swarm Memory</strong> — Fact count, query latency, conflict resolution frequency</li>
+<li><strong>Event stream</strong> — Redis Streams lag, consumer group health, event processing rate</li>
+</ul>
+<h3 id="access-grafana">Access Grafana</h3>
+<pre><code class="language-bash">open http://localhost:3001   # Default credentials: admin / admin
+</code></pre>
+<p>Pre-built dashboards are auto-provisioned from <code>monitoring/grafana/dashboards/</code>. No manual configuration needed — just log in and the dashboards are ready.</p>
+<h3 id="prometheus-configuration">Prometheus Configuration</h3>
+<p>The included <code>monitoring/prometheus.yml</code> targets the Engram gateway:</p>
+<pre><code class="language-yaml">scrape_configs:
+  - job_name: 'engram'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['app:8000']
+</code></pre>
+<h3 id="alerting">Alerting</h3>
+<p>Configure Grafana alerts for critical conditions:</p>
+<table>
+<thead>
+<tr>
+<th>Alert</th>
+<th>Condition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>High error rate</td>
+<td>&gt; 5% 5xx responses in 5 minutes</td>
+<td>Page on-call</td>
+</tr>
+<tr>
+<td>Circuit breaker tripped</td>
+<td>Any destination circuit opens</td>
+<td>Notify team</td>
+</tr>
+<tr>
+<td>Task queue backup</td>
+<td>Queue depth &gt; 100 for 10 minutes</td>
+<td>Scale workers</td>
+</tr>
+<tr>
+<td>Drift detection spike</td>
+<td>&gt; 10 drifts detected in 1 hour</td>
+<td>Review tool registrations</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="persistent-state">Persistent State</h2>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Database</th>
+<th>Redis</th>
+<th>Tool Registry</th>
+<th>Host Config</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docker compose restart</code></td>
+<td>✅ Persists (volume)</td>
+<td>✅ Persists (in-memory)</td>
+<td>✅ Persists</td>
+<td>✅ Persists</td>
+</tr>
+<tr>
+<td><code>docker compose down</code></td>
+<td>✅ Persists (named volume)</td>
+<td>❌ Lost</td>
+<td>✅ Persists</td>
+<td>✅ Persists</td>
+</tr>
+<tr>
+<td><code>docker compose down -v</code></td>
+<td>❌ <strong>Lost</strong></td>
+<td>❌ Lost</td>
+<td>❌ Lost</td>
+<td>✅ Preserved</td>
+</tr>
+<tr>
+<td>Container image update</td>
+<td>✅ Persists</td>
+<td>Depends</td>
+<td>✅ Persists</td>
+<td>✅ Persists</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Important:</strong> The <code>postgres_data</code> named volume preserves your database across <code>docker compose down</code>. To truly reset everything, add <code>-v</code> to remove volumes. The <code>~/.engram/</code> directory on the host is never affected by Docker operations.</p>
+</blockquote>
+<hr />
+<h2 id="troubleshooting_1">Troubleshooting</h2>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>App can't connect to database</td>
+<td>Docker internal DNS not ready</td>
+<td>Ensure <code>db</code> service is healthy: <code>docker compose ps</code>. Check <code>depends_on</code> ordering.</td>
+</tr>
+<tr>
+<td>Redis connection refused</td>
+<td>Redis hasn't started yet</td>
+<td>Check <code>depends_on</code> ordering, or restart: <code>docker compose restart redis</code></td>
+</tr>
+<tr>
+<td>Port already in use</td>
+<td>Another service on 8000/5432/6379</td>
+<td>Change port mappings in <code>docker-compose.yml</code></td>
+</tr>
+<tr>
+<td>Grafana shows no data</td>
+<td>Prometheus not scraping</td>
+<td>Check <code>monitoring/prometheus.yml</code> targets match service names</td>
+</tr>
+<tr>
+<td>Slow startup on first run</td>
+<td>Pulling images, installing deps</td>
+<td>Subsequent starts are fast (cached layers). First pull is ~2GB.</td>
+</tr>
+<tr>
+<td>Database migration errors</td>
+<td>Schema out of sync</td>
+<td>Run <code>docker compose exec app alembic upgrade head</code></td>
+</tr>
+<tr>
+<td><code>asyncpg</code> connection errors</td>
+<td>SSL mode incompatibility</td>
+<td>Engram auto-strips <code>sslmode</code> for asyncpg. Check <code>DATABASE_URL</code> format.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="whats-next_1">What's Next</h2>
+<ul>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Customize every setting for your deployment</li>
+<li><strong><a href="./12-eat-identity-security.md">EAT Identity &amp; Security</a></strong> — Harden authentication for production</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Set up monitoring and alerting</li>
+<li><strong><a href="./04-updating-uninstalling.md">Updating &amp; Uninstalling</a></strong> — Keep your deployment current</li>
+</ul>
+            </div>
+        </main>
 
----
-
-## What's Next
-
-- **[Quickstart](./01-quickstart.md)** — Register your first tool and test routing (5 minutes)
-- **[Docker & Kubernetes Setup](./03-docker-kubernetes.md)** — Deploy with containers for production
-- **[CLI Reference](./06-cli-reference.md)** — Master every command and flag
-- **[Configuration](./07-configuration.md)** — Customize every setting
+        <!-- Right Sidebar (TOC) -->
+        <aside class="toc-sidebar">
+            <div class="toc-title">On this page</div>
+            <nav class="toc-nav">
+                <a href="#quickstart" class="toc-link">Quickstart</a>
+                <a href="#1-install-engram" class="toc-link">Install Engram</a>
+                <a href="#2-start-the-gateway" class="toc-link">Start the Gateway</a>
+                <a href="#3-register-your-first-tool" class="toc-link">Register Your First Tool</a>
+                <a href="#installation" class="toc-link">Installation</a>
+                <a href="#docker-kubernetes-setup" class="toc-link">Docker & K8s Setup</a>
+            </nav>
+        </aside>
+    </div>
+</body>
+</html>
