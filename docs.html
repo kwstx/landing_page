@@ -5922,6 +5922,176 @@ logger.info("Translating message", source_protocol="MCP", target_protocol="CLI")
 <li><strong><a href="./07-configuration.md">Configuration</a></strong> &mdash; Configure Sentry, log level, and Prometheus</li>
 <li><strong><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></strong> &mdash; Deploy the monitoring stack</li>
 </ul>
+
+<hr />
+
+<h1 id="self-evolving-tools">Self-Evolving Tools</h1>
+<p>Engram's evolution pipeline uses ML to continuously improve tool definitions based on execution history. It proposes refinements to descriptions, parameter schemas, default values, and recovery strategies &mdash; then applies them through a human-reviewed (or auto-approved) workflow.</p>
+
+<hr />
+
+<h2 id="how-tools-evolve">How Tools Evolve</h2>
+<p>The evolution pipeline follows a continuous improvement cycle:</p>
+<pre><code class="language-text">Execution History → ML Analysis → Improvement Proposals → Human Review / Auto-Apply → Tool Registry Update</code></pre>
+<ol>
+<li><strong>Execution History</strong> &mdash; Every tool execution is traced, including successes, failures, parameter values, and error types</li>
+<li><strong>ML Analysis</strong> &mdash; The evolution engine analyzes patterns across executions to identify improvement opportunities</li>
+<li><strong>Improvement Proposals</strong> &mdash; Concrete changes are generated with confidence scores</li>
+<li><strong>Review</strong> &mdash; High-confidence proposals above <code class="code-inline">ML_AUTO_APPLY_THRESHOLD</code> (default: 0.85) can be auto-applied. Others require manual review.</li>
+<li><strong>Registry Update</strong> &mdash; Approved proposals update the tool definition in the registry with a new semantic version</li>
+</ol>
+
+<hr />
+
+<h2 id="improvement-types">Improvement Types</h2>
+<table class="docs-table">
+<thead>
+<tr><th>Type</th><th>What Changes</th><th>Example</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Description Refinement</strong></td><td>Improved tool description based on actual usage</td><td>"Send a message" → "Send a formatted Slack message to a channel or user"</td></tr>
+<tr><td><strong>Parameter Schema Optimization</strong></td><td>Tightened action schemas based on failure analysis</td><td>Adding <code class="code-inline">enum</code> constraints to a <code class="code-inline">format</code> parameter based on observed values</td></tr>
+<tr><td><strong>Default Value Tuning</strong></td><td>Adjusted defaults based on most common parameter values</td><td><code class="code-inline">units</code> default changed from <code class="code-inline">metric</code> to <code class="code-inline">imperial</code> if 90% of calls use imperial</td></tr>
+<tr><td><strong>Recovery Strategy Generation</strong></td><td>Pattern-based automated fallback mapping</td><td>If tool X fails with error Y, retry with tool Z instead</td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="evolution-pipeline">Evolution Pipeline</h2>
+<p>The evolution pipeline runs as a background task:</p>
+<table class="docs-table">
+<thead>
+<tr><th>Component</th><th>Technology</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Task Queue</strong></td><td>Celery</td><td>Schedules periodic analysis jobs</td></tr>
+<tr><td><strong>Semantic Analysis</strong></td><td><code class="code-inline">transformers</code> + <code class="code-inline">torch</code></td><td>Analyzes execution patterns for improvement signals</td></tr>
+<tr><td><strong>Versioning</strong></td><td>Semantic Versioning (semver)</td><td>Each evolution increments the tool's version number</td></tr>
+<tr><td><strong>Storage</strong></td><td>Database</td><td>Proposals are stored with full diff payloads</td></tr>
+</tbody>
+</table>
+
+<h3 id="trigger-conditions">Trigger Conditions</h3>
+<p>Evolution analysis is triggered when:</p>
+<ul>
+<li>A tool accumulates <code class="code-inline">ML_AUTO_RETRAIN_THRESHOLD</code> (default: 5) corrections from manual healing</li>
+<li>A tool's success rate drops below a configurable threshold</li>
+<li>Periodic scheduled analysis (configurable via workflow scheduler)</li>
+</ul>
+
+<hr />
+
+<h2 id="confidence-scoring">Confidence Scoring</h2>
+<p>Each improvement proposal is assigned a confidence score:</p>
+<table class="docs-table">
+<thead>
+<tr><th>Score</th><th>Action</th></tr>
+</thead>
+<tbody>
+<tr><td>&ge; 85% (<code class="code-inline">ML_AUTO_APPLY_THRESHOLD</code>)</td><td>Can be auto-applied (if enabled)</td></tr>
+<tr><td>70% &ndash; 84%</td><td>Requires manual review but flagged as "recommended"</td></tr>
+<tr><td>&lt; 70%</td><td>Requires manual review, flagged as "uncertain"</td></tr>
+</tbody>
+</table>
+<p>The score is computed from:</p>
+<ul>
+<li><strong>Evidence strength</strong> &mdash; How many executions support this change</li>
+<li><strong>Consistency</strong> &mdash; How consistent the pattern is across different users/contexts</li>
+<li><strong>Impact</strong> &mdash; How much the change is expected to improve success rate</li>
+</ul>
+
+<hr />
+
+<h2 id="review-and-apply">Review and Apply</h2>
+<h3 id="status-dashboard">Status Dashboard</h3>
+<pre><code class="language-bash">engram evolve status</code></pre>
+<pre><code class="language-text">╭──── 🔬 Self-Evolving Tools Dashboard ───────────────────────╮
+│ Improvement Pipeline Status: Active                          │
+│ Pending Proposals: 3                                         │
+│ Total Historical Evolutions: 47                              │
+│ Last ML Update: 2026-04-08 13:45:00                         │
+╰──────────────────────────────────────────────────────────────╯
+
+         [*] Pending Tool Refinements
+╭──────────────────┬──────────────────┬──────────────────────────┬───────┬──────────╮
+│ Tool ID / Version│ Refinement Type  │ Proposed Changes         │ Conf. │ Prop. ID │
+├──────────────────┼──────────────────┼──────────────────────────┼───────┼──────────┤
+│ Slack            │ Description Path │ Description Path         │ 92.0% │ 7a3f2b1c │
+│ v1.0 -> v1.1     │ Refinement      │ Refinement: Improved...  │       │          │
+├──────────────────┼──────────────────┼──────────────────────────┼───────┼──────────┤
+│ docker           │ Parameter Schema │ Parameter Schema         │ 78.5% │ 8b4c3d2e │
+│ v2.3 -> v2.4     │ Optimization    │ Optimization: Action...  │       │          │
+├──────────────────┼──────────────────┼──────────────────────────┼───────┼──────────┤
+│ Weather API      │ New Recovery    │ New Recovery Strategy:    │ 65.0% │ 9c5d4e3f │
+│ v1.0 -> v1.1     │ Strategy        │ Pattern-based fallback.. │       │          │
+╰──────────────────┴──────────────────┴──────────────────────────┴───────┴──────────╯
+
+Use engram evolve apply &lt;id&gt; to authorize a specific improvement.</code></pre>
+
+<h3 id="apply-a-proposal">Apply a Proposal</h3>
+<pre><code class="language-bash"># Interactive apply with diff preview
+engram evolve apply 7a3f2b1c</code></pre>
+<p>The command:</p>
+<ol>
+<li>Fetches the proposal details from <code class="code-inline">GET /api/v1/evolution/status</code></li>
+<li>Shows a before/after diff for each changed field</li>
+<li>Asks for confirmation (unless <code class="code-inline">--force</code> is used)</li>
+<li>Applies the change via <code class="code-inline">POST /api/v1/evolution/apply/&lt;id&gt;</code></li>
+<li>Hot-redeploys the tool registry with the new version</li>
+</ol>
+<pre><code class="language-bash"># Skip confirmation
+engram evolve apply 7a3f2b1c --force</code></pre>
+
+<hr />
+
+<h2 id="recovery-strategies">Recovery Strategies</h2>
+<p>When ML analysis detects a recurring failure pattern, it generates recovery strategies:</p>
+<table class="docs-table">
+<thead>
+<tr><th>Pattern</th><th>Strategy</th></tr>
+</thead>
+<tbody>
+<tr><td>Tool X fails with timeout</td><td>Retry with increased timeout, then fallback to CLI backend</td></tr>
+<tr><td>Tool X fails with auth error</td><td>Refresh credentials and retry</td></tr>
+<tr><td>Tool X returns malformed data</td><td>Apply field mapping correction from known-good execution</td></tr>
+<tr><td>Tool X consistently fails after API update</td><td>Queue for re-registration with updated schema</td></tr>
+</tbody>
+</table>
+<p>Recovery strategies are stored as part of the tool definition and are automatically applied by the reliability middleware during execution.</p>
+
+<hr />
+
+<h2 id="version-history">Version History</h2>
+<p>Each tool maintains a version history:</p>
+<ul>
+<li>Versions follow semver: <code class="code-inline">major.minor.patch</code></li>
+<li><strong>Patch</strong> &mdash; Default value or description refinement</li>
+<li><strong>Minor</strong> &mdash; Parameter schema change or new recovery strategy</li>
+<li><strong>Major</strong> &mdash; Breaking schema change (rare, usually from re-registration)</li>
+</ul>
+<p>Rollback to a previous version is supported through the evolution API.</p>
+
+<hr />
+
+<h2 id="cli-commands-evolution">CLI Commands</h2>
+<pre><code class="language-bash"># View dashboard
+engram evolve status
+
+# Apply a proposal (interactive)
+engram evolve apply &lt;id&gt;
+
+# Apply without confirmation
+engram evolve apply &lt;id&gt; --force</code></pre>
+
+<hr />
+
+<h2 id="whats-next-evolution">What's Next</h2>
+<ul>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> &mdash; How healing feeds into evolution</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> &mdash; Monitor evolution outcomes</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> &mdash; Configure ML thresholds</li>
+</ul>
             </div>
         </main>
 
@@ -5946,6 +6116,7 @@ logger.info("Translating message", source_protocol="MCP", target_protocol="CLI")
                 <a href="#eat-identity-security" class="toc-link">EAT Identity & Security</a>
                 <a href="#bidirectional-sync-events" class="toc-link">Bidirectional Sync &amp; Events</a>
                 <a href="#observability-tracing" class="toc-link">Observability &amp; Tracing</a>
+                <a href="#self-evolving-tools" class="toc-link">Self-Evolving Tools</a>
             </nav>
         </aside>
     </div>
