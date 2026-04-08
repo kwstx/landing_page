@@ -4203,6 +4203,211 @@ class BaseAdapter:
 <li><strong><a href="./10-hybrid-routing.md">Hybrid Routing</a></strong> — How the router chooses between MCP and CLI backends</li>
 <li><strong><a href="./06-cli-reference.md">CLI Reference</a></strong> — Detailed command reference for all registration commands</li>
 </ul>
+
+<h1 id="self-healing-engine">Self-Healing Engine</h1>
+<p>Engram's self-healing engine is the core differentiator. It continuously monitors the semantic relationship between your registered tools and the actual APIs they connect to, automatically detecting and repairing schema drift, field mismatches, and output format changes — without human intervention for high-confidence fixes.</p>
+
+<hr />
+
+<h2 id="what-self-healing-means">What Self-Healing Means</h2>
+<p>APIs change. Fields get renamed, response formats evolve, new parameters appear, old ones get deprecated. In traditional integration middleware, these changes cause silent failures or require manual updates. Engram's self-healing engine addresses this with three mechanisms:</p>
+
+<ol>
+<li><strong>Schema Drift Detection</strong> — Continuous monitoring of tool execution results against the registered schema. When a field is missing, renamed, or returns an unexpected type, a "drift" is created.</li>
+<li><strong>Automatic Field Remapping</strong> — The OWL ontology provides semantic equivalences that allow the engine to automatically map a renamed field (e.g., <code class="code-inline">city_name</code> → <code class="code-inline">location</code>) without manual configuration.</li>
+<li><strong>Confidence-Based Auto-Repair</strong> — Each proposed fix is scored by confidence. High-confidence fixes (≥ 70%) are applied automatically. Low-confidence fixes are queued for manual review.</li>
+</ol>
+
+<pre><code class="language-bash"># Check current self-healing status
+engram heal status
+
+# Trigger manual repair loop
+engram heal now
+
+# Detailed view with payload excerpts
+engram heal status --verbose</code></pre>
+
+<hr />
+
+<h2 id="owl-ontology-layer">OWL Ontology Layer</h2>
+<p>The semantic foundation of self-healing is built on two OWL ontologies:</p>
+
+<h3 id="protocols-owl"><code class="code-inline">protocols.owl</code> — Protocol Ontology</h3>
+<p>Located at <code class="code-inline">app/semantic/protocols.owl</code>, this ontology defines:</p>
+
+<ul>
+<li><strong>Protocol concepts</strong> — MCP, CLI, A2A, ACP as formal ontology classes</li>
+<li><strong>Field semantics</strong> — Concepts like <code class="code-inline">Location</code>, <code class="code-inline">Message</code>, <code class="code-inline">Timestamp</code> that exist across all protocols</li>
+<li><strong>Equivalence relations</strong> — <code class="code-inline">city</code> ≡ <code class="code-inline">location</code> ≡ <code class="code-inline">place</code> — these are the same concept in different naming conventions</li>
+<li><strong>Hierarchical relationships</strong> — <code class="code-inline">CityName</code> is a subclass of <code class="code-inline">Location</code>, which allows inheritance-based matching</li>
+</ul>
+
+<h3 id="security-owl"><code class="code-inline">security.owl</code> — Security Ontology</h3>
+<p>Located at <code class="code-inline">app/semantic/security.owl</code>, this ontology defines:</p>
+
+<ul>
+<li><strong>Permission concepts</strong> — What actions are allowed on what resources</li>
+<li><strong>Semantic scopes</strong> — Ontology-derived capabilities (e.g., <code class="code-inline">execute:tool-invocation</code>)</li>
+<li><strong>Access control relationships</strong> — How scopes map to tool capabilities</li>
+</ul>
+
+<p>Both ontologies are loaded using <code class="code-inline">rdflib</code> and <code class="code-inline">owlready2</code>, providing SPARQL query support and OWL reasoning.</p>
+
+<hr />
+
+<h2 id="semantic-mapper">Semantic Mapper</h2>
+<p>The <code class="code-inline">SemanticMapper</code> class (<code class="code-inline">app/semantic/semantic_mapper.py</code>) is the engine that performs field-level translation:</p>
+
+<h3 id="how-it-works-semantic-mapper">How It Works</h3>
+<ol>
+<li><strong>Field Flattening</strong> — Incoming payloads are flattened from nested JSON to <code class="code-inline">dot.notation</code> paths. For example, <code class="code-inline">{"user": {"name": "John"}}</code> becomes <code class="code-inline">user.name</code>.</li>
+<li><strong>Ontology Lookup</strong> — Each field path is looked up in <code class="code-inline">protocols.owl</code> using <code class="code-inline">resolve_equivalent()</code>. This returns the semantically equivalent field name in the target protocol.</li>
+<li><strong>Cross-Protocol Normalization</strong> — The <code class="code-inline">BidirectionalNormalizer</code> handles payload translation in both directions through the ontology bridge.</li>
+<li><strong>Dynamic Rule Synthesis</strong> — For novel field mappings that don't exist in the ontology, the <code class="code-inline">DynamicRuleSynthesizer</code> uses the configured LLM to propose new mapping rules.</li>
+</ol>
+
+<h3 id="example">Example</h3>
+<p>When an MCP tool call returns <code class="code-inline">{"city_name": "San Francisco"}</code> but the registered schema expects <code class="code-inline">{"location": "San Francisco"}</code>:</p>
+
+<ol>
+<li>The execution result doesn't match the expected schema → <strong>drift detected</strong></li>
+<li>The <code class="code-inline">SemanticMapper</code> looks up <code class="code-inline">city_name</code> in the ontology → finds it's equivalent to <code class="code-inline">location</code></li>
+<li>A mapping <code class="code-inline">city_name → location</code> is proposed with 95% confidence</li>
+<li>Since confidence ≥ 70%, the mapping is <strong>auto-applied</strong></li>
+<li>Future executions of this tool automatically translate the field</li>
+</ol>
+
+<hr />
+
+<h2 id="ml-mapping-model">ML Mapping Model</h2>
+<p>In addition to ontology-based matching, Engram uses a scikit-learn classifier for ML-assisted mapping:</p>
+
+<h3 id="training-pipeline">Training Pipeline</h3>
+<ol>
+<li><strong>Data Collection</strong> — Every successful field mapping is logged as a training sample</li>
+<li><strong>Feature Extraction</strong> — Field names, types, nesting depth, and character n-grams are vectorized</li>
+<li><strong>Model Training</strong> — A scikit-learn pipeline trains on labeled mappings from <code class="code-inline">app/semantic/models/mapping_model.joblib</code></li>
+<li><strong>Minimum Samples</strong> — Training requires at least <code class="code-inline">ML_MIN_TRAIN_SAMPLES</code> (default: 20) labeled examples</li>
+<li><strong>Auto-Retraining</strong> — After <code class="code-inline">ML_AUTO_RETRAIN_THRESHOLD</code> (default: 5) manual corrections, the model automatically retrains</li>
+</ol>
+
+<h3 id="confidence-scoring">Confidence Scoring</h3>
+<p>Each ML-suggested mapping gets a confidence score:</p>
+
+<table class="docs-table">
+<thead>
+<tr>
+<th>Score</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≥ 85% (<code class="code-inline">ML_AUTO_APPLY_THRESHOLD</code>)</td>
+<td>Auto-applied without human review</td>
+</tr>
+<tr>
+<td>70% – 84%</td>
+<td>Auto-applied (ontology threshold) but flagged for review</td>
+</tr>
+<tr>
+<td>&lt; 70%</td>
+<td>Queued as PENDING-REVIEW in the drift table</td>
+</tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="reconciliation-engine">Reconciliation Engine</h2>
+<p>The reconciliation engine (<code class="code-inline">POST /api/v1/reconciliation/heal</code>) orchestrates the full healing cycle:</p>
+
+<ol>
+<li><strong>Query drift database</strong> — Fetches all pending drifts (failed field mappings from recent executions)</li>
+<li><strong>Score each drift</strong> — Combines ontology match, ML confidence, and historical correction data</li>
+<li><strong>Apply auto-repairs</strong> — For drifts above the confidence threshold, updates the persistent mapping table</li>
+<li><strong>Queue manual reviews</strong> — For low-confidence drifts, creates PENDING-REVIEW entries visible in <code class="code-inline">heal status</code></li>
+<li><strong>Update mapping versions</strong> — Each mapping has a version number that increments on update</li>
+</ol>
+
+<h3 id="cli-commands">CLI Commands</h3>
+<pre><code class="language-bash"># View drift analysis and active mappings
+engram heal status
+
+# Same with full telemetry payload excerpts
+engram heal status --verbose
+
+# Check status and trigger repair in one command
+engram heal status --fix
+
+# Trigger manual repair immediately
+engram heal now</code></pre>
+
+<h3 id="drift-table-output">Drift Table Output</h3>
+<pre><code class="language-text">   Semantic Drift Analysis
+╭──────────────────┬──────────────────┬──────────────────┬───────┬──────────────╮
+│ Source Protocol   │ Field Drift      │ Ontology Match   │ Conf. │ Status       │
+├──────────────────┼──────────────────┼──────────────────┼───────┼──────────────┤
+│ MCP -&gt; CLI       │ city_name        │ location         │ 95.0% │ AUTO-REPAIR  │
+│ A2A -&gt; MCP       │ taskDescription  │ (RESOLVE MANUAL) │ 45.0% │ PENDING-REV  │
+╰──────────────────┴──────────────────┴──────────────────┴───────┴──────────────╯</code></pre>
+
+<hr />
+
+<h2 id="dynamic-rule-synthesizer">Dynamic Rule Synthesizer</h2>
+<p>For completely novel field mappings that exist neither in the ontology nor in the ML model's training data, the <code class="code-inline">DynamicRuleSynthesizer</code> uses the configured LLM:</p>
+
+<ol>
+<li><strong>Context assembly</strong> — The field name, parent object structure, surrounding fields, and recently successful mappings are bundled into a prompt</li>
+<li><strong>LLM reasoning</strong> — The LLM proposes a mapping with justification</li>
+<li><strong>Confidence calibration</strong> — The raw LLM confidence is adjusted based on structural similarity between source and target schemas</li>
+<li><strong>Human review</strong> — LLM-generated rules always start in PENDING-REVIEW status, regardless of confidence</li>
+</ol>
+
+<p>This ensures that the system can handle any mapping scenario while maintaining a human-in-the-loop for unprecedented cases.</p>
+
+<hr />
+
+<h2 id="bidirectional-normalizer">Bidirectional Normalizer</h2>
+<p>The <code class="code-inline">BidirectionalNormalizer</code> handles payload translation in both directions:</p>
+
+<ul>
+<li><strong>Forward normalization</strong> — Source protocol → Canonical ontology form → Target protocol</li>
+<li><strong>Reverse normalization</strong> — Target protocol → Canonical ontology form → Source protocol</li>
+</ul>
+
+<p>This bidirectionality is critical for:</p>
+<ul>
+<li><strong>Request translation</strong> — Converting an MCP tool call into a CLI invocation</li>
+<li><strong>Response translation</strong> — Converting a CLI output back into structured MCP format</li>
+<li><strong>Round-trip consistency</strong> — Ensuring that <code class="code-inline">translate(translate(x))</code> produces semantically equivalent output</li>
+</ul>
+
+<hr />
+
+<h2 id="how-healing-decisions-are-traced">How Healing Decisions Are Traced</h2>
+<p>Every healing decision is recorded in the semantic trace system:</p>
+
+<pre><code class="language-bash">engram trace detail .</code></pre>
+
+<p>The <strong>Self-Healing Steps</strong> section of the trace tree shows:</p>
+<ul>
+<li>Which fields triggered drift detection</li>
+<li>What ontology concepts were consulted</li>
+<li>Whether the repair was ML-assisted, ontology-based, or LLM-synthesized</li>
+<li>The confidence score and whether it was auto-applied or manually reviewed</li>
+</ul>
+
+<p>This integration means you can always audit why a particular field mapping was changed and when.</p>
+
+<hr />
+
+<h2 id="whats-next-healing">What's Next</h2>
+<ul>
+<li><strong><a href="./10-hybrid-routing.md">Hybrid Routing</a></strong> — How healed tools influence routing decisions</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Monitor healing activity</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Tune ML thresholds and ontology paths</li>
+</ul>
             </div>
         </main>
 
@@ -4221,6 +4426,7 @@ class BaseAdapter:
                 <a href="#configuration" class="toc-link">Configuration</a>
                 <a href="#learning-path" class="toc-link">Learning Path</a>
                 <a href="#universal-onboarding" class="toc-link">Universal Onboarding</a>
+                <a href="#self-healing-engine" class="toc-link">Self-Healing Engine</a>
             </nav>
         </aside>
     </div>
