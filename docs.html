@@ -5459,6 +5459,469 @@ engram auth token-set &lt;token&gt;</code></pre>
 <li><strong><a href="./17-architecture.md">Architecture</a></strong> — System-level security architecture</li>
 <li><strong><a href="./16-sdk-python-library.md">SDK &amp; Python Library</a></strong> — Programmatic authentication</li>
 </ul>
+
+<hr />
+
+<h1 id="bidirectional-sync-events">Bidirectional Sync &amp; Events</h1>
+
+<p>Engram's event system enables real-time bidirectional synchronization between connected tools and the bridge. Events flow through Redis Streams with semantic normalization, ontology-backed conflict resolution, and live monitoring via the CLI and TUI.</p>
+
+<hr />
+
+<h2 id="event-architecture">Event Architecture</h2>
+
+<p>Events in Engram flow through a Redis Streams pipeline:</p>
+
+<pre><code class="language-text">Tool/Agent → Event Emission → Redis Stream (engram:events) → Consumer Group → Event Handlers → Trace/TUI</code></pre>
+
+<table class="docs-table">
+<thead>
+<tr><th>Component</th><th>Implementation</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Stream Key</strong></td><td><code class="code-inline">engram:events</code></td><td>Central event stream</td></tr>
+<tr><td><strong>Consumer Group</strong></td><td><code class="code-inline">engram-event-workers</code></td><td>Ensures exactly-once processing</td></tr>
+<tr><td><strong>Consumer</strong></td><td><code class="code-inline">worker-1</code></td><td>Individual consumer within the group</td></tr>
+<tr><td><strong>Block Timeout</strong></td><td>2000ms</td><td>How long to wait for new events</td></tr>
+<tr><td><strong>Batch Size</strong></td><td>25</td><td>Events processed per read</td></tr>
+<tr><td><strong>Max Length</strong></td><td>10,000</td><td>Stream trimming limit</td></tr>
+</tbody>
+</table>
+
+<p>When Redis is unavailable (local dev), the system falls back to a polling listener with configurable interval (<code class="code-inline">EVENT_POLL_INTERVAL_SECONDS</code>, default: 10s).</p>
+
+<hr />
+
+<h2 id="polling-listeners">Polling Listeners</h2>
+
+<p>HTTP endpoint polling for tools that don't support webhooks:</p>
+
+<pre><code class="language-bash">engram sync add &lt;tool-id&gt; --type polling --url https://api.example.com/changes --interval 30</code></pre>
+
+<table class="docs-table">
+<thead>
+<tr><th>Setting</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">--url</code></td><td><code class="code-inline">str</code></td><td>URL to poll for changes</td></tr>
+<tr><td><code class="code-inline">--interval</code></td><td><code class="code-inline">int</code></td><td>Polling interval in seconds (default: 60)</td></tr>
+<tr><td><code class="code-inline">--direction</code></td><td><code class="code-inline">str</code></td><td>Sync direction: <code class="code-inline">both</code>, <code class="code-inline">to_mcp</code>, <code class="code-inline">from_mcp</code></td></tr>
+</tbody>
+</table>
+
+<p>Polled data is semantically normalized through the ontology before being stored or forwarded.</p>
+
+<hr />
+
+<h2 id="cli-watch">CLI Watch</h2>
+
+<p>Monitor file system changes or command output in real time:</p>
+
+<pre><code class="language-bash">engram sync add &lt;tool-id&gt; --type cli_watch --command "docker ps --format json"</code></pre>
+
+<p>The CLI watch service:</p>
+<ol>
+<li>Executes the specified command at regular intervals</li>
+<li>Compares output against the previous execution</li>
+<li>Detects structural changes (new fields, removed fields, value changes)</li>
+<li>Emits events for detected changes</li>
+<li>Applies semantic normalization before storage</li>
+</ol>
+
+<hr />
+
+<h2 id="bidirectional-sync">Bidirectional Sync</h2>
+
+<p>Tools can be synchronized in both directions:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Direction</th><th>Data Flow</th><th>Use Case</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">both</code></td><td>Tool ↔ Bridge</td><td>Full two-way sync (default)</td></tr>
+<tr><td><code class="code-inline">to_mcp</code></td><td>Tool → Bridge</td><td>Read-only import from external source</td></tr>
+<tr><td><code class="code-inline">from_mcp</code></td><td>Bridge → Tool</td><td>Push changes from bridge to external tool</td></tr>
+</tbody>
+</table>
+
+<p>Bidirectional sync ensures that changes made in either the tool or the bridge are reflected in both systems. The ontology handles field name translation between the tool's native format and the bridge's canonical format.</p>
+
+<hr />
+
+<h2 id="semantic-conflict-resolution">Semantic Conflict Resolution</h2>
+
+<p>When events from multiple sources conflict, Engram uses a multi-layer resolution strategy:</p>
+
+<h3 id="prolog-based-reasoning">Prolog-Based Reasoning</h3>
+
+<p>The <code class="code-inline">bridge/memory.py</code> module uses <code class="code-inline">pyswip</code> (SWI-Prolog bindings) for semantic fact reasoning:</p>
+
+<ul>
+<li>Facts are asserted as Prolog terms: <code class="code-inline">fact(concept, subject, predicate, value, timestamp)</code></li>
+<li>Conflict detection queries: "Are there two facts about the same subject with different values?"</li>
+<li>Resolution rules: Ontology-backed reasoning determines which value takes precedence</li>
+</ul>
+
+<h3 id="pydatalog-rules">pyDatalog Rules</h3>
+
+<p>For simpler conflict scenarios, <code class="code-inline">pyDatalog</code> provides declarative last-write-wins rules:</p>
+
+<ul>
+<li>Most recent timestamp wins by default</li>
+<li>Configurable to prefer specific sources over others</li>
+<li>Cross-agent facts are reconciled through the shared ontology</li>
+</ul>
+
+<h3 id="resolution-priority">Resolution Priority</h3>
+
+<ol>
+<li><strong>Ontology authority</strong> — If the ontology defines a canonical value, it wins</li>
+<li><strong>Recency</strong> — More recent writes take precedence</li>
+<li><strong>Source trust</strong> — Configurable per-source trust levels</li>
+<li><strong>Manual override</strong> — User can explicitly resolve conflicts via the API</li>
+</ol>
+
+<hr />
+
+<h2 id="event-normalization">Event Normalization</h2>
+
+<p>Events from different sources are normalized through the ontology before storage:</p>
+
+<pre><code class="language-text">Raw Event → Field Flattening → Ontology Lookup → Canonical Form → Storage</code></pre>
+
+<p>This ensures that events from different tools about the same concepts are stored in a consistent format, enabling cross-tool queries and aggregation.</p>
+
+<hr />
+
+<h2 id="swarm-memory">Swarm Memory</h2>
+
+<p>Swarm Memory (<code class="code-inline">bridge/memory.py</code>) is a persistent, ontology-aware fact store:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Persistence</strong></td><td>SQLite</td><td>Durable fact storage</td></tr>
+<tr><td><strong>Reasoning</strong></td><td>SWI-Prolog (<code class="code-inline">pyswip</code>)</td><td>Semantic inference and conflict detection</td></tr>
+<tr><td><strong>Rules</strong></td><td>pyDatalog</td><td>Declarative conflict resolution</td></tr>
+<tr><td><strong>Normalization</strong></td><td>SemanticMapper</td><td>Ontology-backed concept normalization</td></tr>
+</tbody>
+</table>
+
+<h3 id="key-operations">Key Operations</h3>
+
+<table class="docs-table">
+<thead>
+<tr><th>Method</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">store_fact(concept, data)</code></td><td>Store a semantic fact with ontology alignment</td></tr>
+<tr><td><code class="code-inline">query_facts(concept, filters)</code></td><td>Query facts with Prolog-backed reasoning</td></tr>
+<tr><td><code class="code-inline">resolve_conflict(facts)</code></td><td>Apply conflict resolution rules</td></tr>
+<tr><td><code class="code-inline">get_context(agent_id)</code></td><td>Retrieve all facts relevant to an agent's current task</td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="cli-commands-sync">CLI Commands</h2>
+
+<pre><code class="language-bash"># List active listeners
+engram sync list
+
+# Add polling sync
+engram sync add &lt;tool-uuid&gt; --type polling --url https://api.example.com/changes --interval 30
+
+# Add CLI watch
+engram sync add &lt;tool-uuid&gt; --type cli_watch --command "docker ps --format json"
+
+# Live event monitoring (auto-refresh)
+engram sync status</code></pre>
+
+<h3 id="live-monitoring">Live Monitoring</h3>
+
+<p><code class="code-inline">engram sync status</code> uses Rich's <code class="code-inline">Live</code> display to show a continuously updating event table:</p>
+
+<pre><code class="language-text">        Live Event Stream
+┌──────────┬──────────┬───────────┬─────────────┬──────────────┐
+│ Time     │ Tool     │ Type      │ Entity Key  │ Conflict Res │
+├──────────┼──────────┼───────────┼─────────────┼──────────────┤
+│ 14:23:01 │ 8b4c3d2e │ update    │ user-123    │ semantic-mtch│
+│ 14:22:58 │ 7a3f2b1c │ create    │ order-456   │ semantic-mtch│
+│ 14:22:55 │ 8b4c3d2e │ delete    │ item-789    │ semantic-mtch│
+└──────────┴──────────┴───────────┴─────────────┴──────────────┘
+Monitoring live events... Press Ctrl+C to stop.</code></pre>
+
+<hr />
+
+<h2 id="api-endpoints">API Endpoints</h2>
+
+<table class="docs-table">
+<thead>
+<tr><th>Endpoint</th><th>Method</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">/events/listeners</code></td><td><code class="code-inline">GET</code></td><td>List active listeners and watchers</td></tr>
+<tr><td><code class="code-inline">/events/sync</code></td><td><code class="code-inline">POST</code></td><td>Add a new sync configuration</td></tr>
+<tr><td><code class="code-inline">/events/recent</code></td><td><code class="code-inline">GET</code></td><td>Get recent events for live monitoring</td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="whats-next-sync">What's Next</h2>
+
+<ul>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Monitor event processing</li>
+<li><strong><a href="./17-architecture.md">Architecture</a></strong> — System-level event architecture</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Configure event stream settings</li>
+</ul>
+
+<hr />
+
+<h1 id="observability-tracing">Observability &amp; Tracing</h1>
+<p>Every tool execution in Engram is semantically traced — not just "what happened" but "why it happened." Traces capture routing decisions, ontology alignment, healing steps, field mappings, and performance metrics. Combined with Prometheus metrics, Grafana dashboards, Sentry integration, and structured logging, you get complete observability over the entire system.</p>
+
+<hr />
+
+<h2 id="what-gets-traced">What Gets Traced</h2>
+<p>Every tool execution captures:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Data Point</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Tool Selection</strong></td><td>Which tool was chosen and why</td></tr>
+<tr><td><strong>Routing Choice</strong></td><td>Which backend (MCP/CLI) was selected</td></tr>
+<tr><td><strong>Backend Used</strong></td><td>Actual backend that executed the task</td></tr>
+<tr><td><strong>Latency</strong></td><td>End-to-end execution time in milliseconds</td></tr>
+<tr><td><strong>Success / Failure</strong></td><td>Whether the execution completed without error</td></tr>
+<tr><td><strong>Token Cost</strong></td><td>Estimated token consumption</td></tr>
+<tr><td><strong>Similarity Score</strong></td><td>Semantic similarity between task and tool</td></tr>
+<tr><td><strong>Composite Score</strong></td><td>Final routing score with all weights applied</td></tr>
+<tr><td><strong>Reconciliation Steps</strong></td><td>Any self-healing steps taken during execution</td></tr>
+<tr><td><strong>Field Mappings</strong></td><td>Source-to-target field translations</td></tr>
+<tr><td><strong>Ontological Interpretation</strong></td><td>Ontology concept used for alignment</td></tr>
+<tr><td><strong>Error Stack</strong></td><td>Full error details if the execution failed</td></tr>
+</tbody>
+</table>
+
+<hr />
+
+<h2 id="trace-storage">Trace Storage</h2>
+<p>Traces are persisted via <code class="code-inline">POST /api/v1/traces</code> and stored in the database. Each trace record includes the full execution context above plus a unique <code class="code-inline">trace_id</code> for retrieval.</p>
+
+<h3 id="trace-retention">Retention</h3>
+<p>By default, traces are kept indefinitely. For high-volume deployments, configure retention policies via database cleanup jobs or set up Prometheus recording rules for long-term metrics.</p>
+
+<h3 id="trace-querying">Querying</h3>
+<pre><code class="language-bash"># List recent traces
+engram trace list --limit 50
+
+# Filter by tool
+engram trace list --tool slack
+
+# Export as JSON for external analysis
+engram trace list --export &gt; traces.json</code></pre>
+
+<hr />
+
+<h2 id="natural-language-summaries">Natural-Language Summaries</h2>
+<p>The trace detail view includes an AI-generated summary that explains routing and healing decisions in plain English:</p>
+
+<pre><code class="language-bash">engram trace detail .</code></pre>
+
+<p>The summary is generated by <code class="code-inline">POST /api/v1/traces/query</code> using the configured LLM. It reads the trace data and produces a narrative like:</p>
+
+<blockquote>
+<p>"The Slack tool was selected via MCP backend with 87.3% confidence. Semantic similarity was strong (0.82) due to the 'messaging' concept match in the ontology. No schema drift was detected. The execution completed in 245ms with 12.5 tokens consumed."</p>
+</blockquote>
+
+<hr />
+
+<h2 id="cli-trace-commands">CLI Trace Commands</h2>
+
+<h3 id="cli-trace-list">List Traces</h3>
+<pre><code class="language-bash">engram trace list [--limit 20] [--tool &lt;name&gt;] [--export]</code></pre>
+
+<p>Output:</p>
+<pre><code class="language-text">            Recent Semantic Traces
+╭─────────────────────┬──────────┬──────────┬─────────┬─────────┬────────╮
+│ Timestamp           │ Trace ID │ Tool     │ Backend │ Success │ Tokens │
+├─────────────────────┼──────────┼──────────┼─────────┼─────────┼────────┤
+│ 2026-04-08 14:23:01 │ 7a3f2b1c │ Slack    │ MCP     │ PASS    │     13 │
+│ 2026-04-08 14:22:45 │ 8b4c3d2e │ docker   │ CLI     │ PASS    │      2 │
+│ 2026-04-08 14:21:30 │ 9c5d4e3f │ Weather  │ MCP     │ FAIL    │     18 │
+╰─────────────────────┴──────────┴──────────┴─────────┴─────────┴────────╯</code></pre>
+
+<h3 id="cli-trace-detail">Detail View</h3>
+<pre><code class="language-bash">engram trace detail &lt;trace_id&gt;   # Specific trace
+engram trace detail .             # Latest trace
+engram trace detail . --export    # Export as JSON</code></pre>
+
+<p>Output structure:</p>
+<pre><code class="language-text">╭──── 🤖 Routing &amp; Healing Summary ────────────────────────────╮
+│ The Slack tool was selected via MCP backend with 87.3%        │
+│ confidence. No schema drift detected. Execution completed     │
+│ in 245ms.                                                     │
+╰──────────────────────────────────────────────────────────────╯
+
+╭──── [*] Full Semantic Inspection ────────────────────────────╮
+│ 🔍 Semantic Trace: 7a3f2b1c                                  │
+│ ├── 📍 Execution Path [PASS]                                 │
+│ │   ├── Tool Selection: Slack                                 │
+│ │   ├── Routing Choice: MCP                                   │
+│ │   ├── Actual Backend: MCP                                   │
+│ │   └── Latency: 245.0ms                                     │
+│ ├── 📊 Performance Weights                                   │
+│ │   ├── Semantic Similarity: 0.823                            │
+│ │   ├── Composite Score: 0.871                                │
+│ │   └── Token Efficiency: 12.5 tokens                        │
+│ ├── 🔧 Self-Healing Steps                                    │
+│ │   └── No drift detected; no healing required.              │
+│ └── 🔬 Ontological Alignment                                 │
+│     ├── Context: messaging.send_message                       │
+│     └── Synthesized Field Mappings                            │
+│         ├── channel → channel_id                              │
+│         └── text → message_body                               │
+╰──────────────────────────────────────────────────────────────╯</code></pre>
+
+<hr />
+
+<h2 id="prometheus-metrics">Prometheus Metrics</h2>
+<p>Engram exposes Prometheus metrics at <code class="code-inline">/metrics</code> via <code class="code-inline">prometheus-fastapi-instrumentator</code>:</p>
+
+<h3 id="prometheus-available-metrics">Available Metrics</h3>
+<table class="docs-table">
+<thead>
+<tr><th>Metric</th><th>Type</th><th>Description</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">http_request_duration_seconds</code></td><td>Histogram</td><td>Request latency per endpoint</td></tr>
+<tr><td><code class="code-inline">http_requests_total</code></td><td>Counter</td><td>Total requests per endpoint and status</td></tr>
+<tr><td><code class="code-inline">http_request_size_bytes</code></td><td>Histogram</td><td>Request body size</td></tr>
+<tr><td><code class="code-inline">http_response_size_bytes</code></td><td>Histogram</td><td>Response body size</td></tr>
+</tbody>
+</table>
+
+<h3 id="prometheus-custom-application-metrics">Custom Application Metrics</h3>
+<p>Additional metrics can be added via the instrumentator's callback hooks. Common custom metrics include:</p>
+<ul>
+<li>Tool execution count by backend</li>
+<li>Routing decision distribution (MCP vs CLI)</li>
+<li>Self-healing repair count</li>
+<li>Circuit breaker trip count</li>
+<li>Task queue depth</li>
+</ul>
+
+<h3 id="prometheus-configuration">Configuration</h3>
+<pre><code class="language-python"># In app/main.py
+from prometheus_fastapi_instrumentator import Instrumentator
+Instrumentator().instrument(app).expose(app)</code></pre>
+
+<p>Scrape with Prometheus:</p>
+<pre><code class="language-yaml"># prometheus.yml
+scrape_configs:
+  - job_name: 'engram'
+    scrape_interval: 15s
+    static_configs:
+      - targets: ['app:8000']</code></pre>
+
+<hr />
+
+<h2 id="grafana-dashboards">Grafana Dashboards</h2>
+<p>Pre-built dashboards are auto-provisioned from <code class="code-inline">monitoring/grafana/dashboards/</code>:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Dashboard</th><th>Metrics</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Request Overview</strong></td><td>Rate, latency (p50/p95/p99), error rate per endpoint</td></tr>
+<tr><td><strong>Tool Routing</strong></td><td>Backend selection distribution, confidence scores, cache hit rate</td></tr>
+<tr><td><strong>Self-Healing</strong></td><td>Drift detection frequency, auto-repair success rate, review queue depth</td></tr>
+<tr><td><strong>Circuit Breaker</strong></td><td>Trip count, cooldown events, per-destination failure rate</td></tr>
+<tr><td><strong>Task Queue</strong></td><td>Queue depth, processing latency, lease expiration rate</td></tr>
+</tbody>
+</table>
+
+<p>Access at <code class="code-inline">http://localhost:3001</code> (default credentials: <code class="code-inline">admin</code>/<code class="code-inline">admin</code>).</p>
+
+<h3 id="grafana-alert-configuration">Alert Configuration</h3>
+<p>Set up Grafana alerts for critical conditions. Alerts can be sent via email (SMTP), Slack, PagerDuty, or webhook.</p>
+
+<hr />
+
+<h2 id="sentry-integration">Sentry Integration</h2>
+<pre><code class="language-bash"># .env
+SENTRY_DSN=https://...@sentry.io/...</code></pre>
+
+<p>When configured, Sentry captures:</p>
+<ul>
+<li>Unhandled exceptions with full stack traces</li>
+<li>Performance traces with <code class="code-inline">traces_sample_rate</code></li>
+<li>Profile data with <code class="code-inline">profiles_sample_rate</code></li>
+</ul>
+
+<hr />
+
+<h2 id="structured-logging">Structured Logging</h2>
+<p>Engram uses <code class="code-inline">structlog</code> for structured, machine-parseable logging:</p>
+<pre><code class="language-python">import structlog
+logger = structlog.get_logger(__name__)
+
+logger.info("Translating message", source_protocol="MCP", target_protocol="CLI")</code></pre>
+
+<h3 id="logging-levels">Log Levels</h3>
+<table class="docs-table">
+<thead>
+<tr><th>Level</th><th>When to use</th></tr>
+</thead>
+<tbody>
+<tr><td><code class="code-inline">DEBUG</code></td><td>Detailed diagnostic information, only visible when <code class="code-inline">LOG_LEVEL=DEBUG</code></td></tr>
+<tr><td><code class="code-inline">INFO</code></td><td>Standard operational events (tool execution, routing decisions)</td></tr>
+<tr><td><code class="code-inline">WARNING</code></td><td>Degraded conditions (Redis unavailable, token nearing expiration)</td></tr>
+<tr><td><code class="code-inline">ERROR</code></td><td>Failed operations (translation failure, authentication error)</td></tr>
+<tr><td><code class="code-inline">CRITICAL</code></td><td>System-level failures (database connection lost, startup failure)</td></tr>
+</tbody>
+</table>
+
+<h3 id="logging-json-format">JSON Format for Production</h3>
+<p>In production (<code class="code-inline">ENVIRONMENT=production</code>), logs are output as JSON for log aggregation tools (ELK, Datadog, CloudWatch):</p>
+<pre><code class="language-json">{"event": "Translating message", "source_protocol": "MCP", "target_protocol": "CLI", "timestamp": "2026-04-08T14:23:01Z", "level": "info"}</code></pre>
+
+<hr />
+
+<h2 id="tui-dashboard">TUI Dashboard</h2>
+<p>The TUI (<code class="code-inline">engram run --debug</code>) provides real-time observability through dedicated trace panels:</p>
+
+<table class="docs-table">
+<thead>
+<tr><th>Panel</th><th>Content</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>Connections</strong></td><td>Live connection events with timestamps</td></tr>
+<tr><td><strong>Agent Execution</strong></td><td>Agent step events during orchestration</td></tr>
+<tr><td><strong>Tool Usage</strong></td><td>Tool invocations with payload summaries</td></tr>
+<tr><td><strong>Responses</strong></td><td>Final responses from tools</td></tr>
+<tr><td><strong>Translation</strong></td><td>Three-panel view: Engram Task → Tool Request → Tool Response</td></tr>
+<tr><td><strong>Log View</strong></td><td>Full timestamped log stream of all events</td></tr>
+</tbody>
+</table>
+
+<p>The TUI Bridge (<code class="code-inline">app/core/tui_bridge.py</code>) translates technical structlog events into plain-English messages with emojis for human readability.</p>
+
+<hr />
+
+<h2 id="whats-next-observability">What's Next</h2>
+<ul>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> &mdash; How traces feed into drift detection</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> &mdash; Configure Sentry, log level, and Prometheus</li>
+<li><strong><a href="./03-docker-kubernetes.md">Docker &amp; Kubernetes Setup</a></strong> &mdash; Deploy the monitoring stack</li>
+</ul>
             </div>
         </main>
 
@@ -5481,6 +5944,8 @@ engram auth token-set &lt;token&gt;</code></pre>
                 <a href="#mcp-cli-hybrid-routing" class="toc-link">Hybrid Routing</a>
                 <a href="#protocol-federation" class="toc-link">Protocol Federation</a>
                 <a href="#eat-identity-security" class="toc-link">EAT Identity & Security</a>
+                <a href="#bidirectional-sync-events" class="toc-link">Bidirectional Sync &amp; Events</a>
+                <a href="#observability-tracing" class="toc-link">Observability &amp; Tracing</a>
             </nav>
         </aside>
     </div>
