@@ -4408,6 +4408,281 @@ engram heal now</code></pre>
 <li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Monitor healing activity</li>
 <li><strong><a href="./07-configuration.md">Configuration</a></strong> — Tune ML thresholds and ontology paths</li>
 </ul>
+
+<h1 id="mcp-cli-hybrid-routing">MCP + CLI Hybrid Routing</h1>
+<p>Engram's routing engine automatically selects the best execution backend — MCP for structured reliability or CLI for speed and token efficiency — for every tool invocation. The decision is based on a multi-factor weighted composite score that combines semantic similarity, historical performance, latency, cost, and user preferences.</p>
+
+<hr />
+
+<h2 id="why-hybrid-routing">Why Hybrid Routing</h2>
+<p>The agent ecosystem has two dominant execution paradigms:</p>
+
+<table class="docs-table">
+<thead>
+<tr>
+<th>Backend</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MCP</strong> (Model Context Protocol)</td>
+<td>Structured JSON schemas, type validation, rich error handling, standardized tool definitions</td>
+<td>Higher token cost, more context overhead, slower for simple tasks</td>
+</tr>
+<tr>
+<td><strong>CLI</strong> (Command-Line Interface)</td>
+<td>Fast execution, minimal token overhead, native shell integration, scriptable</td>
+<td>Less structured output, fewer guarantees, harder to validate</td>
+</tr>
+</tbody>
+</table>
+
+<p>One size doesn't fit all. A "list files" command is faster via CLI. A "create a customer record" action is safer via MCP. Engram's router learns from execution history and makes the right choice automatically — no manual backend selection needed.</p>
+
+<hr />
+
+<h2 id="routing-algorithm">Routing Algorithm</h2>
+<p>The composite score for each tool/backend candidate is:</p>
+
+<pre><code class="language-text">score = (similarity × w_similarity) +
+        (success_rate × w_success) +
+        (latency_score × w_latency) +
+        (token_efficiency × w_token_cost) +
+        (context_score × w_context) +
+        (preference × w_preference) +
+        (predictive × w_predictive)</code></pre>
+
+<h3 id="default-weights">Default Weights</h3>
+
+<table class="docs-table">
+<thead>
+<tr>
+<th>Factor</th>
+<th>Weight</th>
+<th>Variable</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Semantic Similarity</td>
+<td>0.55</td>
+<td><code class="code-inline">ROUTING_WEIGHT_SIMILARITY</code></td>
+<td>How well the task description matches the tool</td>
+</tr>
+<tr>
+<td>Success Rate</td>
+<td>0.20</td>
+<td><code class="code-inline">ROUTING_WEIGHT_SUCCESS</code></td>
+<td>Historical success percentage</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>0.15</td>
+<td><code class="code-inline">ROUTING_WEIGHT_LATENCY</code></td>
+<td>Average execution time (lower is better)</td>
+</tr>
+<tr>
+<td>Token Cost</td>
+<td>0.07</td>
+<td><code class="code-inline">ROUTING_WEIGHT_TOKEN_COST</code></td>
+<td>Token consumption efficiency</td>
+</tr>
+<tr>
+<td>Context Overhead</td>
+<td>0.03</td>
+<td><code class="code-inline">ROUTING_WEIGHT_CONTEXT_OVERHEAD</code></td>
+<td>Prompt engineering overhead</td>
+</tr>
+<tr>
+<td>User Preference</td>
+<td>0.10</td>
+<td><code class="code-inline">ROUTING_WEIGHT_PREFERENCE</code></td>
+<td>Backend preference from config</td>
+</tr>
+<tr>
+<td>Predictive</td>
+<td>0.15</td>
+<td><code class="code-inline">ROUTING_WEIGHT_PREDICTIVE</code></td>
+<td>Forward-looking optimization</td>
+</tr>
+</tbody>
+</table>
+
+<blockquote>
+<p><strong>Note:</strong> Weights don't need to sum to exactly 1.0. The router normalizes the final scores. Adjust them in your <code class="code-inline">.env</code> or <code class="code-inline">~/.engram/config.yaml</code> based on your workload priorities.</p>
+</blockquote>
+
+<hr />
+
+<h2 id="sentence-embedding-matching">Sentence Embedding Matching</h2>
+<p>The semantic similarity factor uses <code class="code-inline">sentence-transformers</code> with the <code class="code-inline">all-MiniLM-L6-v2</code> model:</p>
+
+<ol>
+<li><strong>Task description embedding</strong> — The user's natural-language description (e.g., "send a message to the team") is embedded into a 384-dimensional vector</li>
+<li><strong>Tool description embedding</strong> — Each registered tool's description is pre-embedded and cached</li>
+<li><strong>Cosine similarity</strong> — The router computes cosine similarity between the task and each candidate tool</li>
+<li><strong>Score normalization</strong> — Similarity scores are mapped to [0, 1] for composite scoring</li>
+</ol>
+
+<p>The embedding model is loaded lazily on first use and cached in memory. Change it with <code class="code-inline">ROUTING_EMBEDDING_MODEL</code> if you need a different model (e.g., a multilingual variant).</p>
+
+<hr />
+
+<h2 id="historical-performance-data">Historical Performance Data</h2>
+<p>Every tool execution is tracked and feeds back into routing decisions:</p>
+
+<table class="docs-table">
+<thead>
+<tr>
+<th>Metric</th>
+<th>Description</th>
+<th>CLI Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Success Rate</strong></td>
+<td>Percentage of executions that completed without error</td>
+<td><code class="code-inline">engram route list</code></td>
+</tr>
+<tr>
+<td><strong>Average Latency</strong></td>
+<td>Mean execution time in milliseconds</td>
+<td><code class="code-inline">engram route list</code></td>
+</tr>
+<tr>
+<td><strong>Average Token Cost</strong></td>
+<td>Mean token consumption per execution</td>
+<td><code class="code-inline">engram route list</code></td>
+</tr>
+<tr>
+<td><strong>Sample Count</strong></td>
+<td>Number of executions in the stats window</td>
+<td><code class="code-inline">engram route list</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>The rolling window (<code class="code-inline">ROUTING_STATS_WINDOW_HOURS</code>, default: 168 hours / 7 days) determines how far back the stats look. Older executions are excluded, so the router adapts to recent performance changes.</p>
+
+<pre><code class="language-bash">engram route list</code></pre>
+
+<pre><code class="language-text">      Global Tool Performance Stats
+╔═════════════════╦════════════╦════════════╦═══════════╦══════════╦═════════╗
+║ Tool Name       ║ Backend    ║ Avg Latency║ Success   ║ Avg Cost ║ Samples ║
+╠═════════════════╬════════════╬════════════╬═══════════╬══════════╬═════════╣
+║ Slack           ║ MCP        ║     245ms  ║    99.0%  ║ 12.5 tok ║     147 ║
+║ Slack           ║ CLI        ║     120ms  ║    95.2%  ║  4.2 tok ║      38 ║
+║ docker          ║ CLI        ║      85ms  ║    98.5%  ║  2.1 tok ║     203 ║
+║ Petstore API    ║ MCP        ║     310ms  ║   100.0%  ║ 18.3 tok ║      12 ║
+╚═════════════════╩════════════╩════════════╩═══════════╩══════════╩═════════╝</code></pre>
+
+<hr />
+
+<h2 id="semantic-caching">Semantic Caching</h2>
+<p>Routing decisions are cached in Redis to avoid recomputing embeddings and scores for identical queries:</p>
+
+<table class="docs-table">
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="code-inline">ROUTING_CACHE_TTL_SECONDS</code></td>
+<td><code class="code-inline">60</code></td>
+<td>How long a routing decision is cached</td>
+</tr>
+</tbody>
+</table>
+
+<p>Cache invalidation happens automatically when:</p>
+<ul>
+<li>A new tool is registered</li>
+<li>A tool's performance stats change significantly (&gt; 10% success rate delta)</li>
+<li>The tool registry is modified (description update, schema change),</li>
+<li>Manual cache flush via the admin API</li>
+</ul>
+
+<p>When Redis is unavailable (local dev), routing decisions are not cached and are computed fresh each time.</p>
+
+<hr />
+
+<h2 id="parallel-confidence-threshold">Parallel Confidence Threshold</h2>
+<p>When the gap between the top two candidates is below <code class="code-inline">ROUTING_PARALLEL_CONFIDENCE_THRESHOLD</code> (default: 0.05), the router considers running both backends simultaneously:</p>
+
+<pre><code class="language-python">if top_score - second_score &lt; ROUTING_PARALLEL_CONFIDENCE_THRESHOLD:
+    # Scores are too close — consider parallel execution</code></pre>
+
+<p>This is useful for reliability-critical workflows where you want to compare results from both backends and select the one that completes first or produces the best output.</p>
+
+<hr />
+
+<h2 id="predictive-optimization">Predictive Optimization</h2>
+<p>The predictive factor looks forward based on:</p>
+<ul>
+<li><strong>Tool evolution trends</strong> — If a tool's ML improvement proposals suggest it's about to get better, the predictive score increases</li>
+<li><strong>Failure pattern predictions</strong> — If recent executions show an increasing error rate, the predictive score decreases</li>
+<li><strong>Upcoming maintenance</strong> — If the tool's source API has scheduled maintenance windows, the score adjusts</li>
+</ul>
+
+<hr />
+
+<h2 id="forcing-a-backend">Forcing a Backend</h2>
+<p>Override the router for debugging and testing:</p>
+
+<pre><code class="language-bash"># Force MCP
+engram route test "send notification" --force-mcp
+
+# Force CLI
+engram route test "list docker containers" --force-cli</code></pre>
+
+<p>When a backend is forced, the router bypasses scoring and directly selects the specified backend. All other aspects (tool selection, semantic matching) remain unchanged.</p>
+
+<hr />
+
+<h2 id="context-aware-pruning">Context-Aware Pruning</h2>
+<p>The <code class="code-inline">ROUTING_BUDGET_TOKEN_LIMIT</code> (default: 8000) controls the maximum token budget for a single routing decision:</p>
+
+<ol>
+<li>All candidate tools are ranked by composite score</li>
+<li>Each tool's estimated token cost is subtracted from the budget</li>
+<li>Tools that would exceed the budget are pruned from the candidate set</li>
+<li>The remaining top-scoring tool is selected</li>
+</ol>
+
+<p>This prevents expensive tool chains from consuming more tokens than the user's budget allows.</p>
+
+<hr />
+
+<h2 id="cli-commands-routing">CLI Commands</h2>
+
+<h3 id="test-routing">Test Routing</h3>
+
+<pre><code class="language-bash">engram route test "deploy to production"</code></pre>
+
+<p>Shows the optimal routing decision (chosen tool, backend, confidence, latency, cost, reasoning) and an alternatives table.</p>
+
+<h3 id="list-performance-stats">List Performance Stats</h3>
+
+<pre><code class="language-bash">engram route list</code></pre>
+
+<p>Shows all tools with historical performance data aggregated across the rolling window.</p>
+
+<hr />
+
+<h2 id="whats-next-routing">What's Next</h2>
+<ul>
+<li><strong><a href="./09-self-healing-engine.md">Self-Healing Engine</a></strong> — How healed tools feed back into routing</li>
+<li><strong><a href="./14-observability-tracing.md">Observability &amp; Tracing</a></strong> — Trace routing decisions</li>
+<li><strong><a href="./07-configuration.md">Configuration</a></strong> — Tune routing weights for your workload</li>
+</ul>
             </div>
         </main>
 
@@ -4427,6 +4702,7 @@ engram heal now</code></pre>
                 <a href="#learning-path" class="toc-link">Learning Path</a>
                 <a href="#universal-onboarding" class="toc-link">Universal Onboarding</a>
                 <a href="#self-healing-engine" class="toc-link">Self-Healing Engine</a>
+                <a href="#mcp-cli-hybrid-routing" class="toc-link">Hybrid Routing</a>
             </nav>
         </aside>
     </div>
