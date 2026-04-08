@@ -1263,6 +1263,22 @@ body {
     color: #111;
     line-height: 1.15;
     max-width: 520px;
+    opacity: 0; /* Starts hidden before the animation */
+}
+
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-40px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.why-choose-title.is-visible {
+    animation: fadeInDown 0.8s ease-out forwards;
 }
 
 .why-choose-right {
