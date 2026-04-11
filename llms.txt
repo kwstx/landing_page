@@ -1,21 +1,36 @@
 # Engram
 
-Engram is a semantic infrastructure layer designed to connect AI agents to tools, APIs, and CLI utilities through a self-healing, protocol-agnostic bridge.
+**The adaptive semantic interoperability layer for AI agents.**
 
-## Core Capabilities
+Connect anything — any API, any system, any protocol — with one lightweight layer that auto-generates tools, self-heals schema drift, intelligently routes between MCP and CLI, and scales seamlessly from single agents to multi-agent swarms.
 
-- **Semantic Layer for Agents**: Connects any tool or API to AI agents without manual mappings.
-- **Self-Healing Engine**: Automatically reconciles schema drift and protocol mismatches in real-time.
-- **Intelligent Routing**: Dynamically chooses between MCP (Model Context Protocol) and CLI backends based on latency, cost, and reliability.
-- **Unified Identity (EAT)**: Provides every agent, tool, and API with a secure identity and manages semantic permissions.
-- **Protocol Translation**: Normalizes data across varying schemas so agents receive consistent meaning.
+It creates reliable, self-improving tool integrations: register once (or point at any endpoint), and your agents get tools that adapt over time, fix mismatches on the fly, choose the best execution backend (MCP for structure or CLI for speed), and collaborate across protocols without glue code or maintenance hell.
 
-## Target Audience
+## Key Features
+- **Universal onboarding**: Point at any endpoint to generate tools.
+- **Self-healing schemas**: Uses OWL + ML to fix drifts in real-time.
+- **Hybrid MCP + CLI execution**: Balance structure and speed.
+- **Performance-weighted routing**: Intelligent backend selection.
+- **Unified EAT identity**: Single authorization model across systems.
+- **Bidirectional sync**: Reliable event normalization.
+- **Cross-protocol federation**: Supports A2A and ACP protocol handoffs.
+- **Self-evolving tools**: Tools that improve with usage data.
 
-Developers and engineering teams building agentic workflows who need reliable, scalable, and self-evolving tool integrations.
+## What It Does
+Engram solves brittle agent tool integrations that break in production. It sits between agents and tools, translating and routing across protocols while keeping integrations healthy over time:
+
+1. **Translates** between MCP, CLI, A2A, and ACP with multi-hop handoffs when needed.
+2. **Auto-generates** tool schemas and keeps them aligned as APIs drift.
+3. **Chooses the best execution backend** (structured MCP or faster CLI) per task.
+4. **Maintains a unified EAT identity** and permissions model across protocols.
+5. **Syncs and normalizes events** for reliable cross-system collaboration.
+
+## Platform Compatibility
+- Works with any agent framework.
+- No lock-in.
+- Runs lightweight on your laptop, VPS, or in production.
 
 ## Links
-
 - **Main Site**: [https://www.useengram.com/](https://www.useengram.com/)
 - **Documentation**: [https://www.useengram.com/docs.html](https://www.useengram.com/docs.html)
 - **GitHub**: [https://github.com/kwstx/translator_middleware](https://github.com/kwstx/translator_middleware)
