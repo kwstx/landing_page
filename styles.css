@@ -1233,7 +1233,7 @@ body {
 }
 
 /* Why Choose Section */
-.deepfakes-section {
+.why-choose-section {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -1825,7 +1825,7 @@ body {
     .products-showcase-section,
     .how-it-works-section,
     .credentials-section,
-    .deepfakes-section,
+    .why-choose-section,
     .partners-section,
     .get-world-id-section,
     .financial-section,
@@ -1835,7 +1835,7 @@ body {
         padding-bottom: 60px;
     }
 
-    .deepfakes-section {
+    .why-choose-section {
         padding-top: 60px;
         padding-bottom: 40px;
         gap: 40px;
