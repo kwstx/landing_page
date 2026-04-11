@@ -7,17 +7,17 @@ Connect anything — any API, any system, any protocol — with one lightweight 
 It creates reliable, self-improving tool integrations: register once (or point at any endpoint), and your agents get tools that adapt over time, fix mismatches on the fly, choose the best execution backend (MCP for structure or CLI for speed), and collaborate across protocols without glue code or maintenance hell.
 
 ## Key Features
-- **Universal onboarding**: Point at any endpoint to generate tools.
-- **Self-healing schemas**: Uses OWL + ML to fix drifts in real-time.
-- **Hybrid MCP + CLI execution**: Balance structure and speed.
-- **Performance-weighted routing**: Intelligent backend selection.
-- **Unified EAT identity**: Single authorization model across systems.
-- **Bidirectional sync**: Reliable event normalization.
-- **Cross-protocol federation**: Supports A2A and ACP protocol handoffs.
-- **Self-evolving tools**: Tools that improve with usage data.
+- **Universal onboarding**
+- **Self-healing schemas with OWL + ML**
+- **Hybrid MCP + CLI execution**
+- **Performance-weighted routing**
+- **Unified EAT identity**
+- **Bidirectional sync**
+- **Cross-protocol federation (A2A/ACP)**
+- **Self-evolving tools**
 
 ## What It Does
-Engram solves brittle agent tool integrations that break in production. It sits between agents and tools, translating and routing across protocols while keeping integrations healthy over time:
+Semantic Bridge solves brittle agent tool integrations that break in production. It sits between agents and tools, translating and routing across protocols while keeping integrations healthy over time:
 
 1. **Translates** between MCP, CLI, A2A, and ACP with multi-hop handoffs when needed.
 2. **Auto-generates** tool schemas and keeps them aligned as APIs drift.
@@ -25,7 +25,7 @@ Engram solves brittle agent tool integrations that break in production. It sits 
 4. **Maintains a unified EAT identity** and permissions model across protocols.
 5. **Syncs and normalizes events** for reliable cross-system collaboration.
 
-## Platform Compatibility
+## Compatibility
 - Works with any agent framework.
 - No lock-in.
 - Runs lightweight on your laptop, VPS, or in production.
