@@ -1,6 +1,29 @@
-User-agent: Twitterbot
-Allow: /
-
 User-agent: *
 Allow: /
 
+# Specifically allow LLM crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+Sitemap: https://www.useengram.com/sitemap.xml
