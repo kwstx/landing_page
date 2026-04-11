@@ -1548,15 +1548,15 @@ body {
     letter-spacing: -0.5px;
 }
 
-/* Financial Section */
-.financial-section {
+/* Core Description Section */
+.core-desc-section {
     display: flex;
     justify-content: flex-start;
     margin-top: 150px;
     padding-bottom: 150px;
 }
 
-.financial-content {
+.core-desc-content {
     font-size: 44px;
     line-height: 1.15;
     font-weight: 400;
@@ -1565,7 +1565,7 @@ body {
     opacity: 0; /* Starts hidden before the animation */
 }
 
-.financial-content.is-visible {
+.core-desc-content.is-visible {
     animation: fadeInUp 0.8s ease-out forwards;
 }
 
@@ -1893,7 +1893,7 @@ body {
     .how-it-works-content,
     .credentials-content,
     .get-world-id-content,
-    .financial-content,
+    .core-desc-content,
     .why-choose-left,
     .why-choose-right {
         width: 100%;
